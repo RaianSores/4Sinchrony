@@ -66,10 +66,9 @@ const ClassesScreen = ({ navigation }: any) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (classes.length === 0) {
-        fetchClasses();
-      }
-    }, [classes.length, fetchClasses])
+      setFilters({ date: '', type: '' });
+      fetchClasses();
+    }, [fetchClasses, setFilters])
   );
 
   const handleDateChange = (newDate: string) => {
