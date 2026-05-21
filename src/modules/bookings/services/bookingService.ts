@@ -1,4 +1,4 @@
-import { Booking, Bike } from '../../../shared/types';
+import { Booking, Bike, Class } from '../../../shared/types';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -23,10 +23,54 @@ let mockBookings: Booking[] = [
   },
 ];
 
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function isOverlapping(a: { date: string; startTime: string; duration: number }, b: { date: string; startTime: string; duration: number }): boolean {
+  if (a.date !== b.date) return false;
+  const startA = timeToMinutes(a.startTime);
+  const endA = startA + a.duration;
+  const startB = timeToMinutes(b.startTime);
+  const endB = startB + b.duration;
+  return startA < endB && startB < endA;
+}
+
+export interface BookingConflict {
+  type: 'duplicate' | 'time_conflict';
+  existingBooking: Booking;
+  message: string;
+}
+
 export const bookingService = {
   async getMyBookings(): Promise<Booking[]> {
     await delay(400);
     return [...mockBookings];
+  },
+
+  checkConflicts(targetClass: Class, existingBookings: Booking[]): BookingConflict | null {
+    const confirmed = existingBookings.filter(b => b.status === 'confirmed');
+
+    for (const booking of confirmed) {
+      if (booking.class.id === targetClass.id) {
+        return {
+          type: 'duplicate',
+          existingBooking: booking,
+          message: `Você já está inscrito na aula ${targetClass.name} (${targetClass.startTime}).`,
+        };
+      }
+
+      if (isOverlapping(targetClass, booking.class)) {
+        return {
+          type: 'time_conflict',
+          existingBooking: booking,
+          message: `Você já possui aula no mesmo horário: ${booking.class.name} às ${booking.class.startTime}.`,
+        };
+      }
+    }
+
+    return null;
   },
 
   async createBooking(classId: string, bikeNumber?: number): Promise<Booking> {

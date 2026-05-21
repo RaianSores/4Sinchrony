@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useClassStore } from '../store/useClassStore';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
+import { bookingService } from '../../bookings/services/bookingService';
 import { useAppAlert } from '../../../shared/components/AlertModal';
 import Button from '../../../shared/components/Button';
 import Header from '../../../shared/components/Header';
@@ -18,7 +19,7 @@ import { theme } from '../../../shared/theme';
 const ClassDetailScreen = ({ navigation, route }: any) => {
   const { classId } = route.params;
   const { classes } = useClassStore();
-  const { bookClass } = useBookingStore();
+  const { bookings, bookClass, cancelBooking } = useBookingStore();
   const { showAlert } = useAppAlert();
   const classItem = classes.find(c => c.id === classId);
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
@@ -45,6 +46,44 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
       showAlert({ title: 'Selecione uma bike', message: 'Escolha o número da bike antes de reservar' });
       return;
     }
+
+    const conflict = bookingService.checkConflicts(classItem, bookings);
+    if (conflict) {
+      if (conflict.type === 'duplicate') {
+        showAlert({ title: 'Aula já reservada', message: conflict.message });
+        return;
+      }
+
+      showAlert({
+        title: 'Conflito de horário',
+        message: `${conflict.message}\n\nDeseja cancelar a aula existente e reservar esta?`,
+        buttons: [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Cancelar e Reservar',
+            style: 'destructive',
+            onPress: async () => {
+              setLoading(true);
+              try {
+                await cancelBooking(conflict.existingBooking.id);
+                await bookClass(classItem.id, isBikeClass ? selectedBike! : undefined);
+                showAlert({
+                  title: 'Reservado!',
+                  message: `Aula ${classItem.name} reservada com sucesso.`,
+                  buttons: [{ text: 'OK', onPress: () => navigation.goBack() }],
+                });
+              } catch {
+                showAlert({ title: 'Erro', message: 'Não foi possível completar a reserva' });
+              } finally {
+                setLoading(false);
+              }
+            },
+          },
+        ],
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await bookClass(classItem.id, isBikeClass ? selectedBike! : undefined);
