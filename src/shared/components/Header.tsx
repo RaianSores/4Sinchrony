@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComp
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top + theme.spacing.sm }]}>
+    <View style={[styles.header, { paddingTop: insets.top }]}>
       <View style={styles.sideContainer}>
         {showBack && (
           <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
-    paddingBottom: theme.spacing.sm,
+    paddingBottom: 10,
     backgroundColor: theme.colors.white,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
