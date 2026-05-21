@@ -38,13 +38,13 @@ const defaultPreferences: NotificationPreference[] = [
     icon: 'card-outline',
     enabled: true,
   },
-  // {
-  //   id: 'referral',
-  //   title: 'Bring a Friend',
-  //   description: 'Atualizações sobre indicações e créditos',
-  //   icon: 'people-outline',
-  //   enabled: false,
-  // },
+  {
+    id: 'referral',
+    title: 'Bring a Friend',
+    description: 'Atualizações sobre indicações e créditos',
+    icon: 'people-outline',
+    enabled: false,
+  },
 ];
 
 export const notificationService = {

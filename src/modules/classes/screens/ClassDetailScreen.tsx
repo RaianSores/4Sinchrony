@@ -36,14 +36,21 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
     );
   }
 
+  const existingBooking = bookings.find(
+    b => b.class.id === classId && b.status === 'confirmed'
+  );
+  const isAlreadyBooked = !!existingBooking;
+  const effectiveBike = isAlreadyBooked ? (existingBooking?.bikeNumber ?? null) : selectedBike;
+
   const isBikeClass = classItem.type === 'bike';
   const occupancy = Math.round(
     ((classItem.totalSpots - classItem.availableSpots) / classItem.totalSpots) * 100
   );
 
   const handleBook = async () => {
-    if (isBikeClass && !selectedBike) {
-      showAlert({ title: 'Selecione uma bike', message: 'Escolha o número da bike antes de reservar' });
+    if (isAlreadyBooked) return;
+
+    if (isBikeClass && !effectiveBike) {
       return;
     }
 
@@ -66,7 +73,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
               setLoading(true);
               try {
                 await cancelBooking(conflict.existingBooking.id);
-                await bookClass(classItem.id, isBikeClass ? selectedBike! : undefined);
+                await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
                 showAlert({
                   title: 'Reservado!',
                   message: `Aula ${classItem.name} reservada com sucesso.`,
@@ -86,7 +93,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
 
     setLoading(true);
     try {
-      await bookClass(classItem.id, isBikeClass ? selectedBike! : undefined);
+      await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
       showAlert({
         title: 'Reservado!',
         message: `Aula ${classItem.name} reservada com sucesso!`,
@@ -151,14 +158,16 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
           </View>
         </View>
 
-        {isBikeClass && classItem.availableSpots > 0 && (
+        {isBikeClass && (classItem.availableSpots > 0 || isAlreadyBooked) && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Escolha sua Bike</Text>
+            <Text style={styles.sectionTitle}>
+              {isAlreadyBooked ? 'Sua Bike' : 'Escolha sua Bike'}
+            </Text>
             <View style={styles.bikeGrid}>
               {Array.from({ length: classItem.totalSpots }, (_, i) => i + 1).map(
                 num => {
-                  const isOccupied = num > classItem.availableSpots;
-                  const isSelected = selectedBike === num;
+                  const isOccupied = !isAlreadyBooked && num > classItem.availableSpots;
+                  const isSelected = effectiveBike === num;
                   return (
                     <TouchableOpacity
                       key={num}
@@ -167,8 +176,8 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
                         isOccupied && styles.bikeOccupied,
                         isSelected && styles.bikeSelected,
                       ]}
-                      onPress={() => !isOccupied && setSelectedBike(num)}
-                      disabled={isOccupied}
+                      onPress={() => !isAlreadyBooked && !isOccupied && setSelectedBike(num)}
+                      disabled={isAlreadyBooked || isOccupied}
                     >
                       <Ionicons
                         name="calendar"
@@ -199,17 +208,27 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
         )}
 
         <View style={styles.buttonContainer}>
-          {classItem.availableSpots > 0 ? (
+          {isAlreadyBooked && existingBooking ? (
+            <View style={styles.bookedInfo}>
+              <Ionicons name="checkmark-circle" size={24} color={theme.colors.success} />
+              <View>
+                <Text style={styles.bookedTitle}>Você está inscrito</Text>
+                {existingBooking.bikeNumber && (
+                  <Text style={styles.bookedDetail}>Bike {existingBooking.bikeNumber}</Text>
+                )}
+              </View>
+            </View>
+          ) : classItem.availableSpots > 0 ? (
             <Button
               title={
                 loading
                   ? 'Reservando...'
-                  : isBikeClass && !selectedBike
+                  : isBikeClass && !effectiveBike
                   ? 'Selecione uma bike'
                   : 'Reservar Aula'
               }
               onPress={handleBook}
-              disabled={loading || (isBikeClass && !selectedBike)}
+              disabled={loading || (isBikeClass && !effectiveBike)}
             />
           ) : (
             <View style={styles.soldOut}>
@@ -306,6 +325,19 @@ const styles = StyleSheet.create({
   bikeNumberOccupied: { color: theme.colors.textSecondary },
   bikeNumberSelected: { color: theme.colors.black },
   buttonContainer: { paddingHorizontal: 16, marginTop: 8 },
+  bookedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.success,
+    gap: 12,
+  },
+  bookedTitle: { fontSize: 17, fontWeight: '600', color: theme.colors.success },
+  bookedDetail: { fontSize: 14, color: theme.colors.textSecondary, marginTop: 2 },
   soldOut: {
     flexDirection: 'row',
     justifyContent: 'center',
