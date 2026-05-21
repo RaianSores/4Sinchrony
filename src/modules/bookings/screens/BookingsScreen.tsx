@@ -66,7 +66,7 @@ const BookingsScreen = ({ navigation }: any) => {
                 <View style={styles.cardHeader}>
                   <View style={styles.cardLeft}>
                     <View style={styles.avatar}>
-                      <Ionicons name="calendar-check-outline" size={24} color={theme.colors.primary} />
+                      <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} />
                     </View>
                     <View>
                       <Text style={styles.className}>{b.class.name}</Text>
@@ -115,7 +115,7 @@ const BookingsScreen = ({ navigation }: any) => {
           </>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="calendar-check-outline" size={80} color={theme.colors.border} />
+            <Ionicons name="calendar-outline" size={80} color={theme.colors.border} />
             <Text style={styles.emptyTitle}>Nenhuma reserva ativa</Text>
             <Text style={styles.emptySubtitle}>
               Suas reservas agendadas aparecerão aqui

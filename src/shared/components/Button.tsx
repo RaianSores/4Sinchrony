@@ -47,10 +47,10 @@ const styles = StyleSheet.create({
     marginVertical: theme.spacing.xs,
   },
   primary: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.grayLight,
   },
   secondary: {
-    backgroundColor: theme.colors.gray,
+    backgroundColor: theme.colors.grayLight,
   },
   outline: {
     borderWidth: 1.5,

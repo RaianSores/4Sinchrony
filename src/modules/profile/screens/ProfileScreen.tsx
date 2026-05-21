@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   menuText: { flex: 1, marginLeft: 16, fontSize: 17, color: theme.colors.text, fontWeight: '500' },
   menuRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   badge: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.success,
     borderRadius: 10,
     minWidth: 22,
     height: 22,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 6,
   },
-  badgeText: { color: theme.colors.black, fontSize: 12, fontWeight: '700' },
+  badgeText: { color: theme.colors.white, fontSize: 12, fontWeight: '700' },
 });
 
 export default ProfileScreen;

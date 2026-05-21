@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     alignItems: 'center',
   },
-  chipActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+  chipActive: { backgroundColor: theme.colors.grayLight, borderColor: theme.colors.primary },
   chipText: { color: theme.colors.textSecondary, fontSize: 14, fontWeight: '500' },
   chipTextActive: { color: theme.colors.black },
   chipSub: { color: theme.colors.textSecondary, fontSize: 11 },
