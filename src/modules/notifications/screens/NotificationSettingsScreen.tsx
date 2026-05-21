@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Switch, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../shared/components/Header';
 import { theme } from '../../../shared/theme';
