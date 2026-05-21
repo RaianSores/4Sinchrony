@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
+import { useFocusEffect } from '@react-navigation/native';
 import { useClassStore } from '../store/useClassStore';
 import Header from '../../../shared/components/Header';
 import ClassCard from '../../../shared/components/ClassCard';
@@ -62,6 +63,14 @@ const ClassesScreen = ({ navigation }: any) => {
   useEffect(() => {
     fetchClasses();
   }, [filters.date, filters.type, fetchClasses]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (classes.length === 0) {
+        fetchClasses();
+      }
+    }, [classes.length, fetchClasses])
+  );
 
   const handleDateChange = (newDate: string) => {
     setFilters({ date: newDate });
