@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../shared/components/Header';
@@ -36,10 +37,10 @@ const ProfileScreen = ({ navigation }: any) => {
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
 
-          <View style={styles.creditsContainer}>
+          {/* <View style={styles.creditsContainer}>
             <Text style={styles.creditsLabel}>Créditos disponíveis</Text>
             <Text style={styles.creditsValue}>{user?.credits || 0}</Text>
-          </View>
+          </View> */}
         </TouchableOpacity>
 
         <View style={styles.menu}>

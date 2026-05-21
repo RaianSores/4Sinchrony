@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePackageStore } from '../store/usePackageStore';
-import { useAuthStore } from '../../auth/store/useAuthStore';
 import Header from '../../../shared/components/Header';
 import { ClassPackage } from '../../../shared/types';
 import { theme } from '../../../shared/theme';
 
 const PackagesScreen = ({ navigation }: any) => {
   const { packages, isLoading, fetchPackages, addToCart, cart } = usePackageStore();
-  const { user } = useAuthStore();
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
   useEffect(() => {
@@ -40,12 +39,12 @@ const PackagesScreen = ({ navigation }: any) => {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.creditsBanner}>
+        {/* <View style={styles.creditsBanner}>
           <Ionicons name="wallet-outline" size={28} color={theme.colors.primary} />
           <Text style={styles.creditsText}>
             {user?.credits || 0} créditos disponíveis
           </Text>
-        </View>
+        </View> */}
 
         <Text style={styles.sectionTitle}>Escolha seu plano</Text>
 
