@@ -71,8 +71,8 @@ export const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarActiveTintColor: theme.colors.black,
+        tabBarInactiveTintColor: theme.colors.gray,
         tabBarStyle: {
           backgroundColor: theme.colors.white,
           borderTopWidth: 1,
