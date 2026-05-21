@@ -5,8 +5,8 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useAppAlert } from '../../../shared/components/AlertModal';
 import Header from '../../../shared/components/Header';
