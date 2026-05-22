@@ -29,7 +29,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Velocity" />
+      <Header title="Wellness" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.greeting}>

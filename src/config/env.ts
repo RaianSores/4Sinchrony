@@ -1,0 +1,6 @@
+export const env = {
+  GOOGLE_WEB_CLIENT_ID: '',
+  GOOGLE_IOS_CLIENT_ID: '',
+  GOOGLE_ANDROID_CLIENT_ID: '',
+  API_URL: 'http://10.0.2.2:3333',
+};

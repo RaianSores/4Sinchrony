@@ -9,22 +9,23 @@ interface HeaderProps {
   showBack?: boolean;
   onBackPress?: () => void;
   rightComponent?: React.ReactNode;
+  transparent?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComponent }) => {
+const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComponent, transparent }) => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top }]}>
+    <View style={[styles.header, { paddingTop: insets.top + 8 }, transparent && styles.transparent]}>
       <View style={styles.sideContainer}>
         {showBack && (
           <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color={theme.colors.black} />
+            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
           </TouchableOpacity>
         )}
       </View>
 
-      <Text style={styles.title}>{title}</Text>
+      {title ? <Text style={styles.title}>{title}</Text> : <View style={styles.spacer} />}
 
       <View style={styles.sideContainer}>
         {rightComponent}
@@ -38,10 +39,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
-    paddingBottom: 10,
+    paddingBottom: 12,
     backgroundColor: theme.colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+  },
+  transparent: {
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0,
   },
   sideContainer: {
     width: 40,
@@ -52,11 +55,14 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '600',
     color: theme.colors.text,
     flex: 1,
     textAlign: 'center',
+  },
+  spacer: {
+    flex: 1,
   },
 });
 

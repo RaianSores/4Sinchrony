@@ -1,39 +1,55 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import { theme } from '../theme';
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'dark';
   style?: ViewStyle;
   disabled?: boolean;
+  loading?: boolean;
+  size?: 'md' | 'lg';
 }
 
-const Button: React.FC<ButtonProps> = ({ title, onPress, variant = 'primary', style, disabled }) => {
+const Button: React.FC<ButtonProps> = ({
+  title, onPress, variant = 'primary', style, disabled, loading, size = 'lg',
+}) => {
   return (
     <TouchableOpacity
       style={[
         styles.base,
+        size === 'md' && styles.medium,
         variant === 'primary' && styles.primary,
         variant === 'secondary' && styles.secondary,
         variant === 'outline' && styles.outline,
+        variant === 'dark' && styles.dark,
         disabled && styles.disabled,
         style,
       ]}
       onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.8}
+      disabled={disabled || loading}
+      activeOpacity={0.85}
     >
-      <Text
-        style={[
-          styles.text,
-          variant === 'outline' && styles.textOutline,
-          disabled && styles.textDisabled,
-        ]}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator
+          color={variant === 'outline' ? theme.colors.primaryDark : theme.colors.white}
+          size="small"
+        />
+      ) : (
+        <Text
+          style={[
+            styles.text,
+            size === 'md' && styles.textMedium,
+            variant === 'outline' && styles.textOutline,
+            variant === 'secondary' && styles.textSecondary,
+            variant === 'dark' && styles.textDark,
+            disabled && styles.textDisabled,
+          ]}
+        >
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -46,27 +62,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: theme.spacing.xs,
   },
+  medium: {
+    height: 48,
+  },
   primary: {
-    backgroundColor: theme.colors.grayLight,
+    backgroundColor: theme.colors.card,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   secondary: {
-    backgroundColor: theme.colors.grayLight,
+    backgroundColor: 'transparent',
   },
   outline: {
     borderWidth: 1.5,
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.primaryDark,
     backgroundColor: 'transparent',
   },
+  dark: {
+    backgroundColor: theme.colors.primaryDark,
+    ...theme.shadow.md,
+  },
   disabled: {
-    backgroundColor: theme.colors.grayLight,
+    opacity: 0.5,
   },
   text: {
     fontSize: 17,
     fontWeight: '600',
-    color: theme.colors.black,
+    color: theme.colors.text,
+  },
+  textMedium: {
+    fontSize: 15,
+  },
+  textSecondary: {
+    color: theme.colors.textSecondary,
   },
   textOutline: {
-    color: theme.colors.primary,
+    color: theme.colors.primaryDark,
+  },
+  textDark: {
+    color: theme.colors.white,
   },
   textDisabled: {
     color: theme.colors.gray,
