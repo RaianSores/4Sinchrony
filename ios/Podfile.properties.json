@@ -1,0 +1,6 @@
+{
+  "ios.useFrameworks": "static",
+  "ios.newArchEnabled": "true",
+  "ios.hermesEnabled": "true",
+  "ios.flipper": "false"
+}
