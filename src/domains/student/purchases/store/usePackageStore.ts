@@ -34,8 +34,12 @@ export const usePackageStore = create<PackageState>()(
 
       fetchPackages: async () => {
         set({ isLoading: true });
-        const packages = await packageService.getPackages();
-        set({ packages, isLoading: false });
+        try {
+          const packages = await packageService.getPackages();
+          set({ packages, isLoading: false });
+        } catch {
+          set({ isLoading: false });
+        }
       },
 
       addToCart: (pkg) =>

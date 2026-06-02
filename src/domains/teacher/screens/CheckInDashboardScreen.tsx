@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../../core/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { borderRadius, shadow } from '../../../shared/theme';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 
 const CheckInDashboardScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classes, fetchMyClasses, isLoading: classesLoading } = useTeacherClassStore();
   const { fetchAttendance } = useAttendanceStore();
 
@@ -31,7 +34,7 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="checkbox-outline" size={48} color={theme.colors.grayLight} />
+            <Ionicons name="checkbox-outline" size={48} color={colors.grayLight} />
             <Text style={styles.emptyText}>Nenhuma aula disponível</Text>
           </View>
         ) : (
@@ -45,7 +48,6 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
                 <Text style={styles.classTimeText}>{cls.startTime}</Text>
                 <Text style={styles.classDuration}>{cls.duration}min</Text>
               </View>
-
               <View style={styles.classInfo}>
                 <Text style={styles.className}>{cls.name}</Text>
                 <Text style={styles.classStudio}>{cls.studio.name}</Text>
@@ -53,8 +55,7 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
                   {cls.totalSpots - cls.availableSpots}/{cls.totalSpots} alunos
                 </Text>
               </View>
-
-              <Ionicons name="chevron-forward" size={20} color={theme.colors.grayLight} />
+              <Ionicons name="chevron-forward" size={20} color={colors.grayLight} />
             </TouchableOpacity>
           ))
         )}
@@ -63,39 +64,39 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: theme.colors.text },
-  subtitle: { fontSize: 15, color: theme.colors.textSecondary, marginTop: 2 },
+  title: { fontSize: 28, fontWeight: '700', color: colors.text },
+  subtitle: { fontSize: 15, color: colors.textSecondary, marginTop: 2 },
   scrollContent: { padding: 16, paddingBottom: 40 },
-  loadingText: { textAlign: 'center', color: theme.colors.textSecondary, marginTop: 40 },
+  loadingText: { textAlign: 'center', color: colors.textSecondary, marginTop: 40 },
   emptyState: { alignItems: 'center', marginTop: 60, gap: 8 },
-  emptyText: { fontSize: 16, color: theme.colors.grayLight },
+  emptyText: { fontSize: 16, color: colors.grayLight },
   classCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadow.sm,
+    borderColor: colors.border,
+    ...shadow.sm,
   },
   classTime: {
     alignItems: 'center',
     paddingRight: 16,
     borderRightWidth: 1,
-    borderRightColor: theme.colors.border,
+    borderRightColor: colors.border,
     minWidth: 55,
   },
-  classTimeText: { fontSize: 16, fontWeight: '700', color: theme.colors.text },
-  classDuration: { fontSize: 11, color: theme.colors.textSecondary, marginTop: 2 },
+  classTimeText: { fontSize: 16, fontWeight: '700', color: colors.text },
+  classDuration: { fontSize: 11, color: colors.textSecondary, marginTop: 2 },
   classInfo: { flex: 1, paddingLeft: 16, gap: 3 },
-  className: { fontSize: 16, fontWeight: '600', color: theme.colors.text },
-  classStudio: { fontSize: 13, color: theme.colors.textSecondary },
-  classOccupancy: { fontSize: 12, color: theme.colors.primaryDark, fontWeight: '500' },
+  className: { fontSize: 16, fontWeight: '600', color: colors.text },
+  classStudio: { fontSize: 13, color: colors.textSecondary },
+  classOccupancy: { fontSize: 12, color: colors.primaryDark, fontWeight: '500' },
 });
 
 export default CheckInDashboardScreen;

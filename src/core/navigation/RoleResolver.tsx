@@ -1,21 +1,17 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { useAuthStore } from '../auth/store/useAuthStore';
+import { useTheme } from '../../shared/theme/useTheme';
 import { StudentNavigator } from './student/StudentNavigator';
 import { TeacherNavigator } from './teacher/TeacherNavigator';
 import { AdminNavigator } from './admin/AdminNavigator';
-import { theme } from '../theme';
 
 import LoginScreen from '../auth/screens/LoginScreen';
 import RegisterScreen from '../auth/screens/RegisterScreen';
 import ForgotPasswordScreen from '../auth/screens/ForgotPasswordScreen';
-
-let DevLoginScreen: React.ComponentType<any> | null = null;
-if (__DEV__) {
-  DevLoginScreen = require('../auth/screens/DevLoginScreen').default;
-}
+import DevLoginScreen from '../auth/screens/DevLoginScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,54 +20,48 @@ const AuthNavigator = () => (
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-    {__DEV__ && DevLoginScreen && (
-      <Stack.Screen name="DevLogin" component={DevLoginScreen} />
-    )}
+    <Stack.Screen name="DevLogin" component={DevLoginScreen} />
   </Stack.Navigator>
-);
-
-const SplashScreen = () => (
-  <View style={styles.splash}>
-    <ActivityIndicator size="large" color={theme.colors.primary} />
-  </View>
 );
 
 export const RoleResolver = () => {
   const { isAuthenticated, isLoading, activeRole } = useAuthStore();
+  const { colors } = useTheme();
+
+  const navTheme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      primary:      colors.primary,
+      background:   colors.background,
+      card:         colors.card,
+      text:         colors.text,
+      border:       colors.border,
+      notification: colors.primary,
+    },
+  };
 
   if (isLoading) {
-    return <SplashScreen />;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   const renderNavigator = () => {
-    if (!isAuthenticated) {
-      return <AuthNavigator />;
-    }
-
+    if (!isAuthenticated) return <AuthNavigator />;
     switch (activeRole) {
-      case 'student':
-        return <StudentNavigator />;
-      case 'teacher':
-        return <TeacherNavigator />;
-      case 'admin':
-        return <AdminNavigator />;
-      default:
-        return <AuthNavigator />;
+      case 'student': return <StudentNavigator />;
+      case 'teacher': return <TeacherNavigator />;
+      case 'admin':   return <AdminNavigator />;
+      default:        return <AuthNavigator />;
     }
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       {renderNavigator()}
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  splash: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.background,
-  },
-});

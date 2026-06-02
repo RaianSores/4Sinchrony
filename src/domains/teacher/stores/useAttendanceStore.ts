@@ -25,11 +25,15 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
 
   fetchAttendance: async (classId) => {
     set({ isLoading: true });
-    const records = await attendanceService.getAttendanceByClass(classId);
-    const totalCount = records.length;
-    const attendedCount = records.filter(r => r.status === 'attended').length;
-    const noShowCount = records.filter(r => r.status === 'no_show').length;
-    set({ records, isLoading: false, totalCount, attendedCount, noShowCount });
+    try {
+      const records = await attendanceService.getAttendanceByClass(classId);
+      const totalCount = records.length;
+      const attendedCount = records.filter(r => r.status === 'attended').length;
+      const noShowCount = records.filter(r => r.status === 'no_show').length;
+      set({ records, isLoading: false, totalCount, attendedCount, noShowCount });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   markAttendance: async (classId, update) => {
@@ -56,13 +60,17 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
 
   confirmAll: async (classId) => {
     set({ isLoading: true });
-    const records = await attendanceService.confirmAll(classId);
-    set({
-      records,
-      isLoading: false,
-      attendedCount: records.length,
-      noShowCount: 0,
-    });
+    try {
+      const records = await attendanceService.confirmAll(classId);
+      set({
+        records,
+        isLoading: false,
+        attendedCount: records.length,
+        noShowCount: 0,
+      });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   updateStatus: async (classId, studentId, status) => {

@@ -1,8 +1,10 @@
 import axios from 'axios';
+import { API_URL } from '@env';
 import { tokenStorage } from '../storage';
+import { useAuthStore } from '../auth/store/useAuthStore';
 
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:3333',
+  baseURL: API_URL || 'http://10.0.2.2:3333',
   timeout: 10000,
 });
 
@@ -18,7 +20,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      tokenStorage.clear();
+      useAuthStore.getState().logout();
     }
     return Promise.reject(error);
   },

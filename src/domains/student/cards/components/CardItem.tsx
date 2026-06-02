@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CardInfo } from '../../../../shared/types';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 import CardFlagIcon from './CardFlagIcon';
 
 interface CardItemProps {
@@ -12,6 +13,9 @@ interface CardItemProps {
 }
 
 const CardItem: React.FC<CardItemProps> = ({ card, onSetDefault, onRemove }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
+
   return (
     <View style={styles.cardItem}>
       <CardFlagIcon brand={card.brand} />
@@ -37,82 +41,45 @@ const CardItem: React.FC<CardItemProps> = ({ card, onSetDefault, onRemove }) => 
 
       <View style={styles.cardActions}>
         {!card.isDefault && (
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => onSetDefault(card.id)}
-          >
-            <Ionicons name="star-outline" size={20} color={theme.colors.primary} />
+          <TouchableOpacity style={styles.actionBtn} onPress={() => onSetDefault(card.id)}>
+            <Ionicons name="star-outline" size={20} color={colors.primary} />
           </TouchableOpacity>
         )}
-
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={() => onRemove(card.id)}
-        >
-          <Ionicons name="trash-outline" size={20} color={theme.colors.danger} />
+        <TouchableOpacity style={styles.actionBtn} onPress={() => onRemove(card.id)}>
+          <Ionicons name="trash-outline" size={20} color={colors.danger} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const mkStyles = (colors: any) => StyleSheet.create({
   cardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginVertical: 4,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   cardInfo: { flex: 1 },
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
-  cardBrand: { fontSize: 17, fontWeight: '600', color: theme.colors.text },
-  cardDigits: {
-    fontSize: 15,
-    color: theme.colors.text,
-    fontWeight: '500',
-    marginTop: 2,
-    letterSpacing: 1,
-  },
-  cardDetail: {
-    fontSize: 13,
-    color: theme.colors.textSecondary,
-    marginTop: 1,
-  },
-  cardNickname: {
-    fontSize: 12,
-    color: theme.colors.primary,
-    fontStyle: 'italic',
-    marginTop: 4,
-  },
+  cardTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  cardBrand: { fontSize: 17, fontWeight: '600', color: colors.text },
+  cardDigits: { fontSize: 15, color: colors.text, fontWeight: '500', marginTop: 2, letterSpacing: 1 },
+  cardDetail: { fontSize: 13, color: colors.textSecondary, marginTop: 1 },
+  cardNickname: { fontSize: 12, color: colors.primary, fontStyle: 'italic', marginTop: 4 },
   defaultBadge: {
-    backgroundColor: theme.colors.success + '20',
-    borderRadius: theme.borderRadius.sm,
+    backgroundColor: colors.success + '20',
+    borderRadius: borderRadius.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  defaultText: {
-    color: theme.colors.success,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  cardActions: {
-    gap: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionBtn: {
-    padding: 6,
-  },
+  defaultText: { color: colors.success, fontSize: 11, fontWeight: '600' },
+  cardActions: { gap: 12, justifyContent: 'center', alignItems: 'center' },
+  actionBtn: { padding: 6 },
 });
 
 export default CardItem;

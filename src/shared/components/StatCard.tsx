@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { theme } from '../theme';
+import { View, Text } from 'react-native';
+import { useTheme } from '../theme/useTheme';
+import { borderRadius, spacing } from '../theme';
 
 interface StatCardProps {
   title: string;
@@ -9,57 +10,37 @@ interface StatCardProps {
   icon?: React.ReactNode;
 }
 
-const StatCard: React.FC<StatCardProps> = ({
-  title,
-  value,
-  subtitle,
-  icon,
-}) => {
-  return (
-    <View style={styles.card}>
-      {icon && <View style={styles.iconContainer}>{icon}</View>}
+const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon }) => {
+  const { colors } = useTheme();
 
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.card,
+        borderRadius: borderRadius.lg,
+        paddingVertical: spacing.lg,
+        paddingHorizontal: spacing.xs,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.border,
+      }}
+    >
+      {icon && <View style={{ marginBottom: spacing.xs }}>{icon}</View>}
+
+      <Text style={{ fontSize: 24, fontWeight: '800', color: colors.primary, marginBottom: 4 }}>
+        {value}
+      </Text>
+      <Text style={{ fontSize: 12, color: colors.textSecondary, textAlign: 'center', letterSpacing: 0.3 }}>
+        {title}
+      </Text>
+      {subtitle && (
+        <Text style={{ fontSize: 11, color: colors.text, marginTop: 6, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          {subtitle}
+        </Text>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.xs,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  iconContainer: {
-    marginBottom: theme.spacing.xs,
-  },
-  value: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: theme.colors.text,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-  subtitle: {
-    fontSize: 11,
-    color: theme.colors.text,
-    marginTop: 6,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-});
 
 export default StatCard;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
-import { theme } from '../theme';
+import { TouchableOpacity, Text, ViewStyle, ActivityIndicator } from 'react-native';
+import { useTheme } from '../theme/useTheme';
+import { borderRadius, spacing } from '../theme';
 
 interface ButtonProps {
   title: string;
@@ -15,16 +16,44 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({
   title, onPress, variant = 'primary', style, disabled, loading, size = 'lg',
 }) => {
+  const { colors } = useTheme();
+
+  const height = size === 'md' ? 48 : 56;
+  const fontSize = size === 'md' ? 15 : 17;
+
+  const bgColor = {
+    primary:   colors.primary,
+    secondary: 'transparent',
+    outline:   'transparent',
+    dark:      colors.navy,
+  }[variant];
+
+  const textColor = {
+    primary:   colors.black,       // #0A0519 sobre laranja — identidade da marca
+    secondary: colors.textSecondary,
+    outline:   colors.primary,
+    dark:      colors.white,
+  }[variant];
+
+  const borderStyle = variant === 'outline'
+    ? { borderWidth: 1.5, borderColor: colors.primary }
+    : variant === 'secondary'
+    ? { borderWidth: 1, borderColor: colors.border }
+    : undefined;
+
   return (
     <TouchableOpacity
       style={[
-        styles.base,
-        size === 'md' && styles.medium,
-        variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
-        variant === 'outline' && styles.outline,
-        variant === 'dark' && styles.dark,
-        disabled && styles.disabled,
+        {
+          height,
+          borderRadius: borderRadius.lg,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginVertical: spacing.xs,
+          backgroundColor: bgColor,
+          opacity: disabled ? 0.5 : 1,
+        },
+        borderStyle,
         style,
       ]}
       onPress={onPress}
@@ -32,79 +61,14 @@ const Button: React.FC<ButtonProps> = ({
       activeOpacity={0.85}
     >
       {loading ? (
-        <ActivityIndicator
-          color={variant === 'outline' ? theme.colors.primaryDark : theme.colors.white}
-          size="small"
-        />
+        <ActivityIndicator color={variant === 'outline' ? colors.primary : colors.white} size="small" />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            size === 'md' && styles.textMedium,
-            variant === 'outline' && styles.textOutline,
-            variant === 'secondary' && styles.textSecondary,
-            variant === 'dark' && styles.textDark,
-            disabled && styles.textDisabled,
-          ]}
-        >
+        <Text style={{ fontSize, fontWeight: '600', color: textColor }}>
           {title}
         </Text>
       )}
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    height: 56,
-    borderRadius: theme.borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: theme.spacing.xs,
-  },
-  medium: {
-    height: 48,
-  },
-  primary: {
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-  },
-  outline: {
-    borderWidth: 1.5,
-    borderColor: theme.colors.primaryDark,
-    backgroundColor: 'transparent',
-  },
-  dark: {
-    backgroundColor: theme.colors.primaryDark,
-    ...theme.shadow.md,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  text: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: theme.colors.text,
-  },
-  textMedium: {
-    fontSize: 15,
-  },
-  textSecondary: {
-    color: theme.colors.textSecondary,
-  },
-  textOutline: {
-    color: theme.colors.primaryDark,
-  },
-  textDark: {
-    color: theme.colors.white,
-  },
-  textDisabled: {
-    color: theme.colors.gray,
-  },
-});
 
 export default Button;

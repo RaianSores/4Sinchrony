@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,10 +9,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
-import { theme } from '../../../shared/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { borderRadius } from '../../../shared/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const DevLoginScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const [loading, setLoading] = useState<'student' | 'teacher' | 'admin' | null>(null);
   const login = useAuthStore(state => state.login);
 
@@ -33,7 +36,7 @@ const DevLoginScreen = ({ navigation }: any) => {
   };
 
   const roles = [
-    { key: 'student' as const, label: 'Aluno', icon: 'person-outline', color: theme.colors.primary },
+    { key: 'student' as const, label: 'Aluno', icon: 'person-outline', color: colors.primary },
     { key: 'teacher' as const, label: 'Professor', icon: 'school-outline', color: '#8B5CF6' },
     { key: 'admin' as const, label: 'Admin', icon: 'shield-checkmark-outline', color: '#EF4444' },
   ];
@@ -42,7 +45,7 @@ const DevLoginScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Dev Login</Text>
         <View style={styles.backButton} />
@@ -79,7 +82,7 @@ const DevLoginScreen = ({ navigation }: any) => {
             {loading === key ? (
               <ActivityIndicator size="small" color={color} />
             ) : (
-              <Ionicons name="chevron-forward" size={20} color={theme.colors.gray} />
+              <Ionicons name="chevron-forward" size={20} color={colors.gray} />
             )}
           </TouchableOpacity>
         ))}
@@ -88,8 +91,8 @@ const DevLoginScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -98,41 +101,35 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
+  title: { fontSize: 18, fontWeight: '700', color: colors.text },
   content: { flex: 1, paddingHorizontal: 24, paddingTop: 24 },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F59E0B' + '15',
+    backgroundColor: '#F59E0B15',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: borderRadius.full,
     alignSelf: 'flex-start',
     marginBottom: 12,
     gap: 6,
   },
   badgeText: { fontSize: 13, fontWeight: '600', color: '#92400E' },
-  subtitle: { fontSize: 15, color: theme.colors.textSecondary, marginBottom: 32, lineHeight: 22 },
+  subtitle: { fontSize: 15, color: colors.textSecondary, marginBottom: 32, lineHeight: 22 },
   roleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     marginBottom: 12,
     borderWidth: 1.5,
     gap: 14,
   },
-  roleIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  roleIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
   roleInfo: { flex: 1 },
-  roleLabel: { fontSize: 16, fontWeight: '600', color: theme.colors.text },
-  roleDescription: { fontSize: 13, color: theme.colors.textSecondary, marginTop: 2 },
+  roleLabel: { fontSize: 16, fontWeight: '600', color: colors.text },
+  roleDescription: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
 });
 
 export default DevLoginScreen;

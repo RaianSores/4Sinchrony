@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../theme';
+import { useTheme } from '../../../shared/theme/useTheme';
 
 import HomeScreen from '../../../domains/student/home/screens/HomeScreen';
 import ClassesScreen from '../../../domains/student/classes/screens/ClassesScreen';
@@ -71,15 +71,17 @@ const ProfileStackScreen = () => (
 );
 
 export const StudentNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.black,
-        tabBarInactiveTintColor: theme.colors.gray,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.gray,
         tabBarStyle: {
-          backgroundColor: theme.colors.white,
+          backgroundColor: colors.card,
           borderTopWidth: 1,
-          borderTopColor: theme.colors.border,
+          borderTopColor: colors.border,
           height: 83,
           paddingBottom: 28,
         },
@@ -93,6 +95,12 @@ export const StudentNavigator = () => {
       <Tab.Screen
         name="HomeTab"
         component={HomeStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('HomeTab', { screen: 'Home' });
+          },
+        })}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
@@ -104,6 +112,12 @@ export const StudentNavigator = () => {
       <Tab.Screen
         name="AgendaTab"
         component={AgendaStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('AgendaTab', { screen: 'Agenda' });
+          },
+        })}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar" size={size} color={color} />
@@ -115,6 +129,12 @@ export const StudentNavigator = () => {
       <Tab.Screen
         name="BookingsTab"
         component={BookingsStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('BookingsTab', { screen: 'Bookings' });
+          },
+        })}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="receipt" size={size} color={color} />
@@ -126,6 +146,12 @@ export const StudentNavigator = () => {
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('ProfileTab', { screen: 'Profile' });
+          },
+        })}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />

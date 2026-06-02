@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../../core/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { borderRadius } from '../../../shared/theme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 import type { AttendanceStatus } from '../../../core/types/attendance';
 
 const StudentListScreen = ({ route, navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classId } = route.params;
   const { records, isLoading, fetchAttendance } = useAttendanceStore();
 
@@ -16,9 +19,9 @@ const StudentListScreen = ({ route, navigation }: any) => {
 
   const getStatusColor = (status: AttendanceStatus) => {
     switch (status) {
-      case 'attended': return theme.colors.success;
-      case 'no_show': return theme.colors.danger;
-      default: return theme.colors.grayLight;
+      case 'attended': return colors.success;
+      case 'no_show': return colors.danger;
+      default: return colors.grayLight;
     }
   };
 
@@ -31,7 +34,7 @@ const StudentListScreen = ({ route, navigation }: any) => {
       })}
     >
       <View style={styles.studentAvatar}>
-        <Ionicons name="person" size={22} color={theme.colors.primary} />
+        <Ionicons name="person" size={22} color={colors.primary} />
       </View>
       <View style={styles.studentInfo}>
         <Text style={styles.studentName}>{item.studentName}</Text>
@@ -50,7 +53,7 @@ const StudentListScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Alunos</Text>
         <TouchableOpacity>
@@ -64,13 +67,13 @@ const StudentListScreen = ({ route, navigation }: any) => {
           <Text style={styles.statLabel}>Total</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={[styles.statValue, { color: theme.colors.success }]}>
+          <Text style={[styles.statValue, { color: colors.success }]}>
             {records.filter(r => r.status === 'attended').length}
           </Text>
           <Text style={styles.statLabel}>Presentes</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={[styles.statValue, { color: theme.colors.danger }]}>
+          <Text style={[styles.statValue, { color: colors.danger }]}>
             {records.filter(r => r.status === 'no_show').length}
           </Text>
           <Text style={styles.statLabel}>Ausentes</Text>
@@ -93,8 +96,8 @@ const StudentListScreen = ({ route, navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -102,56 +105,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  title: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
-  confirmAll: { fontSize: 14, fontWeight: '600', color: theme.colors.primaryDark },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
+  title: { fontSize: 18, fontWeight: '700', color: colors.text },
+  confirmAll: { fontSize: 14, fontWeight: '600', color: colors.primaryDark },
+  statsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginBottom: 16 },
   statBox: {
     flex: 1,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 12,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  statValue: { fontSize: 22, fontWeight: '700', color: theme.colors.text },
-  statLabel: { fontSize: 11, color: theme.colors.textSecondary, marginTop: 2 },
+  statValue: { fontSize: 22, fontWeight: '700', color: colors.text },
+  statLabel: { fontSize: 11, color: colors.textSecondary, marginTop: 2 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: theme.colors.textSecondary },
+  loadingText: { fontSize: 16, color: colors.textSecondary },
   listContent: { paddingHorizontal: 16, paddingBottom: 40 },
   studentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 14,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: borderRadius.md,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     gap: 12,
   },
   studentAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   studentInfo: { flex: 1 },
-  studentName: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
-  studentEmail: { fontSize: 12, color: theme.colors.textSecondary, marginTop: 1 },
+  studentName: { fontSize: 15, fontWeight: '600', color: colors.text },
+  studentEmail: { fontSize: 12, color: colors.textSecondary, marginTop: 1 },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: theme.borderRadius.full,
+    borderRadius: borderRadius.full,
     gap: 6,
   },
   statusDot: { width: 8, height: 8, borderRadius: 4 },

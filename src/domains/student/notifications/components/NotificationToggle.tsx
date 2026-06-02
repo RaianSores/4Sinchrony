@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Switch } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 import { NotificationPreference } from '../../../../shared/types';
 
 interface NotificationToggleProps {
@@ -10,10 +11,13 @@ interface NotificationToggleProps {
 }
 
 const NotificationToggle: React.FC<NotificationToggleProps> = ({ preference, onToggle }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
+
   return (
     <View style={styles.row}>
       <View style={styles.iconWrap}>
-        <Ionicons name={preference.icon} size={22} color={theme.colors.primary} />
+        <Ionicons name={preference.icon} size={22} color={colors.primary} />
       </View>
 
       <View style={styles.textWrap}>
@@ -24,37 +28,37 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({ preference, onT
       <Switch
         value={preference.enabled}
         onValueChange={() => onToggle(preference.id)}
-        trackColor={{ false: theme.colors.grayLight, true: theme.colors.primary }}
-        thumbColor={theme.colors.white}
+        trackColor={{ false: colors.grayLight, true: colors.primary }}
+        thumbColor={colors.white}
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const mkStyles = (colors: any) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.lg,
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 4,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   iconWrap: {
     width: 40,
     height: 40,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.background,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   textWrap: { flex: 1, marginRight: 12 },
-  title: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
-  description: { fontSize: 12, color: theme.colors.textSecondary, marginTop: 2, lineHeight: 16 },
+  title: { fontSize: 15, fontWeight: '600', color: colors.text },
+  description: { fontSize: 12, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
 });
 
 export default NotificationToggle;

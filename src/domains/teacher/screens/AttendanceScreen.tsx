@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../../core/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { borderRadius } from '../../../shared/theme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 import type { AttendanceStatus } from '../../../core/types/attendance';
 
 const AttendanceScreen = ({ route, navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classId } = route.params;
   const { records, isLoading, fetchAttendance, updateStatus } = useAttendanceStore();
 
@@ -26,24 +29,20 @@ const AttendanceScreen = ({ route, navigation }: any) => {
   const getStatusStyle = (status: AttendanceStatus) => {
     switch (status) {
       case 'attended':
-        return { bg: theme.colors.success + '20', text: theme.colors.success, label: 'Presente' };
+        return { bg: colors.success + '20', text: colors.success, label: 'Presente' };
       case 'no_show':
-        return { bg: theme.colors.danger + '20', text: theme.colors.danger, label: 'Ausente' };
+        return { bg: colors.danger + '20', text: colors.danger, label: 'Ausente' };
       default:
-        return { bg: theme.colors.grayLight + '40', text: theme.colors.textSecondary, label: 'Pendente' };
+        return { bg: colors.grayLight + '40', text: colors.textSecondary, label: 'Pendente' };
     }
   };
 
   const renderItem = ({ item }: any) => {
     const style = getStatusStyle(item.status);
-
     return (
-      <TouchableOpacity
-        style={styles.row}
-        onPress={() => cycleStatus(item.studentId, item.status)}
-      >
+      <TouchableOpacity style={styles.row} onPress={() => cycleStatus(item.studentId, item.status)}>
         <View style={styles.avatar}>
-          <Ionicons name="person" size={18} color={theme.colors.primary} />
+          <Ionicons name="person" size={18} color={colors.primary} />
         </View>
         <View style={styles.info}>
           <Text style={styles.name}>{item.studentName}</Text>
@@ -63,7 +62,7 @@ const AttendanceScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Registro de Presença</Text>
         <View style={{ width: 24 }} />
@@ -89,8 +88,8 @@ const AttendanceScreen = ({ route, navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -98,50 +97,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  title: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
-  legend: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  legendText: { fontSize: 12, color: theme.colors.textSecondary, fontStyle: 'italic' },
+  title: { fontSize: 18, fontWeight: '700', color: colors.text },
+  legend: { paddingHorizontal: 16, paddingBottom: 12 },
+  legendText: { fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: theme.colors.textSecondary },
+  loadingText: { fontSize: 16, color: colors.textSecondary },
   listContent: { paddingHorizontal: 16, paddingBottom: 40 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 12,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: borderRadius.md,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     gap: 10,
   },
   avatar: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   info: { flex: 1 },
-  name: { fontSize: 14, fontWeight: '600', color: theme.colors.text },
-  email: { fontSize: 11, color: theme.colors.textSecondary, marginTop: 1 },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.full,
-  },
+  name: { fontSize: 14, fontWeight: '600', color: colors.text },
+  email: { fontSize: 11, color: colors.textSecondary, marginTop: 1 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.full },
   badgeText: { fontSize: 11, fontWeight: '600' },
-  toggleArea: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  toggleArea: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
 });
 
 export default AttendanceScreen;

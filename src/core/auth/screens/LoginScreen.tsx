@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,18 @@ import { authService } from '../services/authService';
 import Button from '../../../shared/components/Button';
 import GoogleSignInButton from '../../../shared/components/GoogleSignInButton';
 import { useAppAlert } from '../../../shared/components/AlertModal';
-import { theme } from '../../../shared/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { spacing, borderRadius, shadow } from '../../../shared/theme';
 import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SCALE_BASE = 375;
 
 const LoginScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const scale = SCREEN_WIDTH / SCALE_BASE;
+  const styles = useMemo(() => mkStyles(colors), [colors]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,7 +92,7 @@ const LoginScreen = ({ navigation }: any) => {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={[styles.topSection, { paddingTop: Math.min(SCREEN_HEIGHT * 0.12, 120) }]}>
           <View style={[styles.iconCircle, { width: ms(64), height: ms(64), borderRadius: ms(32) }]}>
-            <Ionicons name="fitness" size={ms(32)} color={theme.colors.primaryDark} />
+            <Ionicons name="fitness" size={ms(32)} color={colors.primaryDark} />
           </View>
           <Text style={[styles.title, { fontSize: ms(28) }]}>4Sinchrony Experience</Text>
           <Text style={[styles.tagline, { fontSize: ms(15) }]}>Transforme seu corpo, eleve sua mente</Text>
@@ -103,7 +106,7 @@ const LoginScreen = ({ navigation }: any) => {
             <Text style={[styles.formSubtitle, { fontSize: ms(15) }]}>Faca login para continuar</Text>
 
             <View style={[styles.inputWrapper, { height: ms(52) }]}>
-              <Ionicons name="mail-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="mail-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(16) }]}
                 placeholder="Email"
@@ -111,22 +114,22 @@ const LoginScreen = ({ navigation }: any) => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
             </View>
 
             <View style={[styles.inputWrapper, { height: ms(52) }]}>
-              <Ionicons name="lock-closed-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(16) }]}
                 placeholder="Senha"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={theme.colors.gray} />
+                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
               </TouchableOpacity>
             </View>
 
@@ -161,15 +164,13 @@ const LoginScreen = ({ navigation }: any) => {
               onPress={() => navigation.navigate('Register')}
             />
 
-            {__DEV__ && (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('DevLogin')}
-                style={styles.devButton}
-              >
-                <Ionicons name="flask" size={14} color={theme.colors.gray} />
-                <Text style={styles.devButtonText}>Dev Login</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DevLogin')}
+              style={styles.devButton}
+            >
+              <Ionicons name="flask" size={14} color={colors.gray} />
+              <Text style={styles.devButtonText}>Dev Login</Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       </Animated.View>
@@ -177,61 +178,45 @@ const LoginScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-  },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { flex: 1 },
   topSection: {
     alignItems: 'center',
     paddingBottom: 24,
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   iconCircle: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    ...theme.shadow.md,
+    ...shadow.md,
   },
-  title: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.5,
-  },
-  tagline: {
-    color: theme.colors.textSecondary,
-    marginTop: 4,
-  },
+  title: { fontWeight: '700', color: colors.text, letterSpacing: 0.5 },
+  tagline: { color: colors.textSecondary, marginTop: 4 },
   bottomSheet: {
     flex: 1,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingHorizontal: theme.spacing.xl,
+    paddingHorizontal: spacing.xl,
     paddingTop: 4,
-    paddingBottom: theme.spacing.lg,
-    ...theme.shadow.lg,
+    paddingBottom: spacing.lg,
+    ...shadow.lg,
   },
   handleBar: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.grayLight,
+    backgroundColor: colors.grayLight,
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 20,
   },
-  formTitle: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
+  formTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
   formSubtitle: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: 24,
@@ -239,46 +224,21 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.inputBg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     marginBottom: 14,
     paddingHorizontal: 14,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    color: theme.colors.text,
-    height: '100%',
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  forgotButton: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  forgotPassword: {
-    color: theme.colors.primaryDark,
-    fontWeight: '600',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: theme.colors.border,
-  },
-  dividerText: {
-    marginHorizontal: 14,
-    color: theme.colors.textSecondary,
-  },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, color: colors.text, height: '100%' },
+  eyeIcon: { padding: 4 },
+  forgotButton: { alignItems: 'center', marginTop: 16 },
+  forgotPassword: { color: colors.primaryDark, fontWeight: '600' },
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { marginHorizontal: 14, color: colors.textSecondary },
   devButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,10 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     gap: 6,
   },
-  devButtonText: {
-    fontSize: 13,
-    color: theme.colors.gray,
-  },
+  devButtonText: { fontSize: 13, color: colors.gray },
 });
 
 export default LoginScreen;

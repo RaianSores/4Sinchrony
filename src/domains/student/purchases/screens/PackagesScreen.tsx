@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePackageStore } from '../store/usePackageStore';
 import Header from '../../../../shared/components/Header';
 import { ClassPackage } from '../../../../shared/types';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 
 const PackagesScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { packages, isLoading, fetchPackages, addToCart, cart } = usePackageStore();
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -29,7 +32,7 @@ const PackagesScreen = ({ navigation }: any) => {
         rightComponent={
           cartCount > 0 ? (
             <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.cartBadge}>
-              <Ionicons name="cart" size={22} color={theme.colors.primary} />
+              <Ionicons name="cart" size={22} color={colors.primary} />
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{cartCount}</Text>
               </View>
@@ -39,13 +42,6 @@ const PackagesScreen = ({ navigation }: any) => {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* <View style={styles.creditsBanner}>
-          <Ionicons name="wallet-outline" size={28} color={theme.colors.primary} />
-          <Text style={styles.creditsText}>
-            {user?.credits || 0} créditos disponíveis
-          </Text>
-        </View> */}
-
         <Text style={styles.sectionTitle}>Escolha seu plano</Text>
 
         {isLoading ? (
@@ -77,7 +73,7 @@ const PackagesScreen = ({ navigation }: any) => {
                 <Text style={styles.pkgValidity}>
                   Válido por {pkg.validityDays} dias
                 </Text>
-                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
               </View>
             </TouchableOpacity>
           ))
@@ -87,75 +83,63 @@ const PackagesScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 40 },
-  creditsBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    margin: 16,
-    padding: 16,
-    borderRadius: theme.borderRadius.lg,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  creditsText: { color: theme.colors.text, fontSize: 16, fontWeight: '600' },
   cartBadge: { position: 'relative', padding: 4 },
   badge: {
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: theme.colors.danger,
+    backgroundColor: colors.danger,
     borderRadius: 10,
     width: 18,
     height: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  badgeText: { color: theme.colors.white, fontSize: 10, fontWeight: '700' },
+  badgeText: { color: colors.white, fontSize: 10, fontWeight: '700' },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: theme.colors.text,
+    color: colors.text,
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  loadingText: { color: theme.colors.textSecondary, textAlign: 'center', marginTop: 40 },
+  loadingText: { color: colors.textSecondary, textAlign: 'center', marginTop: 40 },
   pkgCard: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.xl,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.xl,
     marginHorizontal: 16,
     marginVertical: 6,
     padding: 20,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    shadowColor: theme.colors.black,
+    borderColor: colors.border,
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 3,
   },
   pkgCardPopular: {
-    borderColor: theme.colors.primary,
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   popularBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: borderRadius.sm,
     marginBottom: 12,
   },
-  popularText: { color: theme.colors.black, fontSize: 11, fontWeight: '700' },
+  popularText: { color: colors.black, fontSize: 11, fontWeight: '700' },
   pkgHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  pkgName: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
-  pkgPrice: { fontSize: 22, fontWeight: '700', color: theme.colors.primary },
+  pkgName: { fontSize: 18, fontWeight: '700', color: colors.text },
+  pkgPrice: { fontSize: 22, fontWeight: '700', color: colors.primary },
   pkgDetails: { marginTop: 8, flexDirection: 'row', gap: 16 },
-  pkgCredits: { fontSize: 14, color: theme.colors.textSecondary },
-  pkgPerCredit: { fontSize: 14, color: theme.colors.success },
+  pkgCredits: { fontSize: 14, color: colors.textSecondary },
+  pkgPerCredit: { fontSize: 14, color: colors.success },
   pkgFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -163,9 +147,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    borderTopColor: colors.border,
   },
-  pkgValidity: { fontSize: 13, color: theme.colors.textSecondary },
+  pkgValidity: { fontSize: 13, color: colors.textSecondary },
 });
 
 export default PackagesScreen;

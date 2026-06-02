@@ -24,8 +24,12 @@ export const useCardStore = create<CardState>()(
 
       fetchCards: async () => {
         set({ isLoading: true });
-        const cards = await cardService.getCards();
-        set({ cards, isLoading: false });
+        try {
+          const cards = await cardService.getCards();
+          set({ cards, isLoading: false });
+        } catch {
+          set({ isLoading: false });
+        }
       },
 
       addCard: async (data) => {

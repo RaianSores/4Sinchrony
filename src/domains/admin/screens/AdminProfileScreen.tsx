@@ -7,7 +7,7 @@ import { useAppAlert } from '../../../shared/components/AlertModal';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { borderRadius } from '../../../shared/theme';
 
-const TeacherProfileScreen = ({ navigation }: any) => {
+const AdminProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { user, logout } = useAuthStore();
@@ -26,8 +26,6 @@ const TeacherProfileScreen = ({ navigation }: any) => {
 
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
-    { title: 'Minhas Especialidades', icon: 'ribbon-outline', screen: 'Specialties' },
-    { title: 'Disponibilidade', icon: 'time-outline', screen: 'Availability' },
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 
@@ -42,11 +40,11 @@ const TeacherProfileScreen = ({ navigation }: any) => {
           <View style={styles.avatar}>
             <Ionicons name="person" size={60} color={colors.primary} />
           </View>
-          <Text style={styles.name}>{user?.name || 'Professor'}</Text>
+          <Text style={styles.name}>{user?.name || 'Administrador'}</Text>
           <Text style={styles.email}>{user?.email || ''}</Text>
           <View style={styles.roleBadge}>
-            <Ionicons name="school" size={14} color={colors.primaryDark} />
-            <Text style={styles.roleText}>Professor</Text>
+            <Ionicons name="shield-checkmark" size={14} color={colors.primaryDark} />
+            <Text style={styles.roleText}>Administrador</Text>
           </View>
         </View>
 
@@ -133,4 +131,4 @@ const mkStyles = (colors: any) => StyleSheet.create({
   logoutText: { color: colors.danger, fontSize: 17, fontWeight: '600' },
 });
 
-export default TeacherProfileScreen;
+export default AdminProfileScreen;

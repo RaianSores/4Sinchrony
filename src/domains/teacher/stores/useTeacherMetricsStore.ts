@@ -18,8 +18,12 @@ export const useTeacherMetricsStore = create<MetricsState>((set) => ({
 
   fetchMetrics: async () => {
     set({ isLoading: true });
-    const metrics = await teacherMetricsService.getMetrics();
-    set({ metrics, isLoading: false });
+    try {
+      const metrics = await teacherMetricsService.getMetrics();
+      set({ metrics, isLoading: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   setPeriod: (period) => set({ period }),

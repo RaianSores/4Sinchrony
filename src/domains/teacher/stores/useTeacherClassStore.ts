@@ -26,32 +26,52 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
 
   fetchMyClasses: async (date) => {
     set({ isLoading: true });
-    const classes = await teacherClassService.getMyClasses(date);
-    set({ classes, isLoading: false });
+    try {
+      const classes = await teacherClassService.getMyClasses(date);
+      set({ classes, isLoading: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   fetchClassById: async (id) => {
     set({ isLoading: true });
-    const cls = await teacherClassService.getClassById(id);
-    set({ selectedClass: cls ?? null, isLoading: false });
+    try {
+      const cls = await teacherClassService.getClassById(id);
+      set({ selectedClass: cls ?? null, isLoading: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   startClass: async (classId) => {
     set({ sessionLoading: true });
-    const session = await teacherClassService.startClass(classId);
-    set({ currentSession: session, sessionLoading: false });
+    try {
+      const session = await teacherClassService.startClass(classId);
+      set({ currentSession: session, sessionLoading: false });
+    } catch {
+      set({ sessionLoading: false });
+    }
   },
 
   endClass: async (classId) => {
     set({ sessionLoading: true });
-    const session = await teacherClassService.endClass(classId);
-    set({ currentSession: session, sessionLoading: false });
+    try {
+      const session = await teacherClassService.endClass(classId);
+      set({ currentSession: session, sessionLoading: false });
+    } catch {
+      set({ sessionLoading: false });
+    }
   },
 
   getCurrentSession: async (classId) => {
     set({ sessionLoading: true });
-    const session = await teacherClassService.getCurrentSession(classId);
-    set({ currentSession: session, sessionLoading: false });
+    try {
+      const session = await teacherClassService.getCurrentSession(classId);
+      set({ currentSession: session, sessionLoading: false });
+    } catch {
+      set({ sessionLoading: false });
+    }
   },
 
   selectClass: (cls) => set({ selectedClass: cls }),

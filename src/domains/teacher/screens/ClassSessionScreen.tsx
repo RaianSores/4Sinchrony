@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../../core/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { borderRadius } from '../../../shared/theme';
 import { useTeacherSessionStore } from '../stores/useTeacherSessionStore';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 
 const ClassSessionScreen = ({ route, navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classId } = route.params;
   const { currentSession, isActive, isLoading, startSession, endSession } = useTeacherSessionStore();
   const { records, fetchAttendance, attendedCount, totalCount } = useAttendanceStore();
@@ -31,26 +34,17 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleStart = async () => {
-    await startSession(classId);
-  };
-
-  const handleEnd = async () => {
-    await endSession(classId);
-    navigation.goBack();
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Sessão da Aula</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {currentSession && (
           <View style={styles.sessionInfo}>
             <Text style={styles.sessionName}>{currentSession.className}</Text>
@@ -86,60 +80,57 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
           {records.map((record) => (
             <View key={record.id} style={styles.studentRow}>
               <View style={styles.studentAvatar}>
-                <Ionicons name="person" size={20} color={theme.colors.primary} />
+                <Ionicons name="person" size={20} color={colors.primary} />
               </View>
               <Text style={styles.studentName}>{record.studentName}</Text>
               <View style={[
                 styles.statusIndicator,
-                { backgroundColor: record.status === 'attended' ? theme.colors.success : theme.colors.grayLight },
+                { backgroundColor: record.status === 'attended' ? colors.success : colors.grayLight },
               ]} />
             </View>
           ))}
         </View>
+      </ScrollView>
 
-        <View style={styles.actions}>
-          {!isActive ? (
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: theme.colors.success }]}
-              onPress={handleStart}
-              disabled={isLoading}
-            >
-              <Ionicons name="play" size={20} color={theme.colors.white} />
-              <Text style={styles.actionButtonText}>
-                {isLoading ? 'Iniciando...' : 'Iniciar Aula'}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: theme.colors.danger }]}
-              onPress={handleEnd}
-              disabled={isLoading}
-            >
-              <Ionicons name="stop" size={20} color={theme.colors.white} />
-              <Text style={styles.actionButtonText}>
-                {isLoading ? 'Encerrando...' : 'Encerrar Aula'}
-              </Text>
-            </TouchableOpacity>
-          )}
-
+      <View style={styles.actions}>
+        {!isActive ? (
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: theme.colors.primaryDark }]}
-            onPress={() => navigation.navigate('CheckInTab', {
-              screen: 'CheckInSession',
-              params: { classId },
-            })}
+            style={[styles.actionButton, { backgroundColor: colors.success }]}
+            onPress={() => startSession(classId)}
+            disabled={isLoading}
           >
-            <Ionicons name="checkbox" size={20} color={theme.colors.white} />
-            <Text style={styles.actionButtonText}>Gerenciar Presença</Text>
+            <Ionicons name="play" size={20} color={colors.white} />
+            <Text style={styles.actionButtonText}>
+              {isLoading ? 'Iniciando...' : 'Iniciar Aula'}
+            </Text>
           </TouchableOpacity>
-        </View>
+        ) : (
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: colors.danger }]}
+            onPress={async () => { await endSession(classId); navigation.goBack(); }}
+            disabled={isLoading}
+          >
+            <Ionicons name="stop" size={20} color={colors.white} />
+            <Text style={styles.actionButtonText}>
+              {isLoading ? 'Encerrando...' : 'Encerrar Aula'}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.primaryDark }]}
+          onPress={() => navigation.navigate('CheckInTab', { screen: 'CheckInSession', params: { classId } })}
+        >
+          <Ionicons name="checkbox" size={20} color={colors.white} />
+          <Text style={styles.actionButtonText}>Gerenciar Presença</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -147,64 +138,68 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  title: { fontSize: 18, fontWeight: '700', color: theme.colors.text },
-  content: { flex: 1, padding: 16 },
+  title: { fontSize: 18, fontWeight: '700', color: colors.text },
+  scroll: { flex: 1 },
+  content: { padding: 16, paddingBottom: 8 },
   sessionInfo: { alignItems: 'center', marginBottom: 24 },
-  sessionName: { fontSize: 24, fontWeight: '700', color: theme.colors.text, textAlign: 'center' },
-  sessionStudio: { fontSize: 16, color: theme.colors.textSecondary, marginTop: 4 },
-  sessionInstructor: { fontSize: 14, color: theme.colors.textSecondary, marginTop: 2 },
+  sessionName: { fontSize: 24, fontWeight: '700', color: colors.text, textAlign: 'center' },
+  sessionStudio: { fontSize: 16, color: colors.textSecondary, marginTop: 4 },
+  sessionInstructor: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
   timerContainer: { alignItems: 'center', marginBottom: 24 },
-  timerLabel: { fontSize: 14, color: theme.colors.textSecondary },
-  timer: { fontSize: 48, fontWeight: '700', color: theme.colors.text, marginTop: 4 },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
-  },
+  timerLabel: { fontSize: 14, color: colors.textSecondary },
+  timer: { fontSize: 48, fontWeight: '700', color: colors.text, marginTop: 4 },
+  statsRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
   statBox: {
     flex: 1,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  statValue: { fontSize: 28, fontWeight: '700', color: theme.colors.text },
-  statLabel: { fontSize: 12, color: theme.colors.textSecondary, marginTop: 2 },
-  studentList: { flex: 1, marginBottom: 16 },
-  listTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.text, marginBottom: 12 },
+  statValue: { fontSize: 28, fontWeight: '700', color: colors.text },
+  statLabel: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  studentList: { marginBottom: 8 },
+  listTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
   studentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     padding: 14,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: borderRadius.md,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     gap: 12,
   },
   studentAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: theme.colors.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  studentName: { flex: 1, fontSize: 15, fontWeight: '500', color: theme.colors.text },
+  studentName: { flex: 1, fontSize: 15, fontWeight: '500', color: colors.text },
   statusIndicator: { width: 12, height: 12, borderRadius: 6 },
-  actions: { gap: 12 },
+  actions: {
+    gap: 12,
+    padding: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+  },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     gap: 8,
   },
-  actionButtonText: { color: theme.colors.white, fontWeight: '600', fontSize: 16 },
+  actionButtonText: { color: colors.white, fontWeight: '600', fontSize: 16 },
 });
 
 export default ClassSessionScreen;

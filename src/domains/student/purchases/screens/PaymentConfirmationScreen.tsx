@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Button from '../../../../shared/components/Button';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 
 const PaymentConfirmationScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { result, purchase, method, amount } = route.params;
   const success = result?.success;
 
@@ -15,7 +18,7 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
         {success ? (
           <>
             <View style={styles.iconCircle}>
-              <Ionicons name="checkmark-circle" size={80} color={theme.colors.success} />
+              <Ionicons name="checkmark-circle" size={80} color={colors.success} />
             </View>
             <Text style={styles.title}>Pagamento Confirmado!</Text>
             <Text style={styles.subtitle}>
@@ -60,7 +63,7 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
         ) : (
           <>
             <View style={styles.iconCircle}>
-              <Ionicons name="close-circle" size={80} color={theme.colors.danger} />
+              <Ionicons name="close-circle" size={80} color={colors.danger} />
             </View>
             <Text style={styles.title}>Pagamento não confirmado</Text>
             <Text style={styles.subtitle}>
@@ -85,20 +88,20 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { flex: 1, justifyContent: 'center', padding: 24 },
   iconCircle: { alignItems: 'center', marginBottom: 16 },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: theme.colors.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 22,
@@ -106,31 +109,31 @@ const styles = StyleSheet.create({
   pixSection: { alignItems: 'center', marginBottom: 24 },
   qrCode: { width: 200, height: 200, marginBottom: 16 },
   pixCodeBox: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
     padding: 12,
     width: '100%',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  pixCodeLabel: { color: theme.colors.textSecondary, fontSize: 12, marginBottom: 4 },
-  pixCode: { color: theme.colors.text, fontSize: 12, fontFamily: 'monospace' },
+  pixCodeLabel: { color: colors.textSecondary, fontSize: 12, marginBottom: 4 },
+  pixCode: { color: colors.text, fontSize: 12, fontFamily: 'monospace' },
   detailsCard: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.lg,
     padding: 16,
     marginBottom: 32,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  detailLabel: { color: theme.colors.textSecondary, fontSize: 14 },
-  detailValue: { color: theme.colors.text, fontSize: 14, fontWeight: '600' },
-  buttons: { gap: 8, },
+  detailLabel: { color: colors.textSecondary, fontSize: 14 },
+  detailValue: { color: colors.text, fontSize: 14, fontWeight: '600' },
+  buttons: { gap: 8 },
 });
 
 export default PaymentConfirmationScreen;

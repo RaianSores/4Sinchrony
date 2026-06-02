@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,9 +14,12 @@ import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 
 const PaymentScreen = ({ navigation, route }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { amount } = route.params;
   const { cart, coupon, clearCart, addPurchase } = usePackageStore();
   const { user, updateUser } = useAuthStore();
@@ -78,9 +81,9 @@ const PaymentScreen = ({ navigation, route }: any) => {
             <Ionicons
               name={method === 'pix' ? 'radio-button-on' : 'radio-button-off'}
               size={24}
-              color={method === 'pix' ? theme.colors.primary : theme.colors.border}
+              color={method === 'pix' ? colors.primary : colors.border}
             />
-            <Ionicons name="qr-code-outline" size={32} color={theme.colors.text} style={{ marginLeft: 12 }} />
+            <Ionicons name="qr-code-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.methodName}>PIX</Text>
               <Text style={styles.methodDesc}>Pagamento instantâneo</Text>
@@ -96,9 +99,9 @@ const PaymentScreen = ({ navigation, route }: any) => {
             <Ionicons
               name={method === 'card' ? 'radio-button-on' : 'radio-button-off'}
               size={24}
-              color={method === 'card' ? theme.colors.primary : theme.colors.border}
+              color={method === 'card' ? colors.primary : colors.border}
             />
-            <Ionicons name="card-outline" size={32} color={theme.colors.text} style={{ marginLeft: 12 }} />
+            <Ionicons name="card-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.methodName}>Cartão de Crédito</Text>
               <Text style={styles.methodDesc}>Pagamento em até 12x</Text>
@@ -116,8 +119,8 @@ const PaymentScreen = ({ navigation, route }: any) => {
           ))}
           {coupon && (
             <View style={styles.summaryRow}>
-              <Text style={[styles.summaryLabel, { color: theme.colors.success }]}>Cupom {coupon.code}</Text>
-              <Text style={[styles.summaryValue, { color: theme.colors.success }]}>
+              <Text style={[styles.summaryLabel, { color: colors.success }]}>Cupom {coupon.code}</Text>
+              <Text style={[styles.summaryValue, { color: colors.success }]}>
                 -{coupon.discountType === 'percentage' ? `${coupon.discount}%` : `R$ ${coupon.discount.toFixed(2)}`}
               </Text>
             </View>
@@ -140,29 +143,29 @@ const PaymentScreen = ({ navigation, route }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 40 },
   amountCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     margin: 16,
-    borderRadius: theme.borderRadius.xl,
+    borderRadius: borderRadius.xl,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    shadowColor: theme.colors.black,
+    borderColor: colors.border,
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
     elevation: 3,
   },
-  amountLabel: { color: theme.colors.textSecondary, fontSize: 15 },
-  amountValue: { color: theme.colors.primary, fontSize: 42, fontWeight: '700', marginTop: 8 },
+  amountLabel: { color: colors.textSecondary, fontSize: 15 },
+  amountValue: { color: colors.primary, fontSize: 42, fontWeight: '700', marginTop: 8 },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: theme.colors.text,
+    color: colors.text,
     paddingHorizontal: 20,
     marginBottom: 12,
   },
@@ -170,37 +173,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginVertical: 4,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  methodCardActive: { borderColor: theme.colors.primary },
+  methodCardActive: { borderColor: colors.primary },
   methodLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  methodName: { color: theme.colors.text, fontSize: 17, fontWeight: '600' },
-  methodDesc: { color: theme.colors.textSecondary, fontSize: 13, marginTop: 2 },
+  methodName: { color: colors.text, fontSize: 17, fontWeight: '600' },
+  methodDesc: { color: colors.textSecondary, fontSize: 13, marginTop: 2 },
   summaryCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     margin: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  summaryTitle: { color: theme.colors.text, fontSize: 17, fontWeight: '700', marginBottom: 12 },
+  summaryTitle: { color: colors.text, fontSize: 17, fontWeight: '700', marginBottom: 12 },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  summaryLabel: { color: theme.colors.textSecondary, fontSize: 14 },
-  summaryValue: { color: theme.colors.text, fontSize: 14 },
-  summaryTotal: { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: 12, marginTop: 4 },
-  summaryTotalLabel: { color: theme.colors.text, fontSize: 16, fontWeight: '700' },
-  summaryTotalValue: { color: theme.colors.primary, fontSize: 18, fontWeight: '700' },
+  summaryLabel: { color: colors.textSecondary, fontSize: 14 },
+  summaryValue: { color: colors.text, fontSize: 14 },
+  summaryTotal: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12, marginTop: 4 },
+  summaryTotalLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  summaryTotalValue: { color: colors.primary, fontSize: 18, fontWeight: '700' },
 });
 
 export default PaymentScreen;

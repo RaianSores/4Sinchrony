@@ -27,12 +27,16 @@ export const useClassStore = create<ClassState>((set, get) => ({
   fetchClasses: async () => {
     set({ isLoading: true });
     const { filters } = get();
-    const classes = await classService.getClasses({
-      date: filters.date,
-      type: filters.type || undefined,
-      studioId: filters.studioId,
-    });
-    set({ classes, isLoading: false });
+    try {
+      const classes = await classService.getClasses({
+        date: filters.date,
+        type: filters.type || undefined,
+        studioId: filters.studioId,
+      });
+      set({ classes, isLoading: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   setFilters: (newFilters) =>

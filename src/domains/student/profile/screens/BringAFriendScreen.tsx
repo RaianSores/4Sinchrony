@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import { ReferralInfo } from '../../../../shared/types';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 
 const mockReferral: ReferralInfo = {
   code: 'STUDIO10',
@@ -22,6 +23,8 @@ const mockReferral: ReferralInfo = {
 };
 
 const BringAFriendScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { showAlert } = useAppAlert();
   const [referral] = useState<ReferralInfo>(mockReferral);
 
@@ -50,7 +53,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.heroSection}>
-          <Ionicons name="people" size={64} color={theme.colors.primary} />
+          <Ionicons name="people" size={64} color={colors.primary} />
           <Text style={styles.heroTitle}>Traga um Amigo</Text>
           <Text style={styles.heroSubtitle}>
             Indique seus amigos e ganhe créditos gratuitos para suas aulas!
@@ -73,7 +76,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
           <Text style={styles.codeLabel}>Seu código de indicação</Text>
           <TouchableOpacity style={styles.codeBox} onPress={handleCopy}>
             <Text style={styles.codeText}>{referral.code}</Text>
-            <Ionicons name="copy-outline" size={22} color={theme.colors.primary} />
+            <Ionicons name="copy-outline" size={22} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -86,7 +89,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
           ].map((item, i) => (
             <View key={i} style={styles.stepRow}>
               <View style={styles.stepIcon}>
-                <Ionicons name={item.icon} size={24} color={theme.colors.primary} />
+                <Ionicons name={item.icon} size={24} color={colors.primary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.stepTitle}>{item.step}</Text>
@@ -97,7 +100,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
         </View>
 
         <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-          <Ionicons name="share-outline" size={22} color={theme.colors.black} />
+          <Ionicons name="share-outline" size={22} color={colors.black} />
           <Text style={styles.shareText}>Compartilhar Código</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -105,75 +108,75 @@ const BringAFriendScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 40 },
   heroSection: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 20 },
-  heroTitle: { fontSize: 28, fontWeight: '700', color: theme.colors.text, marginTop: 16 },
-  heroSubtitle: { fontSize: 16, color: theme.colors.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 22 },
+  heroTitle: { fontSize: 28, fontWeight: '700', color: colors.text, marginTop: 16 },
+  heroSubtitle: { fontSize: 16, color: colors.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 22 },
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 20,
     justifyContent: 'space-around',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   statBox: { alignItems: 'center', flex: 1 },
-  statDivider: { width: 1, backgroundColor: theme.colors.border },
-  statValue: { fontSize: 32, fontWeight: '700', color: theme.colors.primary },
-  statLabel: { fontSize: 13, color: theme.colors.textSecondary, marginTop: 4 },
+  statDivider: { width: 1, backgroundColor: colors.border },
+  statValue: { fontSize: 32, fontWeight: '700', color: colors.primary },
+  statLabel: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
   codeSection: { paddingHorizontal: 16, marginBottom: 20 },
-  codeLabel: { color: theme.colors.textSecondary, fontSize: 14, marginBottom: 8 },
+  codeLabel: { color: colors.textSecondary, fontSize: 14, marginBottom: 8 },
   codeBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.lg,
     padding: 18,
     borderWidth: 1,
-    borderColor: theme.colors.primary,
+    borderColor: colors.primary,
     borderStyle: 'dashed',
   },
-  codeText: { color: theme.colors.primary, fontSize: 22, fontWeight: '700', letterSpacing: 2 },
+  codeText: { color: colors.primary, fontSize: 22, fontWeight: '700', letterSpacing: 2 },
   howItWorks: { paddingHorizontal: 16, marginBottom: 24 },
-  howTitle: { color: theme.colors.text, fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  howTitle: { color: colors.text, fontSize: 18, fontWeight: '700', marginBottom: 16 },
   stepRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
     padding: 14,
     marginBottom: 8,
     gap: 14,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   stepIcon: {
     width: 44,
     height: 44,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.background,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stepTitle: { color: theme.colors.text, fontSize: 15, fontWeight: '600' },
-  stepDesc: { color: theme.colors.textSecondary, fontSize: 13, marginTop: 2 },
+  stepTitle: { color: colors.text, fontSize: 15, fontWeight: '600' },
+  stepDesc: { color: colors.textSecondary, fontSize: 13, marginTop: 2 },
   shareButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     marginHorizontal: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 18,
     gap: 8,
   },
-  shareText: { color: theme.colors.black, fontSize: 18, fontWeight: '700' },
+  shareText: { color: colors.black, fontSize: 18, fontWeight: '700' },
 });
 
 export default BringAFriendScreen;

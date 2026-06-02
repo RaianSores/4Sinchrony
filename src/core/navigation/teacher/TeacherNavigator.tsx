@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../../theme';
+import { useTheme } from '../../../shared/theme/useTheme';
 
 import TeacherDashboardScreen from '../../../domains/teacher/screens/DashboardScreen';
 import TeacherMetricsScreen from '../../../domains/teacher/screens/MetricsScreen';
@@ -50,15 +50,17 @@ const ProfileStackScreen = () => (
 );
 
 export const TeacherNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.black,
-        tabBarInactiveTintColor: theme.colors.gray,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.gray,
         tabBarStyle: {
-          backgroundColor: theme.colors.white,
+          backgroundColor: colors.card,
           borderTopWidth: 1,
-          borderTopColor: theme.colors.border,
+          borderTopColor: colors.border,
           height: 83,
           paddingBottom: 28,
         },
@@ -72,43 +74,44 @@ export const TeacherNavigator = () => {
       <Tab.Screen
         name="DashboardTab"
         component={DashboardStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('DashboardTab', { screen: 'Dashboard' }); },
+        })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
           tabBarLabel: 'Dashboard',
         }}
       />
-
       <Tab.Screen
         name="ClassesTab"
         component={ClassesStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('ClassesTab', { screen: 'MyClasses' }); },
+        })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />,
           tabBarLabel: 'Aulas',
         }}
       />
-
       <Tab.Screen
         name="CheckInTab"
         component={CheckInStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('CheckInTab', { screen: 'CheckInDashboard' }); },
+        })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkbox" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="checkbox" size={size} color={color} />,
           tabBarLabel: 'Check-in',
         }}
       />
-
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('ProfileTab', { screen: 'TeacherProfile' }); },
+        })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
           tabBarLabel: 'Perfil',
         }}
       />

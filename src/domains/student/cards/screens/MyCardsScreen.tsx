@@ -1,15 +1,17 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
 import { useCardStore } from '../store/useCardStore';
 import CardItem from '../components/CardItem';
 
 const MyCardsScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { cards, isLoading, fetchCards, removeCard, confirmRemoveCard, setDefaultCard } = useCardStore();
   const { showAlert } = useAppAlert();
 
@@ -48,10 +50,7 @@ const MyCardsScreen = ({ navigation }: any) => {
         message: 'Este cartão será usado como principal para futuras compras.',
         buttons: [
           { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Confirmar',
-            onPress: () => setDefaultCard(id),
-          },
+          { text: 'Confirmar', onPress: () => setDefaultCard(id) },
         ],
       });
     },
@@ -68,10 +67,10 @@ const MyCardsScreen = ({ navigation }: any) => {
         </Text>
 
         {isLoading ? (
-          <ActivityIndicator color={theme.colors.primary} size="large" style={styles.loading} />
+          <ActivityIndicator color={colors.primary} size="large" style={styles.loading} />
         ) : cards.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="card-outline" size={72} color={theme.colors.border} />
+            <Ionicons name="card-outline" size={72} color={colors.border} />
             <Text style={styles.emptyTitle}>Nenhum cartão salvo</Text>
             <Text style={styles.emptySubtitle}>
               Adicione um cartão para agilizar suas compras
@@ -100,12 +99,12 @@ const MyCardsScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 40, paddingTop: 8 },
   subtitle: {
     fontSize: 14,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
     marginBottom: 20,
@@ -113,14 +112,9 @@ const styles = StyleSheet.create({
   },
   loading: { marginTop: 60 },
   emptyState: { alignItems: 'center', marginTop: 60, marginBottom: 32 },
-  emptyTitle: {
-    color: theme.colors.text,
-    fontSize: 20,
-    fontWeight: '700',
-    marginTop: 20,
-  },
+  emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', marginTop: 20 },
   emptySubtitle: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',

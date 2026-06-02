@@ -20,20 +20,32 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
 
   startSession: async (classId) => {
     set({ isLoading: true });
-    const session = await teacherClassService.startClass(classId);
-    set({ currentSession: session, isLoading: false, isActive: true });
+    try {
+      const session = await teacherClassService.startClass(classId);
+      set({ currentSession: session, isLoading: false, isActive: true });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   endSession: async (classId) => {
     set({ isLoading: true });
-    const session = await teacherClassService.endClass(classId);
-    set({ currentSession: session, isLoading: false, isActive: false });
+    try {
+      const session = await teacherClassService.endClass(classId);
+      set({ currentSession: session, isLoading: false, isActive: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   getSession: async (classId) => {
     set({ isLoading: true });
-    const session = await teacherClassService.getCurrentSession(classId);
-    set({ currentSession: session, isLoading: false, isActive: session?.status === 'in_progress' });
+    try {
+      const session = await teacherClassService.getCurrentSession(classId);
+      set({ currentSession: session, isLoading: false, isActive: session?.status === 'in_progress' });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   clearSession: () => set({ currentSession: null, isActive: false }),

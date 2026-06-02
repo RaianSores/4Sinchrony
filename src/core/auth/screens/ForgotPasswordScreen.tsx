@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,12 +14,16 @@ import {
 import { authService } from '../services/authService';
 import Button from '../../../shared/components/Button';
 import { useAppAlert } from '../../../shared/components/AlertModal';
-import { theme } from '../../../shared/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { spacing, borderRadius, shadow } from '../../../shared/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SCALE_BASE = 375;
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
+
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const scale = SCREEN_WIDTH / SCALE_BASE;
 
@@ -66,10 +70,10 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
             onPress={() => navigation.goBack()}
             style={[styles.backButton, { top: SCREEN_HEIGHT * 0.04 }]}
           >
-            <Ionicons name="chevron-back" size={ms(24)} color={theme.colors.text} />
+            <Ionicons name="chevron-back" size={ms(24)} color={colors.text} />
           </TouchableOpacity>
           <View style={[styles.iconCircle, { width: ms(56), height: ms(56), borderRadius: ms(28) }]}>
-            <Ionicons name="lock-open-outline" size={ms(26)} color={theme.colors.primaryDark} />
+            <Ionicons name="lock-open-outline" size={ms(26)} color={colors.primaryDark} />
           </View>
           <Text style={[styles.title, { fontSize: ms(26) }]}>Recuperar Senha</Text>
         </View>
@@ -81,7 +85,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
             {sent ? (
               <>
                 <View style={styles.successIcon}>
-                  <Ionicons name="checkmark-circle" size={ms(64)} color={theme.colors.primaryDark} />
+                  <Ionicons name="checkmark-circle" size={ms(64)} color={colors.primaryDark} />
                 </View>
                 <Text style={[styles.successTitle, { fontSize: ms(22) }]}>Email enviado!</Text>
                 <Text style={[styles.successSubtitle, { fontSize: ms(15) }]}>
@@ -101,7 +105,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                 </Text>
 
                 <View style={[styles.inputWrapper, { height: ms(52) }]}>
-                  <Ionicons name="mail-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+                  <Ionicons name="mail-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { fontSize: ms(16) }]}
                     placeholder="Seu email"
@@ -109,7 +113,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    placeholderTextColor={theme.colors.grayLight}
+                    placeholderTextColor={colors.grayLight}
                   />
                 </View>
 
@@ -122,7 +126,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                 />
 
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backLink}>
-                  <Ionicons name="arrow-back" size={ms(16)} color={theme.colors.primaryDark} />
+                  <Ionicons name="arrow-back" size={ms(16)} color={colors.primaryDark} />
                   <Text style={[styles.backLinkText, { fontSize: ms(15) }]}> Voltar ao login</Text>
                 </TouchableOpacity>
               </>
@@ -134,18 +138,13 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-  },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { flex: 1 },
   topSection: {
     alignItems: 'center',
     paddingBottom: 24,
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   backButton: {
     position: 'absolute',
@@ -154,48 +153,40 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
-    ...theme.shadow.sm,
+    ...shadow.sm,
   },
   iconCircle: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    ...theme.shadow.md,
+    ...shadow.md,
   },
-  title: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.5,
-  },
+  title: { fontWeight: '700', color: colors.text, letterSpacing: 0.5 },
   bottomSheet: {
     flex: 1,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingHorizontal: theme.spacing.xl,
+    paddingHorizontal: spacing.xl,
     paddingTop: 4,
-    ...theme.shadow.lg,
+    ...shadow.lg,
   },
   handleBar: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.grayLight,
+    backgroundColor: colors.grayLight,
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 20,
   },
-  formTitle: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
+  formTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
   formSubtitle: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: 28,
@@ -204,43 +195,26 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.inputBg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     marginBottom: 12,
     paddingHorizontal: 14,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    color: theme.colors.text,
-    height: '100%',
-  },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, color: colors.text, height: '100%' },
   backLink: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
   },
-  backLinkText: {
-    color: theme.colors.primaryDark,
-    fontWeight: '600',
-  },
-  successIcon: {
-    alignItems: 'center',
-    marginBottom: 16,
-    marginTop: 16,
-  },
-  successTitle: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
+  backLinkText: { color: colors.primaryDark, fontWeight: '600' },
+  successIcon: { alignItems: 'center', marginBottom: 16, marginTop: 16 },
+  successTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
   successSubtitle: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 32,

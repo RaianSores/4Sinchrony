@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
-import { theme } from '../theme';
+import { useTheme } from '../theme/useTheme';
 
 interface AlertButton {
   text: string;
@@ -23,6 +23,8 @@ const AlertContext = createContext<AlertContextType>({ showAlert: () => {} });
 export const useAppAlert = () => useContext(AlertContext);
 
 export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const [visible, setVisible] = useState(false);
   const [config, setConfig] = useState<AlertConfig>({ title: '' });
 
@@ -93,7 +95,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-const styles = StyleSheet.create({
+const mkStyles = (colors: any) => StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'center',
@@ -101,14 +103,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   dialog: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     borderRadius: 20,
     paddingTop: 24,
     paddingHorizontal: 24,
     paddingBottom: 8,
     width: '82%',
     maxWidth: 340,
-    shadowColor: theme.colors.black,
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 24,
@@ -117,13 +119,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: theme.colors.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
     fontSize: 15,
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 21,
     marginBottom: 20,
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    borderTopColor: colors.border,
     marginHorizontal: -24,
     paddingHorizontal: 24,
   },
@@ -142,17 +144,17 @@ const styles = StyleSheet.create({
   },
   buttonBorder: {
     borderRightWidth: 1,
-    borderRightColor: theme.colors.border,
+    borderRightColor: colors.border,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: theme.colors.primary,
+    color: colors.primary,
   },
   buttonTextDestructive: {
-    color: theme.colors.danger,
+    color: colors.danger,
   },
   buttonTextCancel: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
   },
 });

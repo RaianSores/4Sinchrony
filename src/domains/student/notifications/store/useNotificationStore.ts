@@ -26,8 +26,12 @@ export const useNotificationStore = create<NotificationState>()(
 
       fetchPreferences: async () => {
         set({ isLoading: true });
-        const preferences = await notificationService.getPreferences();
-        set({ preferences, isLoading: false });
+        try {
+          const preferences = await notificationService.getPreferences();
+          set({ preferences, isLoading: false });
+        } catch {
+          set({ isLoading: false });
+        }
       },
 
       togglePreference: async (id) => {

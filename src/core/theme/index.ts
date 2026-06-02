@@ -1,66 +1,13 @@
-export const theme = {
-  colors: {
-    background: '#F8F9FA',
-    card: '#FFFFFF',
-    text: '#1A1A1A',
-    textSecondary: '#666666',
-    primary: '#8E8E93',
-    primaryDark: '#636366',
-    border: '#E5E5E5',
-    success: '#00C853',
-    danger: '#FF3B30',
-    white: '#FFFFFF',
-    black: '#000000',
-    overlay: '#1C1C1E',
-    gray: '#8E8E93',
-    grayLight: '#C7C7CC',
-    grayDark: '#555555',
-    darkCard: '#1C1C1E',
-  },
-  spacing: {
-    xs: 8,
-    sm: 12,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-  },
-  borderRadius: {
-    sm: 8,
-    md: 12,
-    lg: 16,
-    xl: 24,
-    full: 9999,
-  },
-  typography: {
-    h1: { fontSize: 32, fontWeight: '700', lineHeight: 38 },
-    h2: { fontSize: 26, fontWeight: '700', lineHeight: 32 },
-    h3: { fontSize: 20, fontWeight: '600', lineHeight: 26 },
-    body: { fontSize: 16, fontWeight: '400', lineHeight: 22 },
-    caption: { fontSize: 14, fontWeight: '400', lineHeight: 18 },
-    small: { fontSize: 12, fontWeight: '400', lineHeight: 16 },
-  },
-  shadow: {
-    sm: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.06,
-      shadowRadius: 8,
-      elevation: 2,
-    },
-    md: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 16,
-      elevation: 4,
-    },
-    lg: {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.15,
-      shadowRadius: 24,
-      elevation: 8,
-    },
-  },
-};
+export {
+  lightColors,
+  darkColors,
+  spacing,
+  borderRadius,
+  typography,
+  shadow,
+  theme,
+} from '../../shared/theme';
+
+export type { AppColors } from '../../shared/theme';
+
+export { useTheme } from '../../shared/theme/useTheme';

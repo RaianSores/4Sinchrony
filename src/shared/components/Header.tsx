@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { theme } from '../theme';
+import { useTheme } from '../theme/useTheme';
+import { spacing } from '../theme';
 
 interface HeaderProps {
   title?: string;
@@ -14,56 +15,44 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComponent, transparent }) => {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
-    <View style={[styles.header, { paddingTop: insets.top + 8 }, transparent && styles.transparent]}>
-      <View style={styles.sideContainer}>
+    <View
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: spacing.md,
+          paddingBottom: 12,
+          paddingTop: insets.top + 8,
+          backgroundColor: transparent ? 'transparent' : colors.card,
+          borderBottomWidth: transparent ? 0 : 1,
+          borderBottomColor: colors.border,
+        },
+      ]}
+    >
+      <View style={{ width: 40, alignItems: 'flex-start', justifyContent: 'center' }}>
         {showBack && (
-          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
+          <TouchableOpacity onPress={onBackPress} style={{ padding: 4 }}>
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>
 
-      {title ? <Text style={styles.title}>{title}</Text> : <View style={styles.spacer} />}
+      {title ? (
+        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, flex: 1, textAlign: 'center' }}>
+          {title}
+        </Text>
+      ) : (
+        <View style={{ flex: 1 }} />
+      )}
 
-      <View style={styles.sideContainer}>
+      <View style={{ width: 40, alignItems: 'flex-end', justifyContent: 'center' }}>
         {rightComponent}
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.md,
-    paddingBottom: 12,
-    backgroundColor: theme.colors.white,
-  },
-  transparent: {
-    backgroundColor: 'transparent',
-    borderBottomWidth: 0,
-  },
-  sideContainer: {
-    width: 40,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  backButton: {
-    padding: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.colors.text,
-    flex: 1,
-    textAlign: 'center',
-  },
-  spacer: {
-    flex: 1,
-  },
-});
 
 export default Header;

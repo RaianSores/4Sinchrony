@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { CardBrand } from '../../../../shared/types';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 import { detectBrand, formatCardNumber, formatExpiry, formatCVV } from '../utils/cardUtils';
 
 interface CardFormData {
@@ -26,6 +27,8 @@ interface CardFormProps {
 }
 
 const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const [form, setForm] = useState<CardFormData>({
     number: '',
     holderName: '',
@@ -54,8 +57,6 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
           break;
         }
         case 'nickname':
-          processed = value;
-          break;
         case 'holderName':
           processed = value;
           break;
@@ -75,7 +76,7 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
         <TextInput
           style={[styles.input, errors.number && styles.inputError]}
           placeholder="1234 5678 9012 3456"
-          placeholderTextColor={theme.colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
           value={form.number}
           onChangeText={v => updateField('number', v)}
@@ -89,7 +90,7 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
         <TextInput
           style={[styles.input, errors.holderName && styles.inputError]}
           placeholder="Como no cartão"
-          placeholderTextColor={theme.colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           autoCapitalize="words"
           value={form.holderName}
           onChangeText={v => updateField('holderName', v)}
@@ -103,7 +104,7 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
           <TextInput
             style={[styles.input, errors.expiryDate && styles.inputError]}
             placeholder="MM/AA"
-            placeholderTextColor={theme.colors.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             keyboardType="number-pad"
             value={form.expiryDate}
             onChangeText={v => updateField('expiryDate', v)}
@@ -117,7 +118,7 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
           <TextInput
             style={[styles.input, errors.cvv && styles.inputError]}
             placeholder="123"
-            placeholderTextColor={theme.colors.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             keyboardType="number-pad"
             secureTextEntry
             value={form.cvv}
@@ -133,7 +134,7 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
         <TextInput
           style={styles.input}
           placeholder="Ex: Meu Visa, Cartão do trabalho"
-          placeholderTextColor={theme.colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           value={form.nickname}
           onChangeText={v => updateField('nickname', v)}
         />
@@ -142,36 +143,22 @@ const CardForm: React.FC<CardFormProps> = ({ onChange, onBrandChange, errors }) 
   );
 };
 
-const styles = StyleSheet.create({
+const mkStyles = (colors: any) => StyleSheet.create({
   form: { gap: 16 },
   fieldGroup: { gap: 6 },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.colors.text,
-    marginLeft: 2,
-  },
+  label: { fontSize: 14, fontWeight: '600', color: colors.text, marginLeft: 2 },
   input: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.inputBg,
+    borderRadius: borderRadius.md,
     padding: 16,
     fontSize: 16,
-    color: theme.colors.text,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  inputError: {
-    borderColor: theme.colors.danger,
-  },
-  errorText: {
-    color: theme.colors.danger,
-    fontSize: 12,
-    marginLeft: 2,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-  },
+  inputError: { borderColor: colors.danger },
+  errorText: { color: colors.danger, fontSize: 12, marginLeft: 2 },
+  row: { flexDirection: 'row', gap: 12 },
 });
 
 export default CardForm;

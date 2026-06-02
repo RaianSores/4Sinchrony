@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,18 @@ import { authService } from '../services/authService';
 import Button from '../../../shared/components/Button';
 import GoogleSignInButton from '../../../shared/components/GoogleSignInButton';
 import { useAppAlert } from '../../../shared/components/AlertModal';
-import { theme } from '../../../shared/theme';
+import { useTheme } from '../../../shared/theme/useTheme';
+import { spacing, borderRadius, shadow } from '../../../shared/theme';
 import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SCALE_BASE = 375;
 
 const RegisterScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const scale = SCREEN_WIDTH / SCALE_BASE;
+  const styles = useMemo(() => mkStyles(colors), [colors]);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -54,29 +57,19 @@ const RegisterScreen = ({ navigation }: any) => {
       showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
       return;
     }
-
     if (password !== confirmPassword) {
       showAlert({ title: 'Erro', message: 'As senhas nao coincidem' });
       return;
     }
-
     if (password.length < 6) {
       showAlert({ title: 'Erro', message: 'A senha deve ter no minimo 6 caracteres' });
       return;
     }
 
     setLoading(true);
-
     try {
-      const response = await authService.register({
-        name,
-        email,
-        phone,
-        password,
-      });
-
+      const response = await authService.register({ name, email, phone, password });
       login(response.user, response.token);
-
       showAlert({
         title: 'Sucesso!',
         message: 'Conta criada com sucesso. Bem-vindo(a) ao 4Sinchrony Experience!',
@@ -119,10 +112,10 @@ const RegisterScreen = ({ navigation }: any) => {
             onPress={() => navigation.goBack()}
             style={[styles.backButton, { top: SCREEN_HEIGHT * 0.04 }]}
           >
-            <Ionicons name="chevron-back" size={ms(24)} color={theme.colors.text} />
+            <Ionicons name="chevron-back" size={ms(24)} color={colors.text} />
           </TouchableOpacity>
           <View style={[styles.iconCircle, { width: ms(56), height: ms(56), borderRadius: ms(28) }]}>
-            <Ionicons name="fitness" size={ms(26)} color={theme.colors.primaryDark} />
+            <Ionicons name="fitness" size={ms(26)} color={colors.primaryDark} />
           </View>
           <Text style={[styles.title, { fontSize: ms(26) }]}>Criar Conta</Text>
           <Text style={[styles.tagline, { fontSize: ms(14) }]}>Comece sua jornada de bem-estar</Text>
@@ -136,19 +129,19 @@ const RegisterScreen = ({ navigation }: any) => {
             <Text style={[styles.formSubtitle, { fontSize: ms(14) }]}>Preencha seus dados abaixo</Text>
 
             <View style={[styles.inputWrapper, { height: ms(50) }]}>
-              <Ionicons name="person-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="person-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(15) }]}
                 placeholder="Nome completo"
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
             </View>
 
             <View style={[styles.inputWrapper, { height: ms(50) }]}>
-              <Ionicons name="mail-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="mail-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(15) }]}
                 placeholder="Email"
@@ -156,46 +149,46 @@ const RegisterScreen = ({ navigation }: any) => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
             </View>
 
             <View style={[styles.inputWrapper, { height: ms(50) }]}>
-              <Ionicons name="call-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="call-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(15) }]}
                 placeholder="Telefone (com DDD)"
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
             </View>
 
             <View style={[styles.inputWrapper, { height: ms(50) }]}>
-              <Ionicons name="lock-closed-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(15) }]}
                 placeholder="Senha"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={theme.colors.gray} />
+                <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
               </TouchableOpacity>
             </View>
 
             <View style={[styles.inputWrapper, { height: ms(50) }]}>
-              <Ionicons name="lock-closed-outline" size={ms(20)} color={theme.colors.gray} style={styles.inputIcon} />
+              <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { fontSize: ms(15) }]}
                 placeholder="Confirmar Senha"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
-                placeholderTextColor={theme.colors.grayLight}
+                placeholderTextColor={colors.grayLight}
               />
             </View>
 
@@ -233,18 +226,13 @@ const RegisterScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-  },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { flex: 1 },
   topSection: {
     alignItems: 'center',
     paddingBottom: 16,
-    paddingHorizontal: theme.spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   backButton: {
     position: 'absolute',
@@ -253,52 +241,41 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
-    ...theme.shadow.sm,
+    ...shadow.sm,
   },
   iconCircle: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    ...theme.shadow.md,
+    ...shadow.md,
   },
-  title: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    letterSpacing: 0.5,
-  },
-  tagline: {
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-  },
+  title: { fontWeight: '700', color: colors.text, letterSpacing: 0.5 },
+  tagline: { color: colors.textSecondary, marginTop: 2 },
   bottomSheet: {
     flex: 1,
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingHorizontal: theme.spacing.xl,
+    paddingHorizontal: spacing.xl,
     paddingTop: 4,
-    ...theme.shadow.lg,
+    ...shadow.lg,
   },
   handleBar: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: theme.colors.grayLight,
+    backgroundColor: colors.grayLight,
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 16,
   },
-  formTitle: {
-    fontWeight: '700',
-    color: theme.colors.text,
-    textAlign: 'center',
-  },
+  formTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
   formSubtitle: {
-    color: theme.colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: 20,
@@ -306,52 +283,23 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.inputBg,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
     marginBottom: 12,
     paddingHorizontal: 14,
   },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    color: theme.colors.text,
-    height: '100%',
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: theme.colors.border,
-  },
-  dividerText: {
-    marginHorizontal: 14,
-    color: theme.colors.textSecondary,
-  },
-  loginLink: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  loginLinkText: {
-    color: theme.colors.textSecondary,
-  },
-  loginLinkHighlight: {
-    color: theme.colors.primaryDark,
-    fontWeight: '600',
-  },
-  spacer: {
-    height: 20,
-  },
+  inputIcon: { marginRight: 10 },
+  input: { flex: 1, color: colors.text, height: '100%' },
+  eyeIcon: { padding: 4 },
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { marginHorizontal: 14, color: colors.textSecondary },
+  loginLink: { alignItems: 'center', marginBottom: 8 },
+  loginLinkText: { color: colors.textSecondary },
+  loginLinkHighlight: { color: colors.primaryDark, fontWeight: '600' },
+  spacer: { height: 20 },
 });
 
 export default RegisterScreen;

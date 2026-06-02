@@ -16,8 +16,12 @@ export const useBookingStore = create<BookingState>((set) => ({
 
   fetchBookings: async () => {
     set({ isLoading: true });
-    const bookings = await bookingService.getMyBookings();
-    set({ bookings, isLoading: false });
+    try {
+      const bookings = await bookingService.getMyBookings();
+      set({ bookings, isLoading: false });
+    } catch {
+      set({ isLoading: false });
+    }
   },
 
   bookClass: async (classId, bikeNumber) => {

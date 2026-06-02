@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,9 +13,12 @@ import { usePackageStore } from '../store/usePackageStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
-import { theme } from '../../../../shared/theme';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { borderRadius } from '../../../../shared/theme';
 
 const CartScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
   const { cart, coupon, addToCart, removeFromCart, applyCoupon, removeCoupon, getCartTotal, getDiscountedTotal } = usePackageStore();
   const [couponCode, setCouponCode] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
@@ -44,7 +47,7 @@ const CartScreen = ({ navigation }: any) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {cart.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="cart-outline" size={80} color={theme.colors.border} />
+            <Ionicons name="cart-outline" size={80} color={colors.border} />
             <Text style={styles.emptyTitle}>Sacola vazia</Text>
             <Text style={styles.emptySubtitle}>Adicione planos para continuar</Text>
             <Button title="Ver Planos" onPress={() => navigation.replace('Packages')} style={{ marginTop: 24, marginHorizontal: 24 }} />
@@ -60,7 +63,7 @@ const CartScreen = ({ navigation }: any) => {
                 </View>
                 <View style={styles.itemActions}>
                   <TouchableOpacity onPress={() => addToCart(item)}>
-                    <Ionicons name="add-circle" size={28} color={theme.colors.primary} />
+                    <Ionicons name="add-circle" size={28} color={colors.primary} />
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{item.quantity}</Text>
                   <TouchableOpacity onPress={() => {
@@ -71,7 +74,7 @@ const CartScreen = ({ navigation }: any) => {
                       removeFromCart(item.id);
                     }
                   }}>
-                    <Ionicons name="remove-circle" size={28} color={theme.colors.danger} />
+                    <Ionicons name="remove-circle" size={28} color={colors.danger} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -83,7 +86,7 @@ const CartScreen = ({ navigation }: any) => {
                 <TextInput
                   style={styles.couponInput}
                   placeholder="Digite o código"
-                  placeholderTextColor={theme.colors.textSecondary}
+                  placeholderTextColor={colors.textSecondary}
                   value={couponCode}
                   onChangeText={setCouponCode}
                   autoCapitalize="characters"
@@ -104,7 +107,7 @@ const CartScreen = ({ navigation }: any) => {
                     Cupom {coupon.code} aplicado ({coupon.discountType === 'percentage' ? `${coupon.discount}%` : `R$ ${coupon.discount.toFixed(2)}`} off)
                   </Text>
                   <TouchableOpacity onPress={removeCoupon}>
-                    <Ionicons name="close-circle" size={20} color={theme.colors.danger} />
+                    <Ionicons name="close-circle" size={20} color={colors.danger} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -117,8 +120,8 @@ const CartScreen = ({ navigation }: any) => {
               </View>
               {hasDiscount && (
                 <View style={styles.totalRow}>
-                  <Text style={[styles.totalLabel, { color: theme.colors.success }]}>Desconto</Text>
-                  <Text style={[styles.totalValue, { color: theme.colors.success }]}>
+                  <Text style={[styles.totalLabel, { color: colors.success }]}>Desconto</Text>
+                  <Text style={[styles.totalValue, { color: colors.success }]}>
                     -R$ {(total - discountedTotal).toFixed(2)}
                   </Text>
                 </View>
@@ -141,92 +144,92 @@ const CartScreen = ({ navigation }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+const mkStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 40 },
   emptyState: { alignItems: 'center', marginTop: 100 },
-  emptyTitle: { color: theme.colors.text, fontSize: 24, fontWeight: '700', marginTop: 20 },
-  emptySubtitle: { color: theme.colors.textSecondary, fontSize: 16, marginTop: 8 },
+  emptyTitle: { color: colors.text, fontSize: 24, fontWeight: '700', marginTop: 20 },
+  emptySubtitle: { color: colors.textSecondary, fontSize: 16, marginTop: 8 },
   cartItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginVertical: 4,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   itemInfo: { flex: 1 },
-  itemName: { fontSize: 17, fontWeight: '600', color: theme.colors.text },
-  itemCredits: { fontSize: 13, color: theme.colors.textSecondary, marginTop: 2 },
-  itemPrice: { fontSize: 16, fontWeight: '700', color: theme.colors.primary, marginTop: 4 },
+  itemName: { fontSize: 17, fontWeight: '600', color: colors.text },
+  itemCredits: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  itemPrice: { fontSize: 16, fontWeight: '700', color: colors.primary, marginTop: 4 },
   itemActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  quantity: { fontSize: 18, fontWeight: '700', color: theme.colors.text, minWidth: 24, textAlign: 'center' },
+  quantity: { fontSize: 18, fontWeight: '700', color: colors.text, minWidth: 24, textAlign: 'center' },
   couponSection: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginTop: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
-  couponTitle: { color: theme.colors.text, fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  couponTitle: { color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 12 },
   couponRow: { flexDirection: 'row', gap: 8 },
   couponInput: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.inputBg,
+    borderRadius: borderRadius.md,
     padding: 14,
-    color: theme.colors.text,
+    color: colors.text,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   couponButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
     paddingHorizontal: 20,
     justifyContent: 'center',
   },
-  couponButtonText: { color: theme.colors.black, fontWeight: '700', fontSize: 15 },
+  couponButtonText: { color: colors.black, fontWeight: '700', fontSize: 15 },
   couponApplied: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 12,
-    backgroundColor: theme.colors.success + '15',
-    borderRadius: theme.borderRadius.sm,
+    backgroundColor: colors.success + '15',
+    borderRadius: borderRadius.sm,
     padding: 10,
   },
-  couponAppliedText: { color: theme.colors.success, fontSize: 13 },
+  couponAppliedText: { color: colors.success, fontSize: 13 },
   totalSection: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginTop: 16,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: borderRadius.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: colors.border,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  totalLabel: { color: theme.colors.textSecondary, fontSize: 15 },
-  totalValue: { color: theme.colors.text, fontSize: 15 },
+  totalLabel: { color: colors.textSecondary, fontSize: 15 },
+  totalValue: { color: colors.text, fontSize: 15 },
   totalFinal: {
     borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    borderTopColor: colors.border,
     paddingTop: 12,
     marginTop: 4,
   },
-  totalFinalLabel: { color: theme.colors.text, fontSize: 18, fontWeight: '700' },
-  totalFinalValue: { color: theme.colors.primary, fontSize: 22, fontWeight: '700' },
+  totalFinalLabel: { color: colors.text, fontSize: 18, fontWeight: '700' },
+  totalFinalValue: { color: colors.primary, fontSize: 22, fontWeight: '700' },
 });
 
 export default CartScreen;
