@@ -87,6 +87,7 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
           keyExtractor={item => item.id}
           renderItem={renderStudent}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
 

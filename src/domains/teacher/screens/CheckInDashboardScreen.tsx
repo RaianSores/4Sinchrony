@@ -29,7 +29,7 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
         <Text style={styles.subtitle}>Gerencie a presença dos alunos</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {classesLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (

@@ -31,7 +31,7 @@ const DashboardScreen = ({ navigation }: any) => {
         <Text style={styles.subtitle}>Professor</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.statsRow}>
           {[
             { icon: 'calendar', value: todayClasses.length, label: 'Aulas hoje' },

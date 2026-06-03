@@ -30,7 +30,7 @@ const MetricsScreen = ({ navigation }: any) => {
           <Text style={styles.loadingText}>Carregando métricas...</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.cardsRow}>
             <View style={[styles.metricCard, { borderLeftColor: colors.primaryDark }]}>
               <Text style={styles.metricValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{metrics.totalClassesThisMonth}</Text>

@@ -82,6 +82,7 @@ const AttendanceScreen = ({ route, navigation }: any) => {
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>

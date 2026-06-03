@@ -34,7 +34,7 @@ const MyClassesScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (
