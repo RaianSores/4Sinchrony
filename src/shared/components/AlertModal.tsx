@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { mkStyles } from './AlertModal.styles';
 import { useTheme } from '../theme/useTheme';
 
 interface AlertButton {

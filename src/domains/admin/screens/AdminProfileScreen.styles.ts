@@ -1,0 +1,63 @@
+import { StyleSheet } from 'react-native';
+import { borderRadius } from '../../../shared/theme';
+
+export const mkStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+    title: { fontSize: 28, fontWeight: '700', color: colors.text },
+    profileHeader: {
+      alignItems: 'center',
+      paddingVertical: 32,
+      backgroundColor: colors.card,
+      marginBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    avatar: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+      borderWidth: 3,
+      borderColor: colors.primary,
+    },
+    name: { fontSize: 24, fontWeight: '700', color: colors.text },
+    email: { fontSize: 15, color: colors.textSecondary, marginTop: 4 },
+    roleBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primaryDark + '15',
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: borderRadius.full,
+      marginTop: 12,
+      gap: 6,
+    },
+    roleText: { fontSize: 13, fontWeight: '600', color: colors.primaryDark },
+    menu: { paddingHorizontal: 16 },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: borderRadius.lg,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    menuText: { flex: 1, marginLeft: 14, fontSize: 16, color: colors.text, fontWeight: '500' },
+    logoutButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 18,
+      marginTop: 16,
+      marginBottom: 40,
+      gap: 8,
+    },
+    logoutText: { color: colors.danger, fontSize: 17, fontWeight: '600' },
+  });

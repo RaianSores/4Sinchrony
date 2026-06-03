@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -15,8 +14,8 @@ import { authService } from '../services/authService';
 import Button from '../../../shared/components/Button';
 import { useAppAlert } from '../../../shared/components/AlertModal';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { spacing, borderRadius, shadow } from '../../../shared/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './ForgotPasswordScreen.styles';
 
 const SCALE_BASE = 375;
 
@@ -137,90 +136,5 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     </KeyboardAvoidingView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1 },
-  topSection: {
-    alignItems: 'center',
-    paddingBottom: 24,
-    paddingHorizontal: spacing.lg,
-  },
-  backButton: {
-    position: 'absolute',
-    left: 20,
-    zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow.sm,
-  },
-  iconCircle: {
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    ...shadow.md,
-  },
-  title: { fontWeight: '700', color: colors.text, letterSpacing: 0.5 },
-  bottomSheet: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    paddingHorizontal: spacing.xl,
-    paddingTop: 4,
-    ...shadow.lg,
-  },
-  handleBar: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.grayLight,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 20,
-  },
-  formTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
-  formSubtitle: {
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 4,
-    marginBottom: 28,
-    lineHeight: 20,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.inputBg,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-  },
-  inputIcon: { marginRight: 10 },
-  input: { flex: 1, color: colors.text, height: '100%' },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  backLinkText: { color: colors.primaryDark, fontWeight: '600' },
-  successIcon: { alignItems: 'center', marginBottom: 16, marginTop: 16 },
-  successTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
-  successSubtitle: {
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 32,
-    lineHeight: 22,
-    paddingHorizontal: 8,
-  },
-});
 
 export default ForgotPasswordScreen;

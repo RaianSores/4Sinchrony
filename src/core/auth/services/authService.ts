@@ -29,12 +29,4 @@ export const authService = {
     const res = await api.get('/auth/me');
     return res.data;
   },
-
-  async loginAsTeacher(): Promise<AuthResponse> {
-    return authService.login({ email: 'teacher@studio.com', password: 'teacher123' });
-  },
-
-  async loginAsAdmin(): Promise<AuthResponse> {
-    return authService.login({ email: 'admin@studio.com', password: 'admin123' });
-  },
 };

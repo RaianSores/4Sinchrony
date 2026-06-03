@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './EditProfileScreen.styles';
 
 const EditProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -41,12 +41,6 @@ const EditProfileScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40 },
-  form: { padding: 20 },
-  label: { color: colors.textSecondary, fontSize: 14, fontWeight: '600', marginBottom: 6, marginTop: 16 },
-  input: { backgroundColor: colors.inputBg, borderRadius: borderRadius.md, padding: 16, color: colors.text, fontSize: 16, borderWidth: 1, borderColor: colors.border },
-});
+
 
 export default EditProfileScreen;

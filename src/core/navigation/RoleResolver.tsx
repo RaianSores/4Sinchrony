@@ -11,8 +11,6 @@ import { AdminNavigator } from './admin/AdminNavigator';
 import LoginScreen from '../auth/screens/LoginScreen';
 import RegisterScreen from '../auth/screens/RegisterScreen';
 import ForgotPasswordScreen from '../auth/screens/ForgotPasswordScreen';
-import DevLoginScreen from '../auth/screens/DevLoginScreen';
-
 const Stack = createNativeStackNavigator();
 
 const AuthNavigator = () => (
@@ -20,7 +18,6 @@ const AuthNavigator = () => (
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-    <Stack.Screen name="DevLogin" component={DevLoginScreen} />
   </Stack.Navigator>
 );
 

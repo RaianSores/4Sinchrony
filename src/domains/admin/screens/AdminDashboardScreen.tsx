@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../services/adminService';
 import type { Activity } from '../services/adminService';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { borderRadius } from '../../../shared/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './AdminDashboardScreen.styles';
 
 const ACTIVITY_COLORS: Record<Activity['type'], string> = {
   booking: '#3B82F6', subscription: '#8B5CF6', class: '#10B981', payment: '#10B981',
@@ -89,29 +89,5 @@ const AdminDashboardScreen = () => {
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 15, color: colors.textSecondary, marginTop: 4 },
-  scroll: { paddingHorizontal: 16, paddingBottom: 32 },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  statCard: { width: '47%', backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: 16, borderLeftWidth: 3, borderWidth: 1, borderColor: colors.border, minHeight: 100 },
-  statIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  statValue: { fontSize: 20, fontWeight: '700', color: colors.text },
-  statTitle: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  section: { marginTop: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  activity: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, padding: 12, borderRadius: borderRadius.md, marginBottom: 8, borderWidth: 1, borderColor: colors.border, gap: 10 },
-  activityDot: { width: 8, height: 8, borderRadius: 4 },
-  activityText: { fontSize: 14, color: colors.text, flex: 1 },
-  chart: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 160, backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: 16, borderWidth: 1, borderColor: colors.border },
-  barContainer: { alignItems: 'center', flex: 1 },
-  bar: { width: 24, backgroundColor: colors.primary, borderRadius: 4, marginBottom: 4 },
-  barLabel: { fontSize: 12, color: colors.textSecondary },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: colors.textSecondary },
-});
 
 export default AdminDashboardScreen;

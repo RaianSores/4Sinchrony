@@ -1,0 +1,57 @@
+import { StyleSheet } from 'react-native';
+import { borderRadius } from '../../../shared/theme';
+
+export const mkStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 8,
+    },
+    title: { fontSize: 28, fontWeight: '700', color: colors.text },
+    subtitle: { fontSize: 15, color: colors.textSecondary, marginTop: 4, paddingHorizontal: 20 },
+    scroll: { padding: 16, gap: 12 },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: 16,
+      borderRadius: borderRadius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 14,
+    },
+    iconWrap: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
+    info: { flex: 1 },
+    cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
+    cardDesc: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: 14,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 12,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.border + '50',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    rowText: { fontSize: 15, fontWeight: '500', color: colors.text, flex: 1 },
+    rowTextContainer: { flex: 1 },
+    rowSub: { fontSize: 13, color: colors.textSecondary, marginTop: 1 },
+    loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    loadingText: { fontSize: 16, color: colors.textSecondary },
+    empty: { alignItems: 'center', marginTop: 40 },
+    emptyText: { fontSize: 15, color: colors.textSecondary, marginTop: 8 },
+  });

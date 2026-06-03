@@ -1,0 +1,66 @@
+import { StyleSheet } from 'react-native';
+import { spacing, borderRadius, shadow } from '../../../shared/theme';
+
+export const mkStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1 },
+    topSection: {
+      alignItems: 'center',
+      paddingBottom: 24,
+      paddingHorizontal: spacing.lg,
+    },
+    iconCircle: {
+      backgroundColor: colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
+      ...shadow.md,
+    },
+    title: { fontWeight: '700', color: colors.text, letterSpacing: 0.5 },
+    tagline: { color: colors.textSecondary, marginTop: 4 },
+    bottomSheet: {
+      flex: 1,
+      backgroundColor: colors.card,
+      borderTopLeftRadius: 40,
+      borderTopRightRadius: 40,
+      paddingHorizontal: spacing.xl,
+      paddingTop: 4,
+      paddingBottom: spacing.lg,
+      ...shadow.lg,
+    },
+    handleBar: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.grayLight,
+      alignSelf: 'center',
+      marginTop: 12,
+      marginBottom: 20,
+    },
+    formTitle: { fontWeight: '700', color: colors.text, textAlign: 'center' },
+    formSubtitle: {
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 4,
+      marginBottom: 24,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.inputBg,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 14,
+      paddingHorizontal: 14,
+    },
+    inputIcon: { marginRight: 10 },
+    input: { flex: 1, color: colors.text, height: '100%' },
+    eyeIcon: { padding: 4 },
+    forgotButton: { alignItems: 'center', marginTop: 16 },
+    forgotPassword: { color: colors.primaryDark, fontWeight: '600' },
+    divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 20 },
+    dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+    dividerText: { marginHorizontal: 14, color: colors.textSecondary },
+  });

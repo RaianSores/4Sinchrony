@@ -1,9 +1,11 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { borderRadius } from '../../../shared/theme';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { adminService } from '../services/adminService';
+import { mkStyles } from './ManagementScreen.styles';
 
 const managementItems = [
   { title: 'Alunos', icon: 'people', screen: 'Students', color: '#10B981', desc: 'Gerenciar alunos cadastrados' },
@@ -19,7 +21,7 @@ const Badge = ({ active }: { active: boolean }) => (
   </View>
 );
 
-const ManagementScreen = ({ navigation }: any) => {
+export const ManagementScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
@@ -47,9 +49,15 @@ const ManagementScreen = ({ navigation }: any) => {
   );
 };
 
-const StudentsScreen = ({ navigation }: any) => {
+export const StudentsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const [students, setStudents] = useState<{ id: string; name: string; email: string; active: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminService.getStudents().then(data => { setStudents(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,29 +67,42 @@ const StudentsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Alunos</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {[
-          { name: 'Carlos Silva', active: true },
-          { name: 'Ana Beatriz', active: true },
-          { name: 'Marcos Oliveira', active: false },
-          { name: 'Juliana Costa', active: true },
-        ].map((student, i) => (
-          <View key={i} style={styles.row}>
-            <View style={styles.avatar}>
-              <Ionicons name="person" size={20} color={colors.primary} />
+      {loading ? (
+        <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {students.length === 0 ? (
+            <View style={styles.empty}>
+              <Ionicons name="people-outline" size={48} color={colors.border} />
+              <Text style={styles.emptyText}>Nenhum aluno encontrado</Text>
             </View>
-            <Text style={styles.rowText}>{student.name}</Text>
-            <Badge active={student.active} />
-          </View>
-        ))}
-      </ScrollView>
+          ) : students.map(student => (
+            <View key={student.id} style={styles.row}>
+              <View style={styles.avatar}>
+                <Ionicons name="person" size={20} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextContainer}>
+                <Text style={styles.rowText}>{student.name}</Text>
+                <Text style={styles.rowSub}>{student.email}</Text>
+              </View>
+              <Badge active={student.active} />
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
 
-const TeachersScreen = ({ navigation }: any) => {
+export const TeachersScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const [teachers, setTeachers] = useState<{ id: string; name: string; email: string; specialty: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminService.getTeachers().then(data => { setTeachers(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -91,30 +112,41 @@ const TeachersScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Professores</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {[
-          { name: 'Ádria', specialty: 'Velo' },
-          { name: 'Wal', specialty: 'Velo' },
-          { name: 'Carlos', specialty: 'Jiu-Jitsu' },
-        ].map((teacher, i) => (
-          <View key={i} style={styles.row}>
-            <View style={styles.avatar}>
-              <Ionicons name="school" size={20} color={colors.primary} />
+      {loading ? (
+        <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {teachers.length === 0 ? (
+            <View style={styles.empty}>
+              <Ionicons name="school-outline" size={48} color={colors.border} />
+              <Text style={styles.emptyText}>Nenhum professor encontrado</Text>
             </View>
-            <View style={styles.rowTextContainer}>
-              <Text style={styles.rowText}>{teacher.name}</Text>
-              <Text style={styles.rowSub}>{teacher.specialty}</Text>
+          ) : teachers.map(teacher => (
+            <View key={teacher.id} style={styles.row}>
+              <View style={styles.avatar}>
+                <Ionicons name="school" size={20} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextContainer}>
+                <Text style={styles.rowText}>{teacher.name}</Text>
+                <Text style={styles.rowSub}>{teacher.specialty || teacher.email}</Text>
+              </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
 
-const StudiosScreen = ({ navigation }: any) => {
+export const StudiosScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const [studios, setStudios] = useState<{ id: string; name: string; city: string; active: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminService.getStudios().then(data => { setStudios(data); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,43 +156,29 @@ const StudiosScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Estúdios</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {['Palmas', 'Boxe Centro', '4Sinchrony Experience Centro'].map((name, i) => (
-          <View key={i} style={styles.row}>
-            <View style={styles.avatar}>
-              <Ionicons name="business" size={20} color={colors.primary} />
+      {loading ? (
+        <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {studios.length === 0 ? (
+            <View style={styles.empty}>
+              <Ionicons name="business-outline" size={48} color={colors.border} />
+              <Text style={styles.emptyText}>Nenhum estúdio encontrado</Text>
             </View>
-            <Text style={styles.rowText}>{name}</Text>
-            <Badge active />
-          </View>
-        ))}
-      </ScrollView>
+          ) : studios.map(studio => (
+            <View key={studio.id} style={styles.row}>
+              <View style={styles.avatar}>
+                <Ionicons name="business" size={20} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextContainer}>
+                <Text style={styles.rowText}>{studio.name}</Text>
+                <Text style={styles.rowSub}>{studio.city}</Text>
+              </View>
+              <Badge active={studio.active} />
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 15, color: colors.textSecondary, marginTop: 4, paddingHorizontal: 20 },
-  scroll: { padding: 16, gap: 12 },
-  card: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card,
-    padding: 16, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: colors.border, gap: 14,
-  },
-  iconWrap: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center' },
-  info: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
-  cardDesc: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  row: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card,
-    padding: 14, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border, gap: 12,
-  },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.border + '50', justifyContent: 'center', alignItems: 'center' },
-  rowText: { fontSize: 15, fontWeight: '500', color: colors.text, flex: 1 },
-  rowTextContainer: { flex: 1 },
-  rowSub: { fontSize: 13, color: colors.textSecondary, marginTop: 1 },
-});
-
-export { ManagementScreen, StudentsScreen, TeachersScreen, StudiosScreen };

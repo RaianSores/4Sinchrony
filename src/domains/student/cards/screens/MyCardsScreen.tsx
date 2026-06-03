@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { mkStyles } from './MyCardsScreen.styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -98,29 +99,5 @@ const MyCardsScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40, paddingTop: 8 },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    paddingHorizontal: 32,
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  loading: { marginTop: 60 },
-  emptyState: { alignItems: 'center', marginTop: 60, marginBottom: 32 },
-  emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', marginTop: 20 },
-  emptySubtitle: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: 'center',
-    paddingHorizontal: 48,
-  },
-  cardList: { marginBottom: 8 },
-});
 
 export default MyCardsScreen;
