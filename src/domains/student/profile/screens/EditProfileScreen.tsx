@@ -26,7 +26,7 @@ const EditProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Editar Perfil" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
           <Text style={styles.label}>Nome completo</Text>
           <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Seu nome" placeholderTextColor={colors.textSecondary} />

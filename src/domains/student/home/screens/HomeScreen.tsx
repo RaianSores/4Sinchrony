@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useClassStore } from '../../classes/store/useClassStore';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
+import { useProgressStore } from '../../profile/store/useProgressStore';
 import Header from '../../../../shared/components/Header';
 import StatCard from '../../../../shared/components/StatCard';
 import ClassCard from '../../../../shared/components/ClassCard';
@@ -18,24 +19,38 @@ const HomeScreen = ({ navigation }: any) => {
   const { user } = useAuthStore();
   const { classes, fetchClasses } = useClassStore();
   const { bookings, fetchBookings } = useBookingStore();
+  const { progress, fetchProgress } = useProgressStore();
 
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
 
   useEffect(() => {
     fetchClasses();
     fetchBookings();
-  }, [fetchClasses, fetchBookings]);
+    fetchProgress();
+  }, [fetchClasses, fetchBookings, fetchProgress]);
 
-  const nextClass = classes[0];
-  const totalAttended = 26;
-  const targetClasses = 50;
-  const progressPct = Math.round((totalAttended / targetClasses) * 100);
+  const now = new Date();
+  const todayStr = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
+  const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const nextClass = classes.find(c =>
+    c.status === 'scheduled' &&
+    (c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr))
+  ) ?? null;
+  const totalAttended = progress?.classesAttended ?? 0;
+  const targetClasses = progress?.classesGoal ?? 50;
+  const streakWeeks = progress?.streakWeeks ?? 0;
+  const progressPct = targetClasses > 0 ? Math.round((totalAttended / targetClasses) * 100) : 0;
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Wellness" />
+      <Header title="4Sinchrony" />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.greeting}>
           <Text style={styles.welcome}>Olá, {user?.name?.split(' ')[0] || 'Aluno'}!</Text>
           <Text style={styles.subtitle}>Vamos treinar hoje?</Text>
@@ -44,7 +59,7 @@ const HomeScreen = ({ navigation }: any) => {
         <View style={styles.statsContainer}>
           <StatCard title="Aulas Realizadas" value={totalAttended} />
           <StatCard title="Reservas" value={activeBookings.length} />
-          <StatCard title="Streak" value={Math.floor(totalAttended / 4)} subtitle="semanas" />
+          <StatCard title="Streak" value={streakWeeks} subtitle="semanas" />
         </View>
 
         <TouchableOpacity

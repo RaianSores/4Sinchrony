@@ -146,7 +146,7 @@ const AddCardScreen = ({ navigation }: any) => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {brand !== 'Unknown' && formData.number.length > 0 && (
             <View style={styles.brandRow}>
               <CardFlagIcon brand={brand} size={32} />

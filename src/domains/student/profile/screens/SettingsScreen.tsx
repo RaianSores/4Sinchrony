@@ -33,7 +33,7 @@ const SettingsScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Configurações" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {sections.map((section, idx) => (
           <View key={idx} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>

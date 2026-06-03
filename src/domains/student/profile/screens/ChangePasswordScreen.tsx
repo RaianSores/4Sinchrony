@@ -61,7 +61,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Alterar Senha" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
           <Text style={styles.hint}>
             Por segurança, confirme sua senha atual antes de criar uma nova.

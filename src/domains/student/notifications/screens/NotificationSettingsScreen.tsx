@@ -19,7 +19,7 @@ const NotificationSettingsScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Notificações" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionHeader}>Canais</Text>
 
         <View style={styles.channelRow}>

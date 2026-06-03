@@ -1,5 +1,5 @@
 import { api } from '../../../../core/http/api';
-import { Coupon, PaymentResult } from '../../../../shared/types';
+import { Coupon, PaymentResult, Purchase } from '../../../../shared/types';
 
 export const paymentService = {
   async validateCoupon(code: string): Promise<Coupon | null> {
@@ -15,5 +15,10 @@ export const paymentService = {
   async processCardPayment(amount: number, cardToken: string, packageIds?: string[], couponCode?: string): Promise<PaymentResult> {
     const res = await api.post<PaymentResult>('/payments/card', { amount, cardToken, packageIds, couponCode });
     return res.data;
+  },
+
+  async getPurchases(): Promise<Purchase[]> {
+    const res = await api.get<{ data: any[] }>('/purchases');
+    return res.data.data ?? [];
   },
 };

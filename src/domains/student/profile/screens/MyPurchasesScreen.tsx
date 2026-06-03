@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,13 +10,17 @@ import { borderRadius } from '../../../../shared/theme';
 const MyPurchasesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { purchases } = usePackageStore();
+  const { purchases, fetchPurchases } = usePackageStore();
+
+  useEffect(() => {
+    fetchPurchases();
+  }, [fetchPurchases]);
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Minhas Compras" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {purchases.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="cart-outline" size={64} color={colors.border} />

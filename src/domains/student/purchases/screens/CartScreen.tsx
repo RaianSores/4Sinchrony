@@ -44,7 +44,7 @@ const CartScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Sacola" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {cart.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="cart-outline" size={80} color={colors.border} />

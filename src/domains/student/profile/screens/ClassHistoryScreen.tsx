@@ -20,7 +20,7 @@ const ClassHistoryScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Histórico de Aulas" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {sorted.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="time-outline" size={64} color={colors.border} />

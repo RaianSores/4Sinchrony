@@ -61,7 +61,7 @@ const MyCardsScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Meus Cartões" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.subtitle}>
           Gerencie seus cartões de forma segura. Apenas as informações essenciais são salvas.
         </Text>

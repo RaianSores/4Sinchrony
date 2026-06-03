@@ -40,7 +40,7 @@ const BookingsScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Minhas Reservas" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : activeBookings.length > 0 ? (

@@ -41,7 +41,7 @@ const PackagesScreen = ({ navigation }: any) => {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionTitle}>Escolha seu plano</Text>
 
         {isLoading ? (

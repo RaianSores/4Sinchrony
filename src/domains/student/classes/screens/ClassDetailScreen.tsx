@@ -80,7 +80,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Detalhes da Aula" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.headerCard}>
           <View style={styles.instructorRow}>
             <View style={styles.instructorAvatar}>

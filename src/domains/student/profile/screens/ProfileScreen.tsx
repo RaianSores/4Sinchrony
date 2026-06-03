@@ -28,7 +28,7 @@ const ProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Perfil" />
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <TouchableOpacity style={styles.profileHeader} onPress={() => navigation.navigate('EditProfile')} activeOpacity={0.8}>
           <View style={styles.avatar}>
             <Ionicons name="person" size={60} color={colors.primary} />

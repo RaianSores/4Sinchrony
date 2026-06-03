@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,23 +12,22 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import { ReferralInfo } from '../../../../shared/types';
+import { referralService } from '../services/referralService';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { borderRadius } from '../../../../shared/theme';
-
-const mockReferral: ReferralInfo = {
-  code: 'STUDIO10',
-  url: 'https://4sinchronyexperience.app/ref/STUDIO10',
-  totalReferrals: 3,
-  totalCreditsEarned: 6,
-};
 
 const BringAFriendScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { showAlert } = useAppAlert();
-  const [referral] = useState<ReferralInfo>(mockReferral);
+  const [referral, setReferral] = useState<ReferralInfo | null>(null);
+
+  useEffect(() => {
+    referralService.getReferral().then(setReferral).catch(() => {});
+  }, []);
 
   const handleShare = async () => {
+    if (!referral) return;
     try {
       await Share.share({
         message: `Vem treinar comigo no 4Sinchrony Experience! Use meu código ${referral.code} e ganhe créditos extras. Baixe o app: ${referral.url}`,
@@ -40,6 +39,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
   };
 
   const handleCopy = async () => {
+    if (!referral) return;
     try {
       await Share.share({ message: referral.code });
     } catch {
@@ -51,7 +51,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Bring a Friend" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.heroSection}>
           <Ionicons name="people" size={64} color={colors.primary} />
           <Text style={styles.heroTitle}>Traga um Amigo</Text>
@@ -62,12 +62,12 @@ const BringAFriendScreen = ({ navigation }: any) => {
 
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>{referral.totalReferrals}</Text>
+            <Text style={styles.statValue}>{referral?.totalReferrals ?? 0}</Text>
             <Text style={styles.statLabel}>Amigos indicados</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statBox}>
-            <Text style={styles.statValue}>{referral.totalCreditsEarned}</Text>
+            <Text style={styles.statValue}>{referral?.totalCreditsEarned ?? 0}</Text>
             <Text style={styles.statLabel}>Créditos ganhos</Text>
           </View>
         </View>
@@ -75,7 +75,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
         <View style={styles.codeSection}>
           <Text style={styles.codeLabel}>Seu código de indicação</Text>
           <TouchableOpacity style={styles.codeBox} onPress={handleCopy}>
-            <Text style={styles.codeText}>{referral.code}</Text>
+            <Text style={styles.codeText}>{referral?.code ?? '—'}</Text>
             <Ionicons name="copy-outline" size={22} color={colors.primary} />
           </TouchableOpacity>
         </View>

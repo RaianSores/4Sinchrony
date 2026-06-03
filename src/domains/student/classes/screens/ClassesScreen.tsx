@@ -84,7 +84,7 @@ const ClassesScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       } />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
           {classTypes.map(t => (
             <TouchableOpacity key={t.value} style={[styles.chip, filters.type === t.value && styles.chipActive]} onPress={() => setFilters({ type: t.value })}>

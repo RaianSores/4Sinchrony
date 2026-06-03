@@ -13,6 +13,8 @@ interface PackageState {
   isLoading: boolean;
 
   fetchPackages: () => Promise<void>;
+  fetchPurchases: () => Promise<void>;
+  clearPurchases: () => void;
   addToCart: (pkg: ClassPackage) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
@@ -41,6 +43,15 @@ export const usePackageStore = create<PackageState>()(
           set({ isLoading: false });
         }
       },
+
+      fetchPurchases: async () => {
+        try {
+          const purchases = await paymentService.getPurchases();
+          set({ purchases });
+        } catch {}
+      },
+
+      clearPurchases: () => set({ purchases: [], cart: [], coupon: null }),
 
       addToCart: (pkg) =>
         set(state => {

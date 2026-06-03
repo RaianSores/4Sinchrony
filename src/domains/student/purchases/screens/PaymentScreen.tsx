@@ -30,11 +30,13 @@ const PaymentScreen = ({ navigation, route }: any) => {
   const handlePayment = async () => {
     setProcessing(true);
     try {
+      const packageIds = cart.map(item => item.id);
+      const couponCode = coupon?.code;
       let result;
       if (method === 'pix') {
-        result = await paymentService.processPixPayment(amount);
+        result = await paymentService.processPixPayment(amount, packageIds, couponCode);
       } else {
-        result = await paymentService.processCardPayment(amount, 'tok_test_123');
+        result = await paymentService.processCardPayment(amount, 'tok_test_123', packageIds, couponCode);
       }
 
       const purchase = {
@@ -65,7 +67,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Pagamento" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.amountCard}>
           <Text style={styles.amountLabel}>Valor a pagar</Text>
           <Text style={styles.amountValue}>R$ {amount.toFixed(2)}</Text>
