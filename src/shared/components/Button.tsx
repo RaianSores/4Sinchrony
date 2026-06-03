@@ -50,6 +50,7 @@ const Button: React.FC<ButtonProps> = ({
           justifyContent: 'center',
           alignItems: 'center',
           marginVertical: spacing.xs,
+          paddingHorizontal: spacing.xl,
           backgroundColor: bgColor,
           opacity: disabled ? 0.5 : 1,
         },

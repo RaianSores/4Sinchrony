@@ -9,4 +9,5 @@ export type {
   CardBrand, CardInfo, AddCardData,
 } from './payment';
 export type { Achievement, ReferralInfo } from './referral';
+export type { StudentProgress } from './progress';
 export type { NotificationPreference, NotificationSettings } from './notification';

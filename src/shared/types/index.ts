@@ -17,3 +17,4 @@ export type {
 } from '../../core/types';
 
 export type { Studio } from '../../core/types/studio';
+export type { StudentProgress } from '../../core/types/progress';

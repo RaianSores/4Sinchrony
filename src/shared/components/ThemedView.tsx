@@ -43,6 +43,7 @@ export const ThemedScrollView: React.FC<ThemedScrollViewProps> = ({ children, st
     <ScrollView
       style={[{ flex: 1, backgroundColor: colors.background }, style]}
       contentContainerStyle={contentContainerStyle}
+      showsVerticalScrollIndicator={false}
       {...rest}
     >
       {children}
