@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -14,7 +13,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './CartScreen.styles';
 
 const CartScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -143,93 +142,5 @@ const CartScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40 },
-  emptyState: { alignItems: 'center', marginTop: 100 },
-  emptyTitle: { color: colors.text, fontSize: 24, fontWeight: '700', marginTop: 20 },
-  emptySubtitle: { color: colors.textSecondary, fontSize: 16, marginTop: 8 },
-  cartItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  itemInfo: { flex: 1 },
-  itemName: { fontSize: 17, fontWeight: '600', color: colors.text },
-  itemCredits: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  itemPrice: { fontSize: 16, fontWeight: '700', color: colors.primary, marginTop: 4 },
-  itemActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  quantity: { fontSize: 18, fontWeight: '700', color: colors.text, minWidth: 24, textAlign: 'center' },
-  couponSection: {
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  couponTitle: { color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  couponRow: { flexDirection: 'row', gap: 8 },
-  couponInput: {
-    flex: 1,
-    backgroundColor: colors.inputBg,
-    borderRadius: borderRadius.md,
-    padding: 14,
-    color: colors.text,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  couponButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  couponButtonText: { color: colors.black, fontWeight: '700', fontSize: 15 },
-  couponApplied: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-    backgroundColor: colors.success + '15',
-    borderRadius: borderRadius.sm,
-    padding: 10,
-  },
-  couponAppliedText: { color: colors.success, fontSize: 13 },
-  totalSection: {
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  totalLabel: { color: colors.textSecondary, fontSize: 15 },
-  totalValue: { color: colors.text, fontSize: 15 },
-  totalFinal: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 12,
-    marginTop: 4,
-  },
-  totalFinalLabel: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  totalFinalValue: { color: colors.primary, fontSize: 22, fontWeight: '700' },
-});
 
 export default CartScreen;

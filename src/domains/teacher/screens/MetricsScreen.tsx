@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './MetricsScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { borderRadius, shadow } from '../../../shared/theme';
 import { useTeacherMetricsStore } from '../stores/useTeacherMetricsStore';
 
 const MetricsScreen = ({ navigation }: any) => {
@@ -94,70 +94,5 @@ const MetricsScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  title: { fontSize: 18, fontWeight: '700', color: colors.text },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: colors.textSecondary },
-  scrollContent: { padding: 16, paddingBottom: 40 },
-  cardsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  metricCard: {
-    flex: 1,
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: borderRadius.lg,
-    borderLeftWidth: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadow.sm,
-  },
-  metricValue: { fontSize: 28, fontWeight: '700', color: colors.text },
-  metricLabel: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginTop: 20, marginBottom: 16 },
-  barChart: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  occupancyChart: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  barColumn: { alignItems: 'center', gap: 4 },
-  barValue: { fontSize: 12, fontWeight: '600', color: colors.text },
-  barTrack: { height: 80, justifyContent: 'flex-end' },
-  bar: { width: 24, backgroundColor: colors.primaryDark, borderRadius: 4 },
-  occupancyTrack: { height: 100, justifyContent: 'flex-end' },
-  occupancyBar: { width: 20, backgroundColor: colors.primary, borderRadius: 4 },
-  barLabel: { fontSize: 10, color: colors.textSecondary },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primaryDark + '10',
-    padding: 16,
-    borderRadius: borderRadius.lg,
-    marginTop: 20,
-    gap: 10,
-  },
-  infoText: { flex: 1, fontSize: 13, color: colors.textSecondary, lineHeight: 18 },
-});
 
 export default MetricsScreen;

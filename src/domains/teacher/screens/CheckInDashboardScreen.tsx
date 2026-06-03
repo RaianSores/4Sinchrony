@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './CheckInDashboardScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { borderRadius, shadow } from '../../../shared/theme';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 
@@ -64,39 +64,5 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 15, color: colors.textSecondary, marginTop: 2 },
-  scrollContent: { padding: 16, paddingBottom: 40 },
-  loadingText: { textAlign: 'center', color: colors.textSecondary, marginTop: 40 },
-  emptyState: { alignItems: 'center', marginTop: 60, gap: 8 },
-  emptyText: { fontSize: 16, color: colors.grayLight },
-  classCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: borderRadius.lg,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadow.sm,
-  },
-  classTime: {
-    alignItems: 'center',
-    paddingRight: 16,
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-    minWidth: 55,
-  },
-  classTimeText: { fontSize: 16, fontWeight: '700', color: colors.text },
-  classDuration: { fontSize: 11, color: colors.textSecondary, marginTop: 2 },
-  classInfo: { flex: 1, paddingLeft: 16, gap: 3 },
-  className: { fontSize: 16, fontWeight: '600', color: colors.text },
-  classStudio: { fontSize: 13, color: colors.textSecondary },
-  classOccupancy: { fontSize: 12, color: colors.primaryDark, fontWeight: '500' },
-});
 
 export default CheckInDashboardScreen;

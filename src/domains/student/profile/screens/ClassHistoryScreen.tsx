@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './ClassHistoryScreen.styles';
 
 const ClassHistoryScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -54,37 +54,6 @@ const ClassHistoryScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40, paddingTop: 8 },
-  emptyState: { alignItems: 'center', marginTop: 100 },
-  emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', marginTop: 16 },
-  emptySubtitle: { color: colors.textSecondary, fontSize: 15, marginTop: 8, textAlign: 'center' },
-  historyCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  className: { fontSize: 16, fontWeight: '600', color: colors.text },
-  instructor: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  date: { color: colors.textSecondary, fontSize: 13 },
-});
+
 
 export default ClassHistoryScreen;

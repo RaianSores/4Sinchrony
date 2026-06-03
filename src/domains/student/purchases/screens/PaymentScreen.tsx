@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
@@ -15,7 +14,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './PaymentScreen.styles';
 
 const PaymentScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();
@@ -144,68 +143,5 @@ const PaymentScreen = ({ navigation, route }: any) => {
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40 },
-  amountCard: {
-    backgroundColor: colors.card,
-    margin: 16,
-    borderRadius: borderRadius.xl,
-    padding: 24,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  amountLabel: { color: colors.textSecondary, fontSize: 15 },
-  amountValue: { color: colors.primary, fontSize: 42, fontWeight: '700', marginTop: 8 },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  methodCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  methodCardActive: { borderColor: colors.primary },
-  methodLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  methodName: { color: colors.text, fontSize: 17, fontWeight: '600' },
-  methodDesc: { color: colors.textSecondary, fontSize: 13, marginTop: 2 },
-  summaryCard: {
-    backgroundColor: colors.card,
-    margin: 16,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  summaryTitle: { color: colors.text, fontSize: 17, fontWeight: '700', marginBottom: 12 },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  summaryLabel: { color: colors.textSecondary, fontSize: 14 },
-  summaryValue: { color: colors.text, fontSize: 14 },
-  summaryTotal: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12, marginTop: 4 },
-  summaryTotalLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  summaryTotalValue: { color: colors.primary, fontSize: 18, fontWeight: '700' },
-});
 
 export default PaymentScreen;

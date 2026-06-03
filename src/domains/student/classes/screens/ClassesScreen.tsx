@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import Header from '../../../../shared/components/Header';
 import ClassCard from '../../../../shared/components/ClassCard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './ClassesScreen.styles';
 
 const classTypes = [
   { label: 'Todas', value: '' },
@@ -170,36 +170,6 @@ const ClassesScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40, paddingTop: 8 },
-  chipRow: { maxHeight: 44, marginBottom: 8 },
-  chipContent: { paddingHorizontal: 16, gap: 8, alignItems: 'center' },
-  chip: { flexDirection: 'row', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  chipActive: { backgroundColor: colors.primary + '20', borderColor: colors.primary },
-  chipText: { color: colors.textSecondary, fontSize: 14, fontWeight: '500' },
-  chipTextActive: { color: colors.primary, fontWeight: '700' },
-  chipSub: { color: colors.textSecondary, fontSize: 11 },
-  chipSubActive: { color: colors.primary },
-  chipCalendar: { paddingHorizontal: 12, borderStyle: 'dashed', backgroundColor: colors.background },
-  dateHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
-  dateHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  dateHeaderDay: { fontSize: 18, fontWeight: '700', color: colors.text },
-  todayBadge: { backgroundColor: colors.primary + '30', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
-  todayBadgeText: { fontSize: 11, fontWeight: '700', color: colors.primary },
-  dateHeaderAction: { fontSize: 13, color: colors.primary, fontWeight: '600' },
-  loadingText: { color: colors.textSecondary, textAlign: 'center', marginTop: 40 },
-  emptyState: { alignItems: 'center', marginTop: 80 },
-  emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', marginTop: 20 },
-  emptySubtitle: { color: colors.textSecondary, fontSize: 15, marginTop: 8 },
-  clearFilter: { marginTop: 20 },
-  clearFilterText: { color: colors.primary, fontSize: 16, fontWeight: '600' },
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  modalContent: { backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 16, paddingBottom: 32, paddingHorizontal: 16 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, paddingHorizontal: 8 },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: colors.text },
-  modalButton: { backgroundColor: colors.primary, borderRadius: borderRadius.md, paddingVertical: 14, alignItems: 'center', marginTop: 16, marginHorizontal: 8 },
-  modalButtonText: { color: colors.white, fontSize: 17, fontWeight: '700' },
-});
+
 
 export default ClassesScreen;

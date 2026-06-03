@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, Switch } from 'react-native';
+import { mkStyles } from './NotificationToggle.styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
 import { NotificationPreference } from '../../../../shared/types';
 
 interface NotificationToggleProps {
@@ -35,30 +35,5 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({ preference, onT
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  textWrap: { flex: 1, marginRight: 12 },
-  title: { fontSize: 15, fontWeight: '600', color: colors.text },
-  description: { fontSize: 12, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
-});
 
 export default NotificationToggle;

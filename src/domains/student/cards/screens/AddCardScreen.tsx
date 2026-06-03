@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +14,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './AddCardScreen.styles';
 import { useCardStore } from '../store/useCardStore';
 import CardForm from '../components/CardForm';
 import CardFlagIcon from '../components/CardFlagIcon';
@@ -183,24 +182,5 @@ const AddCardScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
-  scrollContent: { padding: 20, paddingBottom: 40, gap: 24 },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: borderRadius.lg,
-    padding: 14,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  brandText: { fontSize: 16, fontWeight: '600', color: colors.text },
-  savingIndicator: { paddingVertical: 8 },
-  securityNote: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', lineHeight: 18 },
-});
 
 export default AddCardScreen;

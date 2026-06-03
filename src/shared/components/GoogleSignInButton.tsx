@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import { mkStyles } from './GoogleSignInButton.styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../theme/useTheme';
-import { borderRadius, spacing } from '../theme';
 
 interface GoogleSignInButtonProps {
   onPress: () => void;
@@ -35,20 +35,5 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    height: 56,
-    borderRadius: borderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginVertical: spacing.xs,
-  },
-  icon: { marginRight: 10 },
-  text: { fontSize: 16, fontWeight: '600', color: colors.text },
-});
 
 export default GoogleSignInButton;

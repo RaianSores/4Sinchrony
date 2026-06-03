@@ -6,6 +6,10 @@ import { useTheme } from '../../../shared/theme/useTheme';
 import AdminDashboardScreen from '../../../domains/admin/screens/AdminDashboardScreen';
 import { ManagementScreen, StudentsScreen, TeachersScreen, StudiosScreen } from '../../../domains/admin/screens/ManagementScreen';
 import AdminProfileScreen from '../../../domains/admin/screens/AdminProfileScreen';
+import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
+import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
+import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
+import NotificationSettingsScreen from '../../../domains/student/notifications/screens/NotificationSettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
@@ -30,6 +34,10 @@ const ManagementStackScreen = () => (
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
     <ProfileStack.Screen name="AdminProfile" component={AdminProfileScreen} />
+    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+    <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen} />
   </ProfileStack.Navigator>
 );
 

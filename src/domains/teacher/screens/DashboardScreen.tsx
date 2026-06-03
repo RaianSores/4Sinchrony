@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './DashboardScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { borderRadius, shadow } from '../../../shared/theme';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useTeacherSessionStore } from '../stores/useTeacherSessionStore';
 
@@ -104,40 +104,5 @@ const DashboardScreen = ({ navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 16, color: colors.textSecondary, marginTop: 2 },
-  scrollContent: { paddingBottom: 40 },
-  statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginVertical: 20 },
-  statCard: { flex: 1, padding: 16, borderRadius: borderRadius.lg, alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, ...shadow.sm },
-  statValue: { fontSize: 24, fontWeight: '700', color: colors.text },
-  statLabel: { fontSize: 12, color: colors.textSecondary, textAlign: 'center' },
-  activeSessionBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, marginHorizontal: 16, marginBottom: 20, padding: 16, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: colors.success, gap: 12 },
-  activeSessionInfo: { flex: 1 },
-  activeSessionTitle: { fontSize: 14, fontWeight: '600', color: colors.success },
-  activeSessionName: { fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 },
-  continueButton: { backgroundColor: colors.success, paddingHorizontal: 16, paddingVertical: 8, borderRadius: borderRadius.sm },
-  continueButtonText: { color: colors.white, fontWeight: '600', fontSize: 14 },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: colors.text, paddingHorizontal: 20, marginBottom: 12 },
-  loadingText: { textAlign: 'center', color: colors.textSecondary, marginTop: 20 },
-  emptyState: { alignItems: 'center', marginTop: 40, gap: 8 },
-  emptyText: { fontSize: 16, color: colors.textSecondary },
-  classCard: { flexDirection: 'row', backgroundColor: colors.card, marginHorizontal: 16, marginBottom: 12, padding: 16, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: colors.border, ...shadow.sm },
-  classTime: { alignItems: 'center', justifyContent: 'center', paddingRight: 16, borderRightWidth: 1, borderRightColor: colors.border, minWidth: 60 },
-  classTimeText: { fontSize: 18, fontWeight: '700', color: colors.primary },
-  classDuration: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-  classInfo: { flex: 1, paddingLeft: 16, gap: 4 },
-  className: { fontSize: 17, fontWeight: '600', color: colors.text },
-  classStudio: { fontSize: 14, color: colors.textSecondary },
-  classMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
-  classMetaText: { fontSize: 13, color: colors.textSecondary },
-  classActions: { justifyContent: 'center', paddingLeft: 12 },
-  startButton: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: borderRadius.sm },
-  startButtonText: { color: colors.white, fontWeight: '600', fontSize: 13 },
-  metricsButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: borderRadius.lg, gap: 8 },
-  metricsButtonText: { color: colors.white, fontWeight: '600', fontSize: 16 },
-});
 
 export default DashboardScreen;

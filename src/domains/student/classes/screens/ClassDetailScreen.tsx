@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useClassStore } from '../store/useClassStore';
@@ -10,7 +10,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Button from '../../../../shared/components/Button';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { borderRadius } from '../../../../shared/theme';
+import { mkStyles } from './ClassDetailScreen.styles';
 
 const ClassDetailScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();
@@ -168,41 +168,6 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: 40 },
-  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { color: colors.textSecondary, fontSize: 17 },
-  headerCard: { backgroundColor: colors.card, margin: 16, borderRadius: borderRadius.xl, padding: 20, borderWidth: 1, borderColor: colors.border },
-  instructorRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  instructorAvatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: colors.border, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
-  instructorName: { fontSize: 18, fontWeight: '700', color: colors.text },
-  className: { fontSize: 15, color: colors.secondary, marginTop: 2 },
-  metaRow: { flexDirection: 'row', marginBottom: 12 },
-  metaItem: { flexDirection: 'row', alignItems: 'center', marginRight: 20, marginBottom: 8 },
-  metaText: { color: colors.textSecondary, fontSize: 14, marginLeft: 6 },
-  section: { paddingHorizontal: 16, marginBottom: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  spotsCard: { backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: 20, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
-  spotsValue: { fontSize: 48, fontWeight: '700', color: colors.primary },
-  spotsTotal: { fontSize: 24, fontWeight: '400', color: colors.textSecondary },
-  progressBar: { height: 6, backgroundColor: colors.border, borderRadius: 3, overflow: 'hidden', width: '100%', marginTop: 16 },
-  progress: { height: '100%', backgroundColor: colors.primary },
-  bikeGrid: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: 12, borderWidth: 1, borderColor: colors.border },
-  bikeItem: { width: '20%', aspectRatio: 1, justifyContent: 'center', alignItems: 'center', margin: 4, borderRadius: borderRadius.md, backgroundColor: colors.background },
-  bikeOccupied: { backgroundColor: colors.border, opacity: 0.5 },
-  bikeSelected: { backgroundColor: colors.primary },
-  bikeNumber: { fontSize: 12, color: colors.primary, marginTop: 2, fontWeight: '600' },
-  bikeNumberOccupied: { color: colors.textSecondary },
-  bikeNumberSelected: { color: colors.white },
-  buttonContainer: { paddingHorizontal: 16, marginTop: 8 },
-  creditsBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 12, paddingVertical: 8, backgroundColor: colors.card, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border },
-  creditsText: { color: colors.textSecondary, fontSize: 14, fontWeight: '500' },
-  bookedInfo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: colors.card, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: colors.success, gap: 12 },
-  bookedTitle: { fontSize: 17, fontWeight: '600', color: colors.success },
-  bookedDetail: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
-  soldOut: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  soldOutText: { color: colors.danger, fontSize: 18, fontWeight: '600', marginLeft: 8 },
-});
+
 
 export default ClassDetailScreen;

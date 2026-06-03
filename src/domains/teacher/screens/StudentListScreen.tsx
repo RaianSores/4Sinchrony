@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { mkStyles } from './StudentListScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
-import { borderRadius } from '../../../shared/theme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 import type { AttendanceStatus } from '../../../core/types/attendance';
 
@@ -97,64 +97,5 @@ const StudentListScreen = ({ route, navigation }: any) => {
   );
 };
 
-const mkStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  title: { fontSize: 18, fontWeight: '700', color: colors.text },
-  confirmAll: { fontSize: 14, fontWeight: '600', color: colors.primaryDark },
-  statsRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginBottom: 16 },
-  statBox: {
-    flex: 1,
-    backgroundColor: colors.card,
-    padding: 12,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  statValue: { fontSize: 22, fontWeight: '700', color: colors.text },
-  statLabel: { fontSize: 11, color: colors.textSecondary, marginTop: 2 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: colors.textSecondary },
-  listContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  studentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.card,
-    padding: 14,
-    borderRadius: borderRadius.md,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 12,
-  },
-  studentAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  studentInfo: { flex: 1 },
-  studentName: { fontSize: 15, fontWeight: '600', color: colors.text },
-  studentEmail: { fontSize: 12, color: colors.textSecondary, marginTop: 1 },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: borderRadius.full,
-    gap: 6,
-  },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusLabel: { fontSize: 12, fontWeight: '600' },
-});
 
 export default StudentListScreen;
