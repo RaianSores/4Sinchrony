@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Role } from '../../types/role';
 import type { User } from '../../types/user';
 import { tokenStorage } from '../../storage';
+import { usePackageStore } from '../../../domains/student/purchases/store/usePackageStore';
 
 interface AuthState {
   user: User | null;
@@ -44,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         tokenStorage.clear();
+        usePackageStore.getState().clearPurchases();
         set({
           user: null,
           token: null,

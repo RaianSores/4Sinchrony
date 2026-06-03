@@ -114,7 +114,10 @@ const LoginScreen = ({ navigation }: any) => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
                 placeholderTextColor={colors.grayLight}
+                importantForAutofill="no"
               />
             </View>
 
@@ -127,6 +130,7 @@ const LoginScreen = ({ navigation }: any) => {
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
                 placeholderTextColor={colors.grayLight}
+                importantForAutofill="no"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                 <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
@@ -164,13 +168,6 @@ const LoginScreen = ({ navigation }: any) => {
               onPress={() => navigation.navigate('Register')}
             />
 
-            <TouchableOpacity
-              onPress={() => navigation.navigate('DevLogin')}
-              style={styles.devButton}
-            >
-              <Ionicons name="flask" size={14} color={colors.gray} />
-              <Text style={styles.devButtonText}>Dev Login</Text>
-            </TouchableOpacity>
           </ScrollView>
         </View>
       </Animated.View>

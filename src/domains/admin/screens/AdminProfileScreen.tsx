@@ -35,7 +35,7 @@ const AdminProfileScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Perfil</Text>
       </View>
 
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
             <Ionicons name="person" size={60} color={colors.primary} />

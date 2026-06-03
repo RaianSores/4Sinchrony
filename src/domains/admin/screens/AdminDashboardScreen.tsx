@@ -47,7 +47,7 @@ const AdminDashboardScreen = () => {
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Visão geral do estúdio</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
           {stats.map((stat, i) => (
             <View key={i} style={[styles.statCard, { borderLeftColor: stat.color }]}>

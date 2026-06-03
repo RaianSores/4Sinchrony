@@ -29,7 +29,7 @@ const ManagementScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Gestão</Text>
         <Text style={styles.subtitle}>Administre sua plataforma</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {managementItems.map((item, i) => (
           <TouchableOpacity key={i} style={styles.card} onPress={() => navigation.navigate(item.screen)}>
             <View style={[styles.iconWrap, { backgroundColor: item.color + '15' }]}>
@@ -59,7 +59,7 @@ const StudentsScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Alunos</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {[
           { name: 'Carlos Silva', active: true },
           { name: 'Ana Beatriz', active: true },
@@ -91,7 +91,7 @@ const TeachersScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Professores</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {[
           { name: 'Ádria', specialty: 'Velo' },
           { name: 'Wal', specialty: 'Velo' },
@@ -124,7 +124,7 @@ const StudiosScreen = ({ navigation }: any) => {
         </TouchableOpacity>
         <Text style={styles.title}>Estúdios</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {['Palmas', 'Boxe Centro', '4Sinchrony Experience Centro'].map((name, i) => (
           <View key={i} style={styles.row}>
             <View style={styles.avatar}>
