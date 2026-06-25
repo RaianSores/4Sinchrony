@@ -50,6 +50,7 @@
 - adb uninstall com.sinchronyapp
 - adb -s 192.168.0.146:43833 uninstall app-release.apk
 
+
 - cd android
   -  ./gradlew clean
   -  ./gradlew assembleRelease

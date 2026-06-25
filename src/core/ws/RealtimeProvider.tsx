@@ -32,10 +32,14 @@ export const RealtimeProvider = ({ children, url }: RealtimeProviderProps) => {
     if (!token) return;
 
     const wsUrl = url || process.env.EXPO_PUBLIC_WS_URL || 'ws://10.0.2.2:3333/ws';
-    const ws = new WebSocket(`${wsUrl}?token=${token}`);
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
-    ws.onopen = () => { isConnectedRef.current = true; };
+    ws.onopen = () => {
+      isConnectedRef.current = true;
+      // Send auth token as first frame instead of exposing it in the URL query string
+      ws.send(JSON.stringify({ type: 'auth', token }));
+    };
     ws.onclose = () => { isConnectedRef.current = false; };
     ws.onerror = () => { isConnectedRef.current = false; };
 

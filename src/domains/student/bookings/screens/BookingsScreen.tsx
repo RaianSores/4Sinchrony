@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useBookingStore } from '../store/useBookingStore';
@@ -17,9 +17,16 @@ const BookingsScreen = ({ navigation }: any) => {
   const { user, updateUser } = useAuthStore();
   const { bookings, isLoading, fetchBookings, cancelBooking } = useBookingStore();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const { showAlert } = useAppAlert();
 
   useEffect(() => { fetchBookings(); }, [fetchBookings]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchBookings();
+    setRefreshing(false);
+  }, [fetchBookings]);
 
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
   const pastBookings = bookings.filter(b => b.status === 'cancelled');
@@ -40,7 +47,19 @@ const BookingsScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Minhas Reservas" />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : activeBookings.length > 0 ? (

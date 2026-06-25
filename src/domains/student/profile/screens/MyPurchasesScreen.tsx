@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePackageStore } from '../../purchases/store/usePackageStore';
@@ -11,16 +11,35 @@ const MyPurchasesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { purchases, fetchPurchases } = usePackageStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPurchases();
+  }, [fetchPurchases]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchPurchases();
+    setRefreshing(false);
   }, [fetchPurchases]);
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Minhas Compras" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         {purchases.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="cart-outline" size={64} color={colors.border} />

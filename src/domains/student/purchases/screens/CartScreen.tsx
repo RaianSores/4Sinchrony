@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TextInput,
+  // TextInput, // FEATURE: coupon (paid add-on)
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -18,32 +19,76 @@ import { mkStyles } from './CartScreen.styles';
 const CartScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { cart, coupon, addToCart, removeFromCart, applyCoupon, removeCoupon, getCartTotal, getDiscountedTotal } = usePackageStore();
-  const [couponCode, setCouponCode] = useState('');
-  const [couponLoading, setCouponLoading] = useState(false);
+  const { cart, addToCart, removeFromCart, clearCart, getCartTotal,
+    // coupon, applyCoupon, removeCoupon, getDiscountedTotal, // FEATURE: coupon (paid add-on)
+  } = usePackageStore();
+  // const [couponCode, setCouponCode] = useState(''); // FEATURE: coupon (paid add-on)
+  // const [couponLoading, setCouponLoading] = useState(false); // FEATURE: coupon (paid add-on)
+  const [refreshing, setRefreshing] = useState(false);
   const { showAlert } = useAppAlert();
 
-  const total = getCartTotal();
-  const discountedTotal = getDiscountedTotal();
-  const hasDiscount = coupon && discountedTotal < total;
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(r => setTimeout(r, 500));
+    setRefreshing(false);
+  }, []);
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return;
-    setCouponLoading(true);
-    const result = await applyCoupon(couponCode.trim());
-    setCouponLoading(false);
-    if (result) {
-      showAlert({ title: 'Cupom aplicado!', message: `Desconto de ${result.discountType === 'percentage' ? result.discount + '%' : 'R$ ' + result.discount.toFixed(2)}` });
-    } else {
-      showAlert({ title: 'Cupom inválido', message: 'Código não encontrado' });
-    }
+  const handleClearCart = () => {
+    showAlert({
+      title: 'Limpar sacola',
+      message: 'Deseja remover todos os itens da sacola?',
+      buttons: [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Limpar', style: 'destructive', onPress: clearCart },
+      ],
+    });
   };
+
+  const total = getCartTotal();
+
+  // FEATURE: coupon (paid add-on)
+  // const discountedTotal = getDiscountedTotal();
+  // const hasDiscount = coupon && discountedTotal < total;
+  // const handleApplyCoupon = async () => {
+  //   if (!couponCode.trim()) return;
+  //   setCouponLoading(true);
+  //   const result = await applyCoupon(couponCode.trim());
+  //   setCouponLoading(false);
+  //   if (result) {
+  //     showAlert({ title: 'Cupom aplicado!', message: `Desconto de ${result.discountType === 'percentage' ? result.discount + '%' : 'R$ ' + result.discount.toFixed(2)}` });
+  //   } else {
+  //     showAlert({ title: 'Cupom inválido', message: 'Código não encontrado' });
+  //   }
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Sacola" showBack onBackPress={() => navigation.goBack()} />
+      <Header
+        title="Sacola"
+        showBack
+        onBackPress={() => navigation.goBack()}
+        rightComponent={
+          cart.length > 0 ? (
+            <TouchableOpacity onPress={handleClearCart}>
+              <Ionicons name="trash-outline" size={22} color={colors.danger} />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         {cart.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="cart-outline" size={80} color={colors.border} />
@@ -79,6 +124,7 @@ const CartScreen = ({ navigation }: any) => {
               </View>
             ))}
 
+            {/* FEATURE: coupon (paid add-on)
             <View style={styles.couponSection}>
               <Text style={styles.couponTitle}>Cupom de desconto</Text>
               <View style={styles.couponRow}>
@@ -111,12 +157,14 @@ const CartScreen = ({ navigation }: any) => {
                 </View>
               )}
             </View>
+            */}
 
             <View style={styles.totalSection}>
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Subtotal</Text>
                 <Text style={styles.totalValue}>R$ {total.toFixed(2)}</Text>
               </View>
+              {/* FEATURE: coupon (paid add-on)
               {hasDiscount && (
                 <View style={styles.totalRow}>
                   <Text style={[styles.totalLabel, { color: colors.success }]}>Desconto</Text>
@@ -125,15 +173,16 @@ const CartScreen = ({ navigation }: any) => {
                   </Text>
                 </View>
               )}
+              */}
               <View style={[styles.totalRow, styles.totalFinal]}>
                 <Text style={styles.totalFinalLabel}>Total</Text>
-                <Text style={styles.totalFinalValue}>R$ {discountedTotal.toFixed(2)}</Text>
+                <Text style={styles.totalFinalValue}>R$ {total.toFixed(2)}</Text>
               </View>
             </View>
 
             <Button
               title="Continuar para Pagamento"
-              onPress={() => navigation.navigate('Payment', { amount: discountedTotal })}
+              onPress={() => navigation.navigate('Payment', { amount: total })}
               style={{ marginHorizontal: 16 }}
             />
           </>

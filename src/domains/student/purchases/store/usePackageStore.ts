@@ -18,10 +18,10 @@ interface PackageState {
   addToCart: (pkg: ClassPackage) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
-  applyCoupon: (code: string) => Promise<Coupon | null>;
-  removeCoupon: () => void;
+  // applyCoupon: (code: string) => Promise<Coupon | null>; // FEATURE: coupon (paid add-on)
+  // removeCoupon: () => void; // FEATURE: coupon (paid add-on)
   getCartTotal: () => number;
-  getDiscountedTotal: () => number;
+  // getDiscountedTotal: () => number; // FEATURE: coupon (paid add-on)
   addPurchase: (purchase: Purchase) => void;
 }
 
@@ -71,26 +71,23 @@ export const usePackageStore = create<PackageState>()(
 
       clearCart: () => set({ cart: [], coupon: null }),
 
-      applyCoupon: async (code) => {
-        const coupon = await paymentService.validateCoupon(code);
-        if (coupon) set({ coupon });
-        return coupon;
-      },
-
-      removeCoupon: () => set({ coupon: null }),
+      // FEATURE: coupon (paid add-on)
+      // applyCoupon: async (code) => {
+      //   const coupon = await paymentService.validateCoupon(code);
+      //   if (coupon) set({ coupon });
+      //   return coupon;
+      // },
+      // removeCoupon: () => set({ coupon: null }),
+      // getDiscountedTotal: () => {
+      //   const total = get().getCartTotal();
+      //   const coupon = get().coupon;
+      //   if (!coupon) return total;
+      //   if (coupon.discountType === 'percentage') return total - (total * coupon.discount) / 100;
+      //   return Math.max(0, total - coupon.discount);
+      // },
 
       getCartTotal: () =>
         get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-
-      getDiscountedTotal: () => {
-        const total = get().getCartTotal();
-        const coupon = get().coupon;
-        if (!coupon) return total;
-        if (coupon.discountType === 'percentage') {
-          return total - (total * coupon.discount) / 100;
-        }
-        return Math.max(0, total - coupon.discount);
-      },
 
       addPurchase: (purchase) =>
         set(state => ({ purchases: [purchase, ...state.purchases] })),

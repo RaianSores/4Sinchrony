@@ -13,7 +13,7 @@ const App = () => (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AlertProvider>
-          <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+          <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
           <RoleResolver />
         </AlertProvider>
       </QueryClientProvider>

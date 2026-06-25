@@ -23,6 +23,17 @@ function adaptClass(c: any): Class {
 }
 
 export const classService = {
+  async getClassTypes(): Promise<{ label: string; value: string }[]> {
+    try {
+      const res = await api.get<{ data: { id: string; name: string; active: boolean }[] }>('/api/class-types');
+      return (res.data.data ?? [])
+        .filter(t => t.active)
+        .map(t => ({ label: t.name, value: t.name.toLowerCase() }));
+    } catch {
+      return [];
+    }
+  },
+
   async getClasses(filters?: { date?: string; type?: string; studioId?: string }): Promise<Class[]> {
     const res = await api.get<{ data: any[] }>('/classes', { params: filters });
     return (res.data.data ?? []).map(adaptClass);

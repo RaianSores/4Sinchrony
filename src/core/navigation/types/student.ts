@@ -21,7 +21,7 @@ export type StudentProfileStackParamList = {
   ClassHistory: undefined;
   MyCards: undefined;
   AddCard: undefined;
-  BringAFriend: undefined;
+  // BringAFriend: undefined; // FEATURE: bring-a-friend (paid add-on)
   Settings: undefined;
   ChangePassword: undefined;
   Notifications: undefined;

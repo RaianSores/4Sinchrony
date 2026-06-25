@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { View, Text, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Image, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
@@ -12,9 +13,15 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
   const { result, purchase, method, amount } = route.params;
   const success = result?.success;
 
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
+        showsVerticalScrollIndicator={false}
+      >
         {success ? (
           <>
             <View style={styles.iconCircle}>
@@ -83,8 +90,8 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
             onPress={() => navigation.navigate('ProfileTab', { screen: 'MyPurchases' })}
           />
         </View>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 };
 

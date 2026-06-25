@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../shared/theme/useTheme';
 
 import TeacherDashboardScreen from '../../../domains/teacher/screens/DashboardScreen';
@@ -49,21 +50,28 @@ const ProfileStackScreen = () => (
   </ProfileStack.Navigator>
 );
 
+const TAB_BAR_BASE_HEIGHT = 55;
+
 export const TeacherNavigator = () => {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      height: TAB_BAR_BASE_HEIGHT + insets.bottom,
+      paddingBottom: insets.bottom,
+    }),
+    [colors, insets.bottom],
+  );
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.gray,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          height: 83,
-          paddingBottom: 28,
-        },
+        tabBarStyle,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '500',

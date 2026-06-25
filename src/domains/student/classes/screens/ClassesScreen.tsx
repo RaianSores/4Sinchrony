@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { useFocusEffect } from '@react-navigation/native';
@@ -10,13 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassesScreen.styles';
 
-const classTypes = [
-  { label: 'Todas', value: '' },
-  { label: 'Bike', value: 'bike' },
-  { label: 'Boxe', value: 'box' },
-  { label: 'Jiu-Jitsu', value: 'jiu-jitsu' },
-  { label: 'Dança', value: 'danca' },
-];
+const TODAS = { label: 'Todas', value: '' };
 
 const formatDate = (dateStr: string) => {
   const [y, m, d] = dateStr.split('-');
@@ -34,6 +28,23 @@ const ClassesScreen = ({ navigation }: any) => {
 
   const { classes, filters, isLoading, fetchClasses, setFilters } = useClassStore();
   const [showCalendar, setShowCalendar] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [classTypes, setClassTypes] = useState<{ label: string; value: string }[]>([TODAS]);
+
+  // Rebuild type chips from classes loaded without a type filter (all types present)
+  useEffect(() => {
+    if (filters.type === '' && classes.length > 0) {
+      const seen = new Set<string>();
+      const types: { label: string; value: string }[] = [];
+      classes.forEach(c => {
+        if (c.type && !seen.has(c.type.toLowerCase())) {
+          seen.add(c.type.toLowerCase());
+          types.push({ label: c.type, value: c.type.toLowerCase() });
+        }
+      });
+      if (types.length > 0) setClassTypes([TODAS, ...types]);
+    }
+  }, [classes, filters.type]);
 
   const calendarTheme = useMemo(() => ({
     backgroundColor: colors.card,
@@ -64,6 +75,12 @@ const ClassesScreen = ({ navigation }: any) => {
     fetchClasses();
   }, [fetchClasses, setFilters]));
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchClasses();
+    setRefreshing(false);
+  }, [fetchClasses]);
+
   const handleDateChange = (newDate: string) => { setFilters({ date: newDate }); setShowCalendar(false); };
   const clearDateFilter = () => setFilters({ date: '' });
 
@@ -84,7 +101,19 @@ const ClassesScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       } />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
           {classTypes.map(t => (
             <TouchableOpacity key={t.value} style={[styles.chip, filters.type === t.value && styles.chipActive]} onPress={() => setFilters({ type: t.value })}>
@@ -111,7 +140,7 @@ const ClassesScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </ScrollView>
 
-        {isLoading ? (
+        {isLoading && classes.length === 0 ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (
           <View style={styles.emptyState}>

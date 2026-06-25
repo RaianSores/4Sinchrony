@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useBookingStore } from '../store/useBookingStore';
@@ -10,14 +10,33 @@ import { mkStyles } from './BookingHistoryScreen.styles';
 const BookingHistoryScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { bookings } = useBookingStore();
+  const { bookings, fetchBookings } = useBookingStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   const sorted = [...bookings].sort((a, b) => new Date(b.bookedAt).getTime() - new Date(a.bookedAt).getTime());
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchBookings();
+    setRefreshing(false);
+  }, [fetchBookings]);
 
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Histórico" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         {sorted.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="time-outline" size={64} color={colors.border} />

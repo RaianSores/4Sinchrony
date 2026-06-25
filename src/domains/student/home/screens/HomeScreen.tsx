@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -20,6 +20,7 @@ const HomeScreen = ({ navigation }: any) => {
   const { classes, fetchClasses } = useClassStore();
   const { bookings, fetchBookings } = useBookingStore();
   const { progress, fetchProgress } = useProgressStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
 
@@ -27,6 +28,12 @@ const HomeScreen = ({ navigation }: any) => {
     fetchClasses();
     fetchBookings();
     fetchProgress();
+  }, [fetchClasses, fetchBookings, fetchProgress]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([fetchClasses(), fetchBookings(), fetchProgress()]);
+    setRefreshing(false);
   }, [fetchClasses, fetchBookings, fetchProgress]);
 
   const now = new Date();
@@ -50,7 +57,19 @@ const HomeScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="4Sinchrony" />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         <View style={styles.greeting}>
           <Text style={styles.welcome}>Olá, {user?.name?.split(' ')[0] || 'Aluno'}!</Text>
           <Text style={styles.subtitle}>Vamos treinar hoje?</Text>
@@ -134,10 +153,12 @@ const HomeScreen = ({ navigation }: any) => {
             <Ionicons name="pricetags" size={24} color={colors.text} />
             <Text style={styles.actionText}>Planos</Text>
           </TouchableOpacity>
+          {/* FEATURE: bring-a-friend (paid add-on)
           <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ProfileTab', { screen: 'BringAFriend' })}>
             <Ionicons name="people" size={24} color={colors.text} />
             <Text style={styles.actionText}>Indicar</Text>
           </TouchableOpacity>
+          */}
         </View>
       </ScrollView>
     </SafeAreaView>

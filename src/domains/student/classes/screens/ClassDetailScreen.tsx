@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -24,6 +24,13 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   const classItem = classes.find(c => c.id === classId);
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [bikeStatuses, setBikeStatuses] = useState<{ number: number; status: string }[]>([]);
+
+  useEffect(() => {
+    if (classItem?.type?.toLowerCase() === 'bike') {
+      bookingService.getBikesForClass(classId).then(setBikeStatuses).catch(() => {});
+    }
+  }, [classId, classItem?.type]);
 
   if (!classItem) {
     return (
@@ -37,11 +44,12 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   const existingBooking = bookings.find(b => b.class.id === classId && b.status === 'confirmed');
   const isAlreadyBooked = !!existingBooking;
   const effectiveBike = isAlreadyBooked ? (existingBooking?.bikeNumber ?? null) : selectedBike;
-  const isBikeClass = classItem.type === 'bike';
+  const isBikeClass = classItem.type?.toLowerCase() === 'bike';
   const occupancy = Math.round(((classItem.totalSpots - classItem.availableSpots) / classItem.totalSpots) * 100);
   const hasCredits = (user?.credits || 0) > 0;
 
   const deductCredit = () => updateUser({ credits: Math.max(0, (user?.credits || 0) - 1) });
+  const refundCredit = () => updateUser({ credits: (user?.credits || 0) + 1 });
 
   const handleBook = async () => {
     if (isAlreadyBooked) return;
@@ -58,10 +66,9 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
         buttons: [{ text: 'Cancelar', style: 'cancel' }, { text: 'Cancelar e Reservar', style: 'destructive', onPress: async () => {
           setLoading(true);
           try {
-            updateUser({ credits: (user?.credits || 0) + 1 });
             await cancelBooking(conflict.existingBooking.id);
-            deductCredit();
             await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
+            deductCredit();
             showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso.`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
           } catch { showAlert({ title: 'Erro', message: 'Não foi possível completar a reserva' }); }
           finally { setLoading(false); }
@@ -70,11 +77,12 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
     }
     setLoading(true);
     try {
-      deductCredit();
       await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
+      deductCredit();
       showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso!`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
-    } catch { showAlert({ title: 'Erro', message: 'Não foi possível reservar' }); }
-    finally { setLoading(false); }
+    } catch {
+      showAlert({ title: 'Erro', message: 'Não foi possível reservar' });
+    } finally { setLoading(false); }
   };
 
   return (
@@ -121,16 +129,19 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{isAlreadyBooked ? 'Sua Bike' : 'Escolha sua Bike'}</Text>
             <View style={styles.bikeGrid}>
-              {Array.from({ length: classItem.totalSpots }, (_, i) => i + 1).map(num => {
-                const isOccupied = !isAlreadyBooked && num > classItem.availableSpots;
-                const isSelected = effectiveBike === num;
+              {(bikeStatuses.length > 0
+                ? bikeStatuses
+                : Array.from({ length: classItem.totalSpots }, (_, i) => ({ number: i + 1, status: 'available' }))
+              ).map(bike => {
+                const isUnavailable = !isAlreadyBooked && (bike.status === 'occupied' || bike.status === 'broken');
+                const isSelected = effectiveBike === bike.number;
                 return (
-                  <TouchableOpacity key={num}
-                    style={[styles.bikeItem, isOccupied && styles.bikeOccupied, isSelected && styles.bikeSelected]}
-                    onPress={() => !isAlreadyBooked && !isOccupied && setSelectedBike(num)}
-                    disabled={isAlreadyBooked || isOccupied}>
-                    <Ionicons name="bicycle" size={24} color={isOccupied ? colors.border : isSelected ? colors.white : colors.primary} />
-                    <Text style={[styles.bikeNumber, isOccupied && styles.bikeNumberOccupied, isSelected && styles.bikeNumberSelected]}>{num}</Text>
+                  <TouchableOpacity key={bike.number}
+                    style={[styles.bikeItem, isUnavailable && styles.bikeOccupied, isSelected && styles.bikeSelected]}
+                    onPress={() => !isAlreadyBooked && !isUnavailable && setSelectedBike(bike.number)}
+                    disabled={isAlreadyBooked || isUnavailable}>
+                    <Ionicons name="bicycle" size={24} color={isUnavailable ? colors.border : isSelected ? colors.white : colors.primary} />
+                    <Text style={[styles.bikeNumber, isUnavailable && styles.bikeNumberOccupied, isSelected && styles.bikeNumberSelected]}>{bike.number}</Text>
                   </TouchableOpacity>
                 );
               })}

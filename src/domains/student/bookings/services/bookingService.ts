@@ -1,5 +1,8 @@
+import { PAYMENT_MOCK } from '@env';
 import { api } from '../../../../core/http/api';
 import { Booking, Class } from '../../../../shared/types';
+
+const isMock = PAYMENT_MOCK === 'true';
 
 function adaptClass(c: any): Class {
   return {
@@ -42,25 +45,42 @@ export interface BookingConflict {
 
 export const bookingService = {
   async getMyBookings(): Promise<Booking[]> {
+    if (isMock) return [];
     const res = await api.get<{ data: any[] }>('/bookings');
     return (res.data.data ?? []).map(adaptBooking);
   },
 
   checkConflicts(_targetClass: Class, _existingBookings: Booking[]): BookingConflict | null {
-    // Conflict validation is enforced server-side on POST /bookings
     return null;
   },
 
   async createBooking(classId: string, bikeNumber?: number): Promise<Booking> {
-    const res = await api.post<{ data: any }>('/bookings', { classId, bikeNumber });
-    return adaptBooking(res.data.data);
+    if (isMock) {
+      await new Promise(r => setTimeout(r, 800));
+      return {
+        id: 'mock_booking_' + Date.now(),
+        class: { id: classId, name: '', type: '', instructor: '', startTime: '', duration: 0,
+          studio: { id: '', name: '', city: '', address: '' }, availableSpots: 0, totalSpots: 0, date: '' },
+        bikeNumber,
+        status: 'confirmed',
+        bookedAt: new Date().toISOString(),
+      };
+    }
+    const res = await api.post<any>('/bookings', { classId, bikeNumber });
+    const raw = res.data?.data ?? res.data;
+    return adaptBooking(raw);
   },
 
   async cancelBooking(bookingId: string): Promise<void> {
+    if (isMock) {
+      await new Promise(r => setTimeout(r, 500));
+      return;
+    }
     await api.post(`/bookings/${bookingId}/cancel`);
   },
 
   async getBikesForClass(classId: string): Promise<{ number: number; status: string }[]> {
+    if (isMock) return [];
     const res = await api.get<{ data: { number: number; status: string }[] }>(`/classes/${classId}/bikes`);
     return res.data.data ?? [];
   },

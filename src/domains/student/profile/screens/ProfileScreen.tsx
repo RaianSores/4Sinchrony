@@ -21,7 +21,7 @@ const ProfileScreen = ({ navigation }: any) => {
     { title: 'Histórico de Aulas', icon: 'time-outline', screen: 'ClassHistory' },
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
     { title: 'Planos', icon: 'pricetags-outline', screen: 'Packages' },
-    { title: 'Indicar Amigos', icon: 'people-outline', screen: 'BringAFriend' },
+    // { title: 'Indicar Amigos', icon: 'people-outline', screen: 'BringAFriend' }, // FEATURE: bring-a-friend (paid add-on)
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 

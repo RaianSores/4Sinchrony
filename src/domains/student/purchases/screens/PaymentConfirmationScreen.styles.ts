@@ -3,7 +3,7 @@ import { borderRadius } from '../../../../shared/theme';
 
 export const mkStyles = (colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1, justifyContent: 'center', padding: 24 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   iconCircle: { alignItems: 'center', marginBottom: 16 },
   title: {
     fontSize: 28,

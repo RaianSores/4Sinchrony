@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../theme/useTheme';
 import { spacing } from '../theme';
@@ -14,7 +13,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComponent, transparent }) => {
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
   return (
@@ -25,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComp
           alignItems: 'center',
           paddingHorizontal: spacing.md,
           paddingBottom: 12,
-          paddingTop: insets.top + 8,
+          paddingTop: 8,
           backgroundColor: transparent ? 'transparent' : colors.card,
           borderBottomWidth: transparent ? 0 : 1,
           borderBottomColor: colors.border,

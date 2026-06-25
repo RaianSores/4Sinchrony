@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePackageStore } from '../store/usePackageStore';
@@ -13,9 +13,16 @@ const PackagesScreen = ({ navigation }: any) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { packages, isLoading, fetchPackages, addToCart, cart } = usePackageStore();
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPackages();
+  }, [fetchPackages]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchPackages();
+    setRefreshing(false);
   }, [fetchPackages]);
 
   const handleBuy = (pkg: ClassPackage) => {
@@ -41,10 +48,22 @@ const PackagesScreen = ({ navigation }: any) => {
         }
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+            {...({ backgroundColor: colors.background } as any)}
+          />
+        }
+      >
         <Text style={styles.sectionTitle}>Escolha seu plano</Text>
 
-        {isLoading ? (
+        {isLoading && packages.length === 0 ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : (
           packages.map(pkg => (

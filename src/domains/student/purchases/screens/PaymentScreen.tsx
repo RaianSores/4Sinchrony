@@ -20,29 +20,26 @@ const PaymentScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { amount } = route.params;
-  const { cart, coupon, clearCart, addPurchase } = usePackageStore();
+  const { cart, clearCart, addPurchase,
+    // coupon, // FEATURE: coupon (paid add-on)
+  } = usePackageStore();
   const { user, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
-  const [method, setMethod] = useState<'pix' | 'card'>('pix');
+  const [method, setMethod] = useState<'pix'>('pix');
   const [processing, setProcessing] = useState(false);
 
   const handlePayment = async () => {
     setProcessing(true);
     try {
       const packageIds = cart.map(item => item.id);
-      const couponCode = coupon?.code;
-      let result;
-      if (method === 'pix') {
-        result = await paymentService.processPixPayment(amount, packageIds, couponCode);
-      } else {
-        result = await paymentService.processCardPayment(amount, 'tok_test_123', packageIds, couponCode);
-      }
+      // const couponCode = coupon?.code; // FEATURE: coupon (paid add-on)
+      const result = await paymentService.processPixPayment(amount, packageIds);
 
       const purchase = {
         id: 'pur_' + Date.now(),
         package: cart[0],
         amount,
-        coupon,
+        // coupon, // FEATURE: coupon (paid add-on)
         paymentMethod: method,
         status: 'confirmed' as const,
         createdAt: new Date().toISOString(),
@@ -56,7 +53,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
 
       navigation.replace('PaymentConfirmation', { result, purchase, method, amount });
     } catch {
-      showAlert({ title: 'Erro', message: 'Pagamento não foi processado' });
+      showAlert({ title: 'Erro', message: 'Pagamento não foi processado. Tente novamente.' });
     } finally {
       setProcessing(false);
     }
@@ -75,15 +72,11 @@ const PaymentScreen = ({ navigation, route }: any) => {
         <Text style={styles.sectionTitle}>Forma de Pagamento</Text>
 
         <TouchableOpacity
-          style={[styles.methodCard, method === 'pix' && styles.methodCardActive]}
-          onPress={() => setMethod('pix')}
+          style={[styles.methodCard, styles.methodCardActive]}
+          onPress={() => {}}
         >
           <View style={styles.methodLeft}>
-            <Ionicons
-              name={method === 'pix' ? 'radio-button-on' : 'radio-button-off'}
-              size={24}
-              color={method === 'pix' ? colors.primary : colors.border}
-            />
+            <Ionicons name="radio-button-on" size={24} color={colors.primary} />
             <Ionicons name="qr-code-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.methodName}>PIX</Text>
@@ -92,23 +85,26 @@ const PaymentScreen = ({ navigation, route }: any) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.methodCard, method === 'card' && styles.methodCardActive]}
-          onPress={() => setMethod('card')}
-        >
+        <View style={[styles.methodCard, { opacity: 0.45 }]}>
           <View style={styles.methodLeft}>
-            <Ionicons
-              name={method === 'card' ? 'radio-button-on' : 'radio-button-off'}
-              size={24}
-              color={method === 'card' ? colors.primary : colors.border}
-            />
+            <Ionicons name="radio-button-off" size={24} color={colors.border} />
             <Ionicons name="card-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.methodName}>Cartão de Crédito</Text>
+            <View style={{ marginLeft: 12, flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={styles.methodName}>Cartão de Crédito</Text>
+                <View style={{
+                  backgroundColor: colors.primary + '22',
+                  borderRadius: 4,
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                }}>
+                  <Text style={{ fontSize: 10, color: colors.primary, fontWeight: '600' }}>EM BREVE</Text>
+                </View>
+              </View>
               <Text style={styles.methodDesc}>Pagamento em até 12x</Text>
             </View>
           </View>
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Resumo</Text>
@@ -118,6 +114,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
               <Text style={styles.summaryValue}>R$ {(item.price * item.quantity).toFixed(2)}</Text>
             </View>
           ))}
+          {/* FEATURE: coupon (paid add-on)
           {coupon && (
             <View style={styles.summaryRow}>
               <Text style={[styles.summaryLabel, { color: colors.success }]}>Cupom {coupon.code}</Text>
@@ -126,6 +123,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
               </Text>
             </View>
           )}
+          */}
           <View style={[styles.summaryRow, styles.summaryTotal]}>
             <Text style={styles.summaryTotalLabel}>Total</Text>
             <Text style={styles.summaryTotalValue}>R$ {amount.toFixed(2)}</Text>
@@ -134,7 +132,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
 
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <Button
-            title={processing ? 'Processando...' : `Pagar R$ ${amount.toFixed(2)}`}
+            title={processing ? 'Processando...' : `Pagar R$ ${amount.toFixed(2)} via PIX`}
             onPress={handlePayment}
             disabled={processing}
           />

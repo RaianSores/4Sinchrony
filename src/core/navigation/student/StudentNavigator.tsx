@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../shared/theme/useTheme';
 
 import HomeScreen from '../../../domains/student/home/screens/HomeScreen';
@@ -22,7 +23,7 @@ import PackagesScreen from '../../../domains/student/purchases/screens/PackagesS
 import CartScreen from '../../../domains/student/purchases/screens/CartScreen';
 import PaymentScreen from '../../../domains/student/purchases/screens/PaymentScreen';
 import PaymentConfirmationScreen from '../../../domains/student/purchases/screens/PaymentConfirmationScreen';
-import BringAFriendScreen from '../../../domains/student/profile/screens/BringAFriendScreen';
+// import BringAFriendScreen from '../../../domains/student/profile/screens/BringAFriendScreen'; // FEATURE: bring-a-friend (paid add-on)
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
@@ -66,25 +67,32 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen} />
     <ProfileStack.Screen name="Payment" component={PaymentScreen} />
     <ProfileStack.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen} />
-    <ProfileStack.Screen name="BringAFriend" component={BringAFriendScreen} />
+    {/* <ProfileStack.Screen name="BringAFriend" component={BringAFriendScreen} /> */}{/* FEATURE: bring-a-friend (paid add-on) */}
   </ProfileStack.Navigator>
 );
 
+const TAB_BAR_BASE_HEIGHT = 55;
+
 export const StudentNavigator = () => {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      height: TAB_BAR_BASE_HEIGHT + insets.bottom,
+      paddingBottom: insets.bottom,
+    }),
+    [colors, insets.bottom],
+  );
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.gray,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          height: 83,
-          paddingBottom: 28,
-        },
+        tabBarStyle,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '500',
