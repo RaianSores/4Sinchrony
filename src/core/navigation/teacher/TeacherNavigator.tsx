@@ -59,12 +59,12 @@ function TabIcon({ name, focused, color }: { name: string; focused: boolean; col
     <View style={{
       alignItems: 'center',
       justifyContent: 'center',
-      width: 48,
-      height: 36,
-      borderRadius: 18,
+      paddingHorizontal: 14,
+      paddingVertical: 4,
+      borderRadius: 14,
       backgroundColor: focused ? colors.primary + '28' : 'transparent',
     }}>
-      <Ionicons name={name} size={22} color={color} />
+      <Ionicons name={name} size={20} color={color} />
     </View>
   );
 }
@@ -97,8 +97,8 @@ export const TeacherNavigator = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
         tabBarStyle,
-        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', paddingBottom: 4 },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
+        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', gap: 2 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
         headerShown: false,
       }}
     >
