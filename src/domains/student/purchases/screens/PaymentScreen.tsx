@@ -65,7 +65,7 @@ const PaymentScreen = ({ navigation, route }: any) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Pagamento" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={styles.amountCard}>
           <Text style={styles.amountLabel}>Valor a pagar</Text>
           <Text style={styles.amountValue}>R$ {amount.toFixed(2)}</Text>

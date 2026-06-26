@@ -72,6 +72,7 @@ const MyCardsScreen = ({ navigation }: any) => {
       <Header title="Meus Cartões" showBack onBackPress={() => navigation.goBack()} />
 
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

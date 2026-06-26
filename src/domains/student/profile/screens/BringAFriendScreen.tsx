@@ -61,6 +61,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
       <Header title="Bring a Friend" showBack onBackPress={() => navigation.goBack()} />
 
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

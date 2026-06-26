@@ -33,7 +33,7 @@ export const ManagementScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Gestão</Text>
         <Text style={styles.subtitle}>Administre sua plataforma</Text>
       </View>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {managementItems.map((item, i) => (
           <TouchableOpacity key={i} style={styles.card} onPress={() => navigation.navigate(item.screen)}>
             <View style={[styles.iconWrap, { backgroundColor: item.color + '15' }]}>
@@ -84,6 +84,7 @@ export const StudentsScreen = ({ navigation }: any) => {
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -151,6 +152,7 @@ export const TeachersScreen = ({ navigation }: any) => {
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -217,6 +219,7 @@ export const StudiosScreen = ({ navigation }: any) => {
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
           showsVerticalScrollIndicator={false}
           refreshControl={

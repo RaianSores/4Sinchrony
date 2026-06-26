@@ -27,6 +27,7 @@ const BookingHistoryScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Histórico" showBack onBackPress={() => navigation.goBack()} />
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

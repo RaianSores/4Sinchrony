@@ -56,7 +56,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Perfil</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabPadding }}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabPadding }}>
         <View style={styles.profileHeader}>
           <AvatarUpload
             uri={user?.avatar}

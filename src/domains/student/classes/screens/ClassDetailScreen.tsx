@@ -100,6 +100,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Detalhes da Aula" showBack onBackPress={() => navigation.goBack()} />
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

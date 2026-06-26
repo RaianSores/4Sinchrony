@@ -32,6 +32,7 @@ const ProfileScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Perfil" />
       <ScrollView
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: tabPadding }}
       >

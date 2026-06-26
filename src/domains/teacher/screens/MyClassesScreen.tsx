@@ -45,6 +45,7 @@ const MyClassesScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

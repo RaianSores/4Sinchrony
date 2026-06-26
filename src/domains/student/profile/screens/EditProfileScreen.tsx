@@ -51,7 +51,7 @@ const EditProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Editar Perfil" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
           <AvatarUpload
             uri={user?.avatar}

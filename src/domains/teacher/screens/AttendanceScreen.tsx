@@ -90,6 +90,7 @@ const AttendanceScreen = ({ route, navigation }: any) => {
         </View>
       ) : (
         <FlatList
+          style={{ flex: 1 }}
           data={records}
           keyExtractor={item => item.id}
           renderItem={renderItem}

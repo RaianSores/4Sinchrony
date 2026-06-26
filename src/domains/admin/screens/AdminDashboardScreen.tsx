@@ -66,6 +66,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={

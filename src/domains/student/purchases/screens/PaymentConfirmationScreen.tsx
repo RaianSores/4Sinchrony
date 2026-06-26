@@ -19,6 +19,7 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView
+        style={{ flex: 1 }}
         contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
         showsVerticalScrollIndicator={false}
       >
