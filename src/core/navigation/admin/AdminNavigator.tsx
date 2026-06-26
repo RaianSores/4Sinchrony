@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -42,32 +43,49 @@ const ProfileStackScreen = () => (
   </ProfileStack.Navigator>
 );
 
-const TAB_BAR_BASE_HEIGHT = 55;
+function TabIcon({ name, focused, color }: { name: string; focused: boolean; color: string }) {
+  const { colors } = useTheme();
+  return (
+    <View style={{
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 48,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: focused ? colors.primary + '28' : 'transparent',
+    }}>
+      <Ionicons name={name} size={22} color={color} />
+    </View>
+  );
+}
 
 export const AdminNavigator = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const tabBarStyle = useMemo(
-    () => ({
-      backgroundColor: colors.card,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      height: TAB_BAR_BASE_HEIGHT + insets.bottom,
-      paddingBottom: insets.bottom,
-    }),
-    [colors, insets.bottom],
-  );
+
+  const tabBarStyle = useMemo(() => ({
+    backgroundColor: colors.card,
+    marginHorizontal: 16,
+    marginBottom: Math.max(insets.bottom, 12),
+    borderRadius: 32,
+    height: 62,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(18,135,175,0.22)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.40,
+    shadowRadius: 20,
+    elevation: 12,
+  }), [colors, insets.bottom]);
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray,
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
+        tabBarShowLabel: false,
         tabBarStyle,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-        },
         headerShown: false,
       }}
     >
@@ -78,8 +96,9 @@ export const AdminNavigator = () => {
           tabPress: (e) => { e.preventDefault(); navigation.navigate('AdminDashboardTab', { screen: 'AdminDashboard' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />,
-          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'stats-chart' : 'stats-chart-outline'} focused={focused} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -89,8 +108,9 @@ export const AdminNavigator = () => {
           tabPress: (e) => { e.preventDefault(); navigation.navigate('AdminManagementTab', { screen: 'Management' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="settings" size={size} color={color} />,
-          tabBarLabel: 'Gestão',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -100,8 +120,9 @@ export const AdminNavigator = () => {
           tabPress: (e) => { e.preventDefault(); navigation.navigate('AdminProfileTab', { screen: 'AdminProfile' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-circle-outline" size={size} color={color} />,
-          tabBarLabel: 'Perfil',
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'person-circle' : 'person-circle-outline'} focused={focused} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>

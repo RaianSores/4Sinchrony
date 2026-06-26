@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -71,32 +72,49 @@ const ProfileStackScreen = () => (
   </ProfileStack.Navigator>
 );
 
-const TAB_BAR_BASE_HEIGHT = 55;
+function TabIcon({ name, focused, color }: { name: string; focused: boolean; color: string }) {
+  const { colors } = useTheme();
+  return (
+    <View style={{
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 48,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: focused ? colors.primary + '28' : 'transparent',
+    }}>
+      <Ionicons name={name} size={22} color={color} />
+    </View>
+  );
+}
 
 export const StudentNavigator = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const tabBarStyle = useMemo(
-    () => ({
-      backgroundColor: colors.card,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      height: TAB_BAR_BASE_HEIGHT + insets.bottom,
-      paddingBottom: insets.bottom,
-    }),
-    [colors, insets.bottom],
-  );
+
+  const tabBarStyle = useMemo(() => ({
+    backgroundColor: colors.card,
+    marginHorizontal: 16,
+    marginBottom: Math.max(insets.bottom, 12),
+    borderRadius: 32,
+    height: 62,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(18,135,175,0.22)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.40,
+    shadowRadius: 20,
+    elevation: 12,
+  }), [colors, insets.bottom]);
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray,
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
+        tabBarShowLabel: false,
         tabBarStyle,
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '500',
-        },
         headerShown: false,
       }}
     >
@@ -104,67 +122,48 @@ export const StudentNavigator = () => {
         name="HomeTab"
         component={HomeStackScreen}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('HomeTab', { screen: 'Home' });
-          },
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('HomeTab', { screen: 'Home' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'home' : 'home-outline'} focused={focused} color={color} />
           ),
-          tabBarLabel: 'Início',
         }}
       />
-
       <Tab.Screen
         name="AgendaTab"
         component={AgendaStackScreen}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('AgendaTab', { screen: 'Agenda' });
-          },
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('AgendaTab', { screen: 'Agenda' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'calendar' : 'calendar-outline'} focused={focused} color={color} />
           ),
-          tabBarLabel: 'Agenda',
         }}
       />
-
       <Tab.Screen
         name="BookingsTab"
         component={BookingsStackScreen}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('BookingsTab', { screen: 'Bookings' });
-          },
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('BookingsTab', { screen: 'Bookings' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="receipt" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'receipt' : 'receipt-outline'} focused={focused} color={color} />
           ),
-          tabBarLabel: 'Reservas',
         }}
       />
-
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackScreen}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('ProfileTab', { screen: 'Profile' });
-          },
+          tabPress: (e) => { e.preventDefault(); navigation.navigate('ProfileTab', { screen: 'Profile' }); },
         })}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} color={color} />
           ),
-          tabBarLabel: 'Perfil',
         }}
       />
     </Tab.Navigator>
