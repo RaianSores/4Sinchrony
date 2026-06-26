@@ -4,7 +4,12 @@ import { borderRadius, shadow } from '../../../shared/theme';
 export const mkStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12,
+      backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border,
+    },
+    headerLeft: { flex: 1 },
     title: { fontSize: 28, fontWeight: '700', color: colors.text },
     subtitle: { fontSize: 16, color: colors.textSecondary, marginTop: 2 },
     scrollContent: { paddingBottom: 40 },

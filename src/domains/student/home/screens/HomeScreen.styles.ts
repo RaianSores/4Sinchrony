@@ -1,13 +1,26 @@
 import { StyleSheet } from 'react-native';
-import { borderRadius } from '../../../../shared/theme';
+import { borderRadius, spacing } from '../../../../shared/theme';
 
 export const mkStyles = (colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+
+  enterpriseHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingTop: 16,
+    paddingBottom: 14,
+    backgroundColor: colors.card,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerLeft: { flex: 1 },
+  headerGreeting: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
+  headerName: { fontSize: 22, fontWeight: '700', color: colors.text, marginTop: 1 },
+
   scrollContent: { paddingBottom: 40 },
-  greeting: { paddingHorizontal: 20, paddingVertical: 24 },
-  welcome: { fontSize: 28, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 17, color: colors.textSecondary, marginTop: 4 },
-  statsContainer: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginBottom: 28 },
+  statsContainer: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginTop: 20, marginBottom: 20 },
   creditsBanner: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginHorizontal: 16, marginBottom: 28, paddingVertical: 12, paddingHorizontal: 16,

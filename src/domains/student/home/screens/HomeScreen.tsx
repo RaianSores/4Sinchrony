@@ -6,11 +6,18 @@ import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useClassStore } from '../../classes/store/useClassStore';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
 import { useProgressStore } from '../../profile/store/useProgressStore';
-import Header from '../../../../shared/components/Header';
 import StatCard from '../../../../shared/components/StatCard';
 import ClassCard from '../../../../shared/components/ClassCard';
+import { Avatar } from '../../../../shared/components/Avatar';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './HomeScreen.styles';
+
+function timeGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
 
 const HomeScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -22,6 +29,7 @@ const HomeScreen = ({ navigation }: any) => {
   const { progress, fetchProgress } = useProgressStore();
   const [refreshing, setRefreshing] = useState(false);
 
+  const firstName = user?.name?.split(' ')[0] || 'Aluno';
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
 
   useEffect(() => {
@@ -55,7 +63,19 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="4Sinchrony" />
+      {/* Enterprise header: greeting + avatar */}
+      <View style={styles.enterpriseHeader}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerGreeting}>{timeGreeting()},</Text>
+          <Text style={styles.headerName}>{firstName}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProfileTab', { screen: 'Profile' })}
+          activeOpacity={0.8}
+        >
+          <Avatar uri={user?.avatar} name={user?.name || 'A'} size="md" />
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -70,11 +90,6 @@ const HomeScreen = ({ navigation }: any) => {
           />
         }
       >
-        <View style={styles.greeting}>
-          <Text style={styles.welcome}>Olá, {user?.name?.split(' ')[0] || 'Aluno'}!</Text>
-          <Text style={styles.subtitle}>Vamos treinar hoje?</Text>
-        </View>
-
         <View style={styles.statsContainer}>
           <StatCard title="Aulas Realizadas" value={totalAttended} />
           <StatCard title="Reservas" value={activeBookings.length} />
@@ -164,7 +179,5 @@ const HomeScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
-
 
 export default HomeScreen;

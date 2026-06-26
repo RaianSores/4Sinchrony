@@ -4,12 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './DashboardScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
+import { useAuthStore } from '../../../core/auth/store/useAuthStore';
+import { Avatar } from '../../../shared/components/Avatar';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useTeacherSessionStore } from '../stores/useTeacherSessionStore';
 
 const DashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const { user } = useAuthStore();
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
   const { currentSession, isActive, startSession } = useTeacherSessionStore();
@@ -27,8 +30,16 @@ const DashboardScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.subtitle}>Professor</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Dashboard</Text>
+          <Text style={styles.subtitle}>Professor</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProfileTab', { screen: 'TeacherProfile' })}
+          activeOpacity={0.8}
+        >
+          <Avatar uri={user?.avatar} name={user?.name || 'P'} size="md" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -103,6 +114,5 @@ const DashboardScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
 
 export default DashboardScreen;

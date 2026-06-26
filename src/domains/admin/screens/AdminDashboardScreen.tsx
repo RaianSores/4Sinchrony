@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../services/adminService';
 import type { Activity } from '../services/adminService';
+import { useAuthStore } from '../../../core/auth/store/useAuthStore';
 import { useTheme } from '../../../shared/theme/useTheme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Avatar } from '../../../shared/components/Avatar';
 import { mkStyles } from './AdminDashboardScreen.styles';
 
 const ACTIVITY_COLORS: Record<Activity['type'], string> = {
@@ -13,9 +15,10 @@ const ACTIVITY_COLORS: Record<Activity['type'], string> = {
 };
 const getActivityColor = (type: Activity['type']) => ACTIVITY_COLORS[type] ?? '#3B82F6';
 
-const AdminDashboardScreen = () => {
+const AdminDashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const { user } = useAuthStore();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'dashboard'],
@@ -25,7 +28,12 @@ const AdminDashboardScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}><Text style={styles.title}>Dashboard</Text></View>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Dashboard</Text>
+          </View>
+          <Avatar uri={user?.avatar} name={user?.name || 'A'} size="md" />
+        </View>
         <View style={styles.loading}><Text style={styles.loadingText}>Carregando...</Text></View>
       </SafeAreaView>
     );
@@ -44,8 +52,16 @@ const AdminDashboardScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.subtitle}>Visão geral do estúdio</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Dashboard</Text>
+          <Text style={styles.subtitle}>Visão geral do estúdio</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AdminProfileTab', { screen: 'AdminProfile' })}
+          activeOpacity={0.8}
+        >
+          <Avatar uri={user?.avatar} name={user?.name || 'A'} size="md" />
+        </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
