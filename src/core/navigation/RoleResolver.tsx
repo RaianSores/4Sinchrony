@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
@@ -11,6 +11,7 @@ import { AdminNavigator } from './admin/AdminNavigator';
 import LoginScreen from '../auth/screens/LoginScreen';
 import RegisterScreen from '../auth/screens/RegisterScreen';
 import ForgotPasswordScreen from '../auth/screens/ForgotPasswordScreen';
+
 const Stack = createNativeStackNavigator();
 
 const AuthNavigator = () => (
@@ -22,8 +23,12 @@ const AuthNavigator = () => (
 );
 
 export const RoleResolver = () => {
-  const { isAuthenticated, isLoading, activeRole } = useAuthStore();
+  const { isAuthenticated, isLoading, initialized, activeRole, initialize } = useAuthStore();
   const { colors } = useTheme();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const navTheme = {
     ...DarkTheme,
@@ -38,7 +43,7 @@ export const RoleResolver = () => {
     },
   };
 
-  if (isLoading) {
+  if (!initialized || isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={colors.primary} />

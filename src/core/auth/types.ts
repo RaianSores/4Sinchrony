@@ -22,4 +22,5 @@ export interface AuthResponse {
     credits?: number;
   };
   token: string;
+  refresh_token: string;
 }

@@ -39,6 +39,7 @@ const RegisterScreen = ({ navigation }: any) => {
   const { showAlert } = useAppAlert();
 
   const login = useAuthStore(state => state.login);
+  const isGoogleConfigured = googleSignInService.isConfigured();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const ms = (size: number, factor = 0.3) => size + (scale - 1) * size * factor;
@@ -51,9 +52,20 @@ const RegisterScreen = ({ navigation }: any) => {
     }).start();
   }, [fadeAnim]);
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const PHONE_REGEX = /^\d{10,11}$/;
+
   const handleRegister = async () => {
     if (!name || !email || !phone || !password || !confirmPassword) {
       showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
+      return;
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      showAlert({ title: 'Erro', message: 'Email inválido' });
+      return;
+    }
+    if (!PHONE_REGEX.test(phone.replace(/\D/g, ''))) {
+      showAlert({ title: 'Erro', message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos)' });
       return;
     }
     if (password !== confirmPassword) {
@@ -68,7 +80,7 @@ const RegisterScreen = ({ navigation }: any) => {
     setLoading(true);
     try {
       const response = await authService.register({ name, email, phone, password });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refresh_token);
       showAlert({
         title: 'Sucesso!',
         message: 'Conta criada com sucesso. Bem-vindo(a) ao 4Sinchrony Experience!',
@@ -90,7 +102,7 @@ const RegisterScreen = ({ navigation }: any) => {
         phone: '',
         password: 'google_oauth',
       });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refresh_token);
     } catch (error: any) {
       if (error.message !== 'Login cancelado') {
         showAlert({ title: 'Erro', message: 'Nao foi possivel cadastrar com Google.' });
@@ -199,11 +211,13 @@ const RegisterScreen = ({ navigation }: any) => {
               variant="dark"
             />
 
-            <GoogleSignInButton
-              onPress={handleGoogleRegister}
-              loading={googleLoading}
-              label="Cadastrar com Google"
-            />
+            {isGoogleConfigured && (
+              <GoogleSignInButton
+                onPress={handleGoogleRegister}
+                loading={googleLoading}
+                label="Cadastrar com Google"
+              />
+            )}
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />

@@ -186,7 +186,8 @@ const ClassesScreen = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
             <Calendar current={filters.date || new Date().toISOString().split('T')[0]}
-              minDate={'2026-01-01'} maxDate={'2026-12-31'}
+              minDate={(() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d.toISOString().split('T')[0]; })()}
+              maxDate={(() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString().split('T')[0]; })()}
               onDayPress={(day: any) => handleDateChange(day.dateString)}
               markedDates={markedDates} theme={calendarTheme} enableSwipeMonths />
             <TouchableOpacity style={styles.modalButton} onPress={() => setShowCalendar(false)}>

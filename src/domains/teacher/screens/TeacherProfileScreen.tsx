@@ -28,6 +28,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
     { title: 'Minhas Especialidades', icon: 'ribbon-outline', screen: 'Specialties' },
     { title: 'Disponibilidade', icon: 'time-outline', screen: 'Availability' },
+    { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 

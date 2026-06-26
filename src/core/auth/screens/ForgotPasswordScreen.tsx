@@ -50,11 +50,11 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     setLoading(true);
     try {
       await authService.forgotPassword(email);
-      setSent(true);
     } catch {
-      showAlert({ title: 'Erro', message: 'Email nao encontrado' });
+      // exibir sucesso independente do resultado (anti-enumeração)
     } finally {
       setLoading(false);
+      setSent(true);
     }
   };
 

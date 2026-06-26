@@ -4,6 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NotificationPreference } from '../../../../shared/types';
 import { notificationService } from '../services/notificationService';
 
+const DEFAULT_PREFERENCES: NotificationPreference[] = [
+  { id: 'booking_reminder',      title: 'Lembrete de aula',      description: 'Aviso 1h antes do início da aula',           icon: 'alarm-outline',            enabled: true  },
+  { id: 'booking_confirmation',  title: 'Confirmação de reserva', description: 'Ao confirmar uma nova reserva',              icon: 'checkmark-circle-outline', enabled: true  },
+  { id: 'booking_cancellation',  title: 'Cancelamento de aula',   description: 'Quando uma aula for cancelada pelo studio',  icon: 'close-circle-outline',     enabled: true  },
+  { id: 'credits_low',           title: 'Créditos baixos',        description: 'Quando seus créditos estiverem acabando',    icon: 'wallet-outline',           enabled: true  },
+  { id: 'promotions',            title: 'Promoções',              description: 'Novidades e ofertas especiais',              icon: 'pricetag-outline',         enabled: false },
+];
+
 interface NotificationState {
   pushEnabled: boolean;
   emailEnabled: boolean;
@@ -28,9 +36,23 @@ export const useNotificationStore = create<NotificationState>()(
         set({ isLoading: true });
         try {
           const preferences = await notificationService.getPreferences();
-          set({ preferences, isLoading: false });
+          // Use API preferences if populated; fall back to defaults with enabled state merged
+          if (preferences.length > 0) {
+            set({ preferences, isLoading: false });
+          } else {
+            const existing = get().preferences;
+            const merged = DEFAULT_PREFERENCES.map(def => {
+              const saved = existing.find(p => p.id === def.id);
+              return saved ? { ...def, enabled: saved.enabled } : def;
+            });
+            set({ preferences: merged, isLoading: false });
+          }
         } catch {
-          set({ isLoading: false });
+          if (get().preferences.length === 0) {
+            set({ preferences: DEFAULT_PREFERENCES, isLoading: false });
+          } else {
+            set({ isLoading: false });
+          }
         }
       },
 

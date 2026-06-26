@@ -47,15 +47,21 @@ const LoginScreen = ({ navigation }: any) => {
     }).start();
   }, [fadeAnim]);
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleLogin = async () => {
     if (!email || !password) {
       showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
       return;
     }
+    if (!EMAIL_REGEX.test(email)) {
+      showAlert({ title: 'Erro', message: 'Email inválido' });
+      return;
+    }
     setLoading(true);
     try {
       const response = await authService.login({ email, password });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refresh_token);
     } catch {
       showAlert({ title: 'Erro', message: 'Email ou senha invalidos' });
     } finally {
@@ -73,7 +79,7 @@ const LoginScreen = ({ navigation }: any) => {
         email: googleUser.email,
         password: 'google_oauth',
       });
-      login(response.user, response.token);
+      login(response.user, response.token, response.refresh_token);
     } catch (error: any) {
       if (error.message !== 'Login cancelado') {
         showAlert({ title: 'Erro', message: 'Nao foi possivel entrar com Google.' });

@@ -14,6 +14,7 @@ import CheckInDashboardScreen from '../../../domains/teacher/screens/CheckInDash
 import CheckInSessionScreen from '../../../domains/teacher/screens/CheckInSessionScreen';
 import AttendanceScreen from '../../../domains/teacher/screens/AttendanceScreen';
 import TeacherProfileScreen from '../../../domains/teacher/screens/TeacherProfileScreen';
+import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
@@ -47,6 +48,7 @@ const CheckInStackScreen = () => (
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
     <ProfileStack.Screen name="TeacherProfile" component={TeacherProfileScreen} />
+    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
   </ProfileStack.Navigator>
 );
 

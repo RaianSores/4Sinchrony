@@ -5,6 +5,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RoleResolver } from './src/core/navigation/RoleResolver';
 import { AlertProvider } from './src/shared/components/AlertModal';
+import { initSentry } from './src/lib/sentry';
+
+initSentry();
 
 const queryClient = new QueryClient();
 
