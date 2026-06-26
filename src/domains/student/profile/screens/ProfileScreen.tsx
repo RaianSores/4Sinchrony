@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header';
+import { Avatar } from '../../../../shared/components/Avatar';
 import { usePackageStore } from '../../purchases/store/usePackageStore';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ProfileScreen.styles';
@@ -30,9 +31,7 @@ const ProfileScreen = ({ navigation }: any) => {
       <Header title="Perfil" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <TouchableOpacity style={styles.profileHeader} onPress={() => navigation.navigate('EditProfile')} activeOpacity={0.8}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={60} color={colors.primary} />
-          </View>
+          <Avatar uri={user?.avatar} name={user?.name || 'U'} size="xl" style={styles.avatar} />
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
           <View style={styles.creditsContainer}>
@@ -57,7 +56,5 @@ const ProfileScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
-
-
 
 export default ProfileScreen;

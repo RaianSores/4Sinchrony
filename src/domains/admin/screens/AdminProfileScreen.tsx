@@ -1,17 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../core/auth/store/useAuthStore';
+import { api } from '../../../core/http/api';
 import { useAppAlert } from '../../../shared/components/AlertModal';
+import { AvatarUpload } from '../../../shared/components/Avatar';
+import { pickAndUploadAvatar } from '../../../shared/services/avatarService';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { mkStyles } from './AdminProfileScreen.styles';
 
 const AdminProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const handleLogout = () => {
     showAlert({
@@ -22,6 +26,20 @@ const AdminProfileScreen = ({ navigation }: any) => {
         { text: 'Sair', style: 'destructive', onPress: logout },
       ],
     });
+  };
+
+  const handleAvatarPress = async () => {
+    setUploadingAvatar(true);
+    try {
+      const url = await pickAndUploadAvatar();
+      if (!url) return;
+      await api.put('/profile', { avatar: url });
+      updateUser({ avatar: url });
+    } catch (err) {
+      showAlert({ title: 'Erro', message: err instanceof Error ? err.message : 'Falha no upload' });
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const menuItems = [
@@ -37,9 +55,14 @@ const AdminProfileScreen = ({ navigation }: any) => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={60} color={colors.primary} />
-          </View>
+          <AvatarUpload
+            uri={user?.avatar}
+            name={user?.name || 'A'}
+            size="xl"
+            onPress={handleAvatarPress}
+            uploading={uploadingAvatar}
+            style={styles.avatar}
+          />
           <Text style={styles.name}>{user?.name || 'Administrador'}</Text>
           <Text style={styles.email}>{user?.email || ''}</Text>
           <View style={styles.roleBadge}>
