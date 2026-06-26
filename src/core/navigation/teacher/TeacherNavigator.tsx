@@ -57,14 +57,14 @@ function TabIcon({ name, focused, color }: { name: string; focused: boolean; col
   const { colors } = useTheme();
   return (
     <View style={{
+      width: 48,
+      height: 30,
+      borderRadius: 15,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: 14,
-      paddingVertical: 4,
-      borderRadius: 14,
       backgroundColor: focused ? colors.primary + '28' : 'transparent',
     }}>
-      <Ionicons name={name} size={20} color={color} />
+      <Ionicons name={name} size={22} color={color} />
     </View>
   );
 }
@@ -75,11 +75,11 @@ export const TeacherNavigator = () => {
 
   const tabBarStyle = useMemo(() => ({
     position: 'absolute' as const,
-    bottom: Math.max(insets.bottom, 12),
-    left: 16,
-    right: 16,
+    bottom: Math.max(insets.bottom + 16, 28),
+    left: 32,
+    right: 32,
     borderRadius: 32,
-    height: 62,
+    height: 68,
     borderTopWidth: 0,
     borderWidth: 1,
     borderColor: 'rgba(18,135,175,0.22)',
@@ -97,8 +97,8 @@ export const TeacherNavigator = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
         tabBarStyle,
-        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', gap: 2 },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
+        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         headerShown: false,
       }}
     >
