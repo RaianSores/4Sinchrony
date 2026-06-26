@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { borderRadius } from '../../../shared/theme';
 import { adminService } from '../services/adminService';
 import { mkStyles } from './ManagementScreen.styles';
@@ -24,6 +25,7 @@ const Badge = ({ active }: { active: boolean }) => (
 export const ManagementScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,7 +33,7 @@ export const ManagementScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Gestão</Text>
         <Text style={styles.subtitle}>Administre sua plataforma</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {managementItems.map((item, i) => (
           <TouchableOpacity key={i} style={styles.card} onPress={() => navigation.navigate(item.screen)}>
             <View style={[styles.iconWrap, { backgroundColor: item.color + '15' }]}>
@@ -52,6 +54,7 @@ export const ManagementScreen = ({ navigation }: any) => {
 export const StudentsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const [students, setStudents] = useState<{ id: string; name: string; email: string; active: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,7 +73,7 @@ export const StudentsScreen = ({ navigation }: any) => {
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
           {students.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="people-outline" size={48} color={colors.border} />
@@ -97,6 +100,7 @@ export const StudentsScreen = ({ navigation }: any) => {
 export const TeachersScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const [teachers, setTeachers] = useState<{ id: string; name: string; email: string; specialty: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,7 +119,7 @@ export const TeachersScreen = ({ navigation }: any) => {
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
           {teachers.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="school-outline" size={48} color={colors.border} />
@@ -141,6 +145,7 @@ export const TeachersScreen = ({ navigation }: any) => {
 export const StudiosScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const [studios, setStudios] = useState<{ id: string; name: string; city: string; active: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -159,7 +164,7 @@ export const StudiosScreen = ({ navigation }: any) => {
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
           {studios.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="business-outline" size={48} color={colors.border} />

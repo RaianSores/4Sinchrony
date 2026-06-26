@@ -4,12 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './CheckInDashboardScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 
 const CheckInDashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { classes, fetchMyClasses, isLoading: classesLoading } = useTeacherClassStore();
   const { fetchAttendance } = useAttendanceStore();
 
@@ -29,7 +31,7 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
         <Text style={styles.subtitle}>Gerencie a presença dos alunos</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {classesLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (

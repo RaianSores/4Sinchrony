@@ -7,11 +7,13 @@ import Header from '../../../../shared/components/Header';
 import { Avatar } from '../../../../shared/components/Avatar';
 import { usePackageStore } from '../../purchases/store/usePackageStore';
 import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ProfileScreen.styles';
 
 const ProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { user } = useAuthStore();
   const { purchases } = usePackageStore();
@@ -29,7 +31,10 @@ const ProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Perfil" />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: tabPadding }}
+      >
         <TouchableOpacity style={styles.profileHeader} onPress={() => navigation.navigate('EditProfile')} activeOpacity={0.8}>
           <Avatar uri={user?.avatar} name={user?.name || 'U'} size="xl" style={styles.avatar} />
           <Text style={styles.name}>{user?.name}</Text>

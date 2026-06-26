@@ -8,6 +8,7 @@ import { useAuthStore } from '../../../core/auth/store/useAuthStore';
 import { useTheme } from '../../../shared/theme/useTheme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Avatar } from '../../../shared/components/Avatar';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './AdminDashboardScreen.styles';
 
 const ACTIVITY_COLORS: Record<Activity['type'], string> = {
@@ -18,6 +19,7 @@ const getActivityColor = (type: Activity['type']) => ACTIVITY_COLORS[type] ?? '#
 const AdminDashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { user } = useAuthStore();
 
   const { data, isLoading } = useQuery({
@@ -63,7 +65,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
           <Avatar uri={user?.avatar} name={user?.name || 'A'} size="md" />
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
           {stats.map((stat, i) => (
             <View key={i} style={[styles.statCard, { borderLeftColor: stat.color }]}>

@@ -8,11 +8,13 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './BookingsScreen.styles';
 
 const BookingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { user, updateUser } = useAuthStore();
   const { bookings, isLoading, fetchBookings, cancelBooking } = useBookingStore();
@@ -48,7 +50,7 @@ const BookingsScreen = ({ navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header title="Minhas Reservas" />
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

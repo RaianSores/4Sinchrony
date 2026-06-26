@@ -7,12 +7,14 @@ import { api } from '../../../core/http/api';
 import { useAppAlert } from '../../../shared/components/AlertModal';
 import { AvatarUpload } from '../../../shared/components/Avatar';
 import { pickAndUploadAvatar } from '../../../shared/services/avatarService';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './TeacherProfileScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 
 const TeacherProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { user, logout, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -56,7 +58,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Perfil</Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabPadding }}>
         <View style={styles.profileHeader}>
           <AvatarUpload
             uri={user?.avatar}

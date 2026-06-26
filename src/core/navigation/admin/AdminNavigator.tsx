@@ -64,14 +64,16 @@ export const AdminNavigator = () => {
   const insets = useSafeAreaInsets();
 
   const tabBarStyle = useMemo(() => ({
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    marginBottom: Math.max(insets.bottom, 12),
+    position: 'absolute' as const,
+    bottom: Math.max(insets.bottom, 12),
+    left: 16,
+    right: 16,
     borderRadius: 32,
     height: 62,
     borderTopWidth: 0,
     borderWidth: 1,
     borderColor: 'rgba(18,135,175,0.22)',
+    backgroundColor: colors.card,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.40,
@@ -84,8 +86,9 @@ export const AdminNavigator = () => {
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
-        tabBarShowLabel: false,
         tabBarStyle,
+        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', paddingBottom: 4 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
         headerShown: false,
       }}
     >
@@ -99,6 +102,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'stats-chart' : 'stats-chart-outline'} focused={focused} color={color} />
           ),
+          tabBarLabel: 'Dashboard',
         }}
       />
       <Tab.Screen
@@ -111,6 +115,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} color={color} />
           ),
+          tabBarLabel: 'Gestão',
         }}
       />
       <Tab.Screen
@@ -123,6 +128,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'person-circle' : 'person-circle-outline'} focused={focused} color={color} />
           ),
+          tabBarLabel: 'Perfil',
         }}
       />
     </Tab.Navigator>

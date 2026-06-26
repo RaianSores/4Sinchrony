@@ -6,12 +6,14 @@ import { mkStyles } from './DashboardScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useAuthStore } from '../../../core/auth/store/useAuthStore';
 import { Avatar } from '../../../shared/components/Avatar';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 import { useTeacherSessionStore } from '../stores/useTeacherSessionStore';
 
 const DashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { user } = useAuthStore();
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
@@ -42,7 +44,7 @@ const DashboardScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={styles.statsRow}>
           {[
             { icon: 'calendar', value: todayClasses.length, label: 'Aulas hoje' },

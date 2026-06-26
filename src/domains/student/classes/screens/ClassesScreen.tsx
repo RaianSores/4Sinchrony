@@ -8,6 +8,7 @@ import Header from '../../../../shared/components/Header';
 import ClassCard from '../../../../shared/components/ClassCard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ClassesScreen.styles';
 
 const TODAS = { label: 'Todas', value: '' };
@@ -25,6 +26,7 @@ const isToday = (dateStr: string) => dateStr === new Date().toISOString().split(
 const ClassesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { classes, filters, isLoading, fetchClasses, setFilters } = useClassStore();
   const [showCalendar, setShowCalendar] = useState(false);
@@ -102,7 +104,7 @@ const ClassesScreen = ({ navigation }: any) => {
       } />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

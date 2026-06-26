@@ -10,6 +10,7 @@ import StatCard from '../../../../shared/components/StatCard';
 import ClassCard from '../../../../shared/components/ClassCard';
 import { Avatar } from '../../../../shared/components/Avatar';
 import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './HomeScreen.styles';
 
 function timeGreeting(): string {
@@ -22,6 +23,7 @@ function timeGreeting(): string {
 const HomeScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { user } = useAuthStore();
   const { classes, fetchClasses } = useClassStore();
@@ -78,7 +80,7 @@ const HomeScreen = ({ navigation }: any) => {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

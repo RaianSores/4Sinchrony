@@ -4,11 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './MyClassesScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { useTeacherClassStore } from '../stores/useTeacherClassStore';
 
 const MyClassesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
   useEffect(() => { fetchMyClasses(); }, [fetchMyClasses]);
@@ -34,7 +36,7 @@ const MyClassesScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (
