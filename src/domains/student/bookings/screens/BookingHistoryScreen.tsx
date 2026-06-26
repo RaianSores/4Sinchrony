@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+﻿import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,10 +6,12 @@ import { useBookingStore } from '../store/useBookingStore';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './BookingHistoryScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const BookingHistoryScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { bookings, fetchBookings } = useBookingStore();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -22,10 +24,10 @@ const BookingHistoryScreen = ({ navigation }: any) => {
   }, [fetchBookings]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Histórico" showBack onBackPress={() => navigation.goBack()} />
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -67,3 +69,4 @@ const BookingHistoryScreen = ({ navigation }: any) => {
 
 
 export default BookingHistoryScreen;
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -47,7 +47,7 @@ const BookingsScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Minhas Reservas" />
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
@@ -135,3 +135,4 @@ const BookingsScreen = ({ navigation }: any) => {
 
 
 export default BookingsScreen;
+

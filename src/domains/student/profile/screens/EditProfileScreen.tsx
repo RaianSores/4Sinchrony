@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -10,10 +10,12 @@ import { AvatarUpload } from '../../../../shared/components/Avatar';
 import { pickAndUploadAvatar } from '../../../../shared/services/avatarService';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './EditProfileScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const EditProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
 
   const { user, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
@@ -47,9 +49,9 @@ const EditProfileScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Editar Perfil" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
           <AvatarUpload
             uri={user?.avatar}
@@ -74,3 +76,4 @@ const EditProfileScreen = ({ navigation }: any) => {
 };
 
 export default EditProfileScreen;
+

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -29,7 +29,7 @@ const ProfileScreen = ({ navigation }: any) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Perfil" />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -63,3 +63,4 @@ const ProfileScreen = ({ navigation }: any) => {
 };
 
 export default ProfileScreen;
+

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,10 +6,12 @@ import { useBookingStore } from '../../bookings/store/useBookingStore';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassHistoryScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const ClassHistoryScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { bookings } = useBookingStore();
 
   const sorted = [...bookings].sort(
@@ -17,10 +19,10 @@ const ClassHistoryScreen = ({ navigation }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Histórico de Aulas" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {sorted.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="time-outline" size={64} color={colors.border} />
@@ -57,3 +59,4 @@ const ClassHistoryScreen = ({ navigation }: any) => {
 
 
 export default ClassHistoryScreen;
+

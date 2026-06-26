@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../shared/theme/useTheme';
@@ -15,6 +16,8 @@ import CheckInDashboardScreen from '../../../domains/teacher/screens/CheckInDash
 import CheckInSessionScreen from '../../../domains/teacher/screens/CheckInSessionScreen';
 import AttendanceScreen from '../../../domains/teacher/screens/AttendanceScreen';
 import TeacherProfileScreen from '../../../domains/teacher/screens/TeacherProfileScreen';
+import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
+import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
 import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
 
 const Tab = createBottomTabNavigator();
@@ -22,6 +25,14 @@ const DashboardStack = createNativeStackNavigator();
 const ClassesStack = createNativeStackNavigator();
 const CheckInStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
+
+// Root screens of each stack — tab bar stays visible only on these
+const TAB_VISIBLE_SCREENS = new Set([
+  'Dashboard', 'Metrics',
+  'MyClasses', 'ClassSession', 'StudentList',
+  'CheckInDashboard', 'CheckInSession', 'Attendance',
+  'TeacherProfile', 'EditProfile', 'Settings', 'ChangePassword',
+]);
 
 const DashboardStackScreen = () => (
   <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
@@ -49,6 +60,8 @@ const CheckInStackScreen = () => (
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
     <ProfileStack.Screen name="TeacherProfile" component={TeacherProfileScreen} />
+    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
     <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
   </ProfileStack.Navigator>
 );
@@ -80,7 +93,7 @@ export const TeacherNavigator = () => {
     right: 32,
     borderRadius: 32,
     height: 68,
-    borderTopWidth: 0,
+    borderTopWidth: 1,
     borderWidth: 1,
     borderColor: 'rgba(18,135,175,0.22)',
     backgroundColor: colors.card,
@@ -93,12 +106,19 @@ export const TeacherNavigator = () => {
 
   return (
     <Tab.Navigator
+      tabBar={(props) => {
+        const activeRoute = props.state.routes[props.state.index];
+        const focusedName = getFocusedRouteNameFromRoute(activeRoute);
+        const show = focusedName === undefined || TAB_VISIBLE_SCREENS.has(focusedName);
+        if (!show) return null;
+        return <BottomTabBar {...props} />;
+      }}
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
         tabBarStyle,
-        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center' },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
+        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', alignContent: 'center', alignSelf: 'center' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 4 },
         headerShown: false,
       }}
     >
@@ -112,6 +132,7 @@ export const TeacherNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'home' : 'home-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Dashboard',
         }}
       />
@@ -125,6 +146,7 @@ export const TeacherNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'calendar' : 'calendar-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Aulas',
         }}
       />
@@ -138,6 +160,7 @@ export const TeacherNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'checkbox' : 'checkbox-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Check-in',
         }}
       />
@@ -151,6 +174,7 @@ export const TeacherNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Perfil',
         }}
       />

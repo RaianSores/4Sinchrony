@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -50,7 +50,7 @@ const AdminProfileScreen = ({ navigation }: any) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Perfil</Text>
       </View>
@@ -97,3 +97,4 @@ const AdminProfileScreen = ({ navigation }: any) => {
 };
 
 export default AdminProfileScreen;
+

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../shared/theme/useTheme';
@@ -28,7 +28,7 @@ export const ManagementScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Gestão</Text>
         <Text style={styles.subtitle}>Administre sua plataforma</Text>
@@ -57,23 +57,44 @@ export const StudentsScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const [students, setStudents] = useState<{ id: string; name: string; email: string; active: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     adminService.getStudents().then(data => { setStudents(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await adminService.getStudents().then(setStudents).catch(() => {});
+    setRefreshing(false);
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Alunos</Text>
       </View>
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
           {students.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="people-outline" size={48} color={colors.border} />
@@ -103,23 +124,44 @@ export const TeachersScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const [teachers, setTeachers] = useState<{ id: string; name: string; email: string; specialty: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     adminService.getTeachers().then(data => { setTeachers(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await adminService.getTeachers().then(setTeachers).catch(() => {});
+    setRefreshing(false);
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Professores</Text>
       </View>
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
           {teachers.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="school-outline" size={48} color={colors.border} />
@@ -148,23 +190,44 @@ export const StudiosScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const [studios, setStudios] = useState<{ id: string; name: string; city: string; active: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     adminService.getStudios().then(data => { setStudios(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await adminService.getStudios().then(setStudios).catch(() => {});
+    setRefreshing(false);
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Estúdios</Text>
       </View>
       {loading ? (
         <View style={styles.loading}><ActivityIndicator color={colors.primary} /></View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
           {studios.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="business-outline" size={48} color={colors.border} />
@@ -187,3 +250,4 @@ export const StudiosScreen = ({ navigation }: any) => {
     </SafeAreaView>
   );
 };
+

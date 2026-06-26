@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+﻿import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,12 @@ import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './CartScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const CartScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { cart, addToCart, removeFromCart, clearCart, getCartTotal,
     // coupon, applyCoupon, removeCoupon, getDiscountedTotal, // FEATURE: coupon (paid add-on)
   } = usePackageStore();
@@ -62,7 +64,7 @@ const CartScreen = ({ navigation }: any) => {
   // };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header
         title="Sacola"
         showBack
@@ -77,7 +79,7 @@ const CartScreen = ({ navigation }: any) => {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -193,3 +195,4 @@ const CartScreen = ({ navigation }: any) => {
 };
 
 export default CartScreen;
+

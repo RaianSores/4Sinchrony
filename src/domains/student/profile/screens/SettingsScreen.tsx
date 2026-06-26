@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+﻿import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -8,11 +8,13 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './SettingsScreen.styles';
 import { APP_LINKS } from '../../../../core/config/appLinks';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const SettingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
+  const tabPadding = useTabBarBottomPadding();
   const { logout } = useAuthStore();
   const { showAlert } = useAppAlert();
 
@@ -62,9 +64,9 @@ const SettingsScreen = ({ navigation }: any) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Configurações" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         {sections.map((section, idx) => (
           <View key={idx} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -99,3 +101,4 @@ const SettingsScreen = ({ navigation }: any) => {
 };
 
 export default SettingsScreen;
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+﻿import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
@@ -96,7 +96,7 @@ const ClassesScreen = ({ navigation }: any) => {
   const hasActiveFilter = filters.date !== '' || filters.type !== '';
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Agenda" rightComponent={
         <TouchableOpacity onPress={() => setShowCalendar(true)}>
           <Ionicons name="calendar" size={24} color={colors.primary} />
@@ -205,3 +205,4 @@ const ClassesScreen = ({ navigation }: any) => {
 
 
 export default ClassesScreen;
+

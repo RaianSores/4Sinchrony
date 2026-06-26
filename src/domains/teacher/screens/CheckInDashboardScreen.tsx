@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './CheckInDashboardScreen.styles';
@@ -14,9 +14,16 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const { classes, fetchMyClasses, isLoading: classesLoading } = useTeacherClassStore();
   const { fetchAttendance } = useAttendanceStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchMyClasses();
+  }, [fetchMyClasses]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMyClasses();
+    setRefreshing(false);
   }, [fetchMyClasses]);
 
   const handleOpenCheckIn = async (classId: string) => {
@@ -25,13 +32,24 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Check-in</Text>
         <Text style={styles.subtitle}>Gerencie a presença dos alunos</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         {classesLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+﻿import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import CardForm from '../components/CardForm';
 import CardFlagIcon from '../components/CardFlagIcon';
 import { detectBrand } from '../utils/cardUtils';
 import { isValidCardNumber, isValidExpiry, isValidCVV, isValidHolderName } from '../validators/cardValidator';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 interface FormData {
   number: string;
@@ -39,6 +40,7 @@ interface FormErrors {
 const AddCardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { addCard } = useCardStore();
   const { showAlert } = useAppAlert();
   const [brand, setBrand] = useState<CardBrand>('Unknown');
@@ -138,14 +140,14 @@ const AddCardScreen = ({ navigation }: any) => {
   const isFormEmpty = !formData.number && !formData.holderName && !formData.expiryDate && !formData.cvv;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Adicionar Cartão" showBack onBackPress={() => navigation.goBack()} />
 
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {brand !== 'Unknown' && formData.number.length > 0 && (
             <View style={styles.brandRow}>
               <CardFlagIcon brand={brand} size={32} />
@@ -184,3 +186,4 @@ const AddCardScreen = ({ navigation }: any) => {
 };
 
 export default AddCardScreen;
+

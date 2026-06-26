@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+﻿import React, { useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../services/adminService';
@@ -22,14 +22,14 @@ const AdminDashboardScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const { user } = useAuthStore();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['admin', 'dashboard'],
     queryFn: () => adminService.getDashboard(),
   });
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Dashboard</Text>
@@ -52,7 +52,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.title}>Dashboard</Text>
@@ -65,7 +65,18 @@ const AdminDashboardScreen = ({ navigation }: any) => {
           <Avatar uri={user?.avatar} name={user?.name || 'A'} size="md" />
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.statsGrid}>
           {stats.map((stat, i) => (
             <View key={i} style={[styles.statCard, { borderLeftColor: stat.color }]}>
@@ -109,3 +120,4 @@ const AdminDashboardScreen = ({ navigation }: any) => {
 };
 
 export default AdminDashboardScreen;
+

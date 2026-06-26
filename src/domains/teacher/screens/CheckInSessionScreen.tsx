@@ -1,19 +1,28 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './CheckInSessionScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 
 const CheckInSessionScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classId } = route.params;
   const { records, isLoading, fetchAttendance, confirmAll, updateStatus } = useAttendanceStore();
+  const tabPadding = useTabBarBottomPadding();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchAttendance(classId);
+  }, [classId, fetchAttendance]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchAttendance(classId);
+    setRefreshing(false);
   }, [classId, fetchAttendance]);
 
   const handleToggle = async (studentId: string) => {
@@ -47,10 +56,13 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Check-in</Text>
         <TouchableOpacity onPress={() => confirmAll(classId)}>
@@ -86,21 +98,32 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
           data={records}
           keyExtractor={item => item.id}
           renderItem={renderStudent}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
         />
       )}
 
-      <TouchableOpacity
-        style={styles.attendanceButton}
-        onPress={() => navigation.navigate('Attendance', { classId })}
-      >
-        <Ionicons name="list" size={20} color={colors.white} />
-        <Text style={styles.attendanceButtonText}>Ver registro completo de presença</Text>
-      </TouchableOpacity>
+      <View style={{ paddingBottom: tabPadding }}>
+        <TouchableOpacity
+          style={styles.attendanceButton}
+          onPress={() => navigation.navigate('Attendance', { classId })}
+        >
+          <Ionicons name="list" size={20} color={colors.white} />
+          <Text style={styles.attendanceButtonText}>Ver registro completo de presença</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
 
 export default CheckInSessionScreen;
+

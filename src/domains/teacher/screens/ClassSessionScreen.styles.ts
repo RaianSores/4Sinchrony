@@ -13,14 +13,27 @@ export const mkStyles = (colors: any) =>
     },
     title: { fontSize: 18, fontWeight: '700', color: colors.text },
     scroll: { flex: 1 },
-    content: { padding: 16, paddingBottom: 8 },
-    sessionInfo: { alignItems: 'center', marginBottom: 24 },
+    content: { padding: 16, paddingBottom: 24 },
+    sessionInfo: { alignItems: 'center', marginBottom: 28 },
     sessionName: { fontSize: 24, fontWeight: '700', color: colors.text, textAlign: 'center' },
     sessionStudio: { fontSize: 16, color: colors.textSecondary, marginTop: 4 },
     sessionInstructor: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
-    timerContainer: { alignItems: 'center', marginBottom: 24 },
-    timerLabel: { fontSize: 14, color: colors.textSecondary },
-    timer: { fontSize: 48, fontWeight: '700', color: colors.text, marginTop: 4 },
+
+    timerContainer: { alignItems: 'center', marginBottom: 32 },
+
+    timerPlaceholder: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 48,
+      marginBottom: 24,
+      gap: 12,
+    },
+    timerPlaceholderText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+
     statsRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
     statBox: {
       flex: 1,

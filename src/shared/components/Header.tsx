@@ -32,8 +32,16 @@ const Header: React.FC<HeaderProps> = ({ title, showBack, onBackPress, rightComp
     >
       <View style={{ width: 40, alignItems: 'flex-start', justifyContent: 'center' }}>
         {showBack && (
-          <TouchableOpacity onPress={onBackPress} style={{ padding: 4 }}>
-            <Ionicons name="chevron-back" size={24} color={colors.text} />
+          <TouchableOpacity
+            onPress={onBackPress}
+            style={{
+              padding: 6,
+              borderRadius: 50,
+              borderWidth: 1,
+              borderColor: 'rgba(18,135,175,0.22)',
+            }}
+          >
+            <Ionicons name="chevron-back" size={22} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>

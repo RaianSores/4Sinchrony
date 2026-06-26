@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,12 @@ import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PaymentScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const PaymentScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { amount } = route.params;
   const { cart, clearCart, addPurchase,
     // coupon, // FEATURE: coupon (paid add-on)
@@ -60,10 +62,10 @@ const PaymentScreen = ({ navigation, route }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Pagamento" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
         <View style={styles.amountCard}>
           <Text style={styles.amountLabel}>Valor a pagar</Text>
           <Text style={styles.amountValue}>R$ {amount.toFixed(2)}</Text>
@@ -143,3 +145,4 @@ const PaymentScreen = ({ navigation, route }: any) => {
 };
 
 export default PaymentScreen;
+

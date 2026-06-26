@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -64,7 +64,7 @@ const HomeScreen = ({ navigation }: any) => {
   const progressPct = targetClasses > 0 ? Math.round((totalAttended / targetClasses) * 100) : 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Enterprise header: greeting + avatar */}
       <View style={styles.enterpriseHeader}>
         <View style={styles.headerLeft}>
@@ -183,3 +183,4 @@ const HomeScreen = ({ navigation }: any) => {
 };
 
 export default HomeScreen;
+

@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+﻿import React, { useEffect, useCallback, useMemo, useState } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { mkStyles } from './MyCardsScreen.styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,15 +9,24 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useCardStore } from '../store/useCardStore';
 import CardItem from '../components/CardItem';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const MyCardsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { cards, isLoading, fetchCards, removeCard, confirmRemoveCard, setDefaultCard } = useCardStore();
   const { showAlert } = useAppAlert();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchCards();
+  }, [fetchCards]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchCards();
+    setRefreshing(false);
   }, [fetchCards]);
 
   const handleRemove = useCallback(
@@ -59,10 +68,21 @@ const MyCardsScreen = ({ navigation }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Meus Cartões" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <Text style={styles.subtitle}>
           Gerencie seus cartões de forma segura. Apenas as informações essenciais são salvas.
         </Text>
@@ -101,3 +121,4 @@ const MyCardsScreen = ({ navigation }: any) => {
 };
 
 export default MyCardsScreen;
+

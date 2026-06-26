@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,10 +6,12 @@ import { usePackageStore } from '../../purchases/store/usePackageStore';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './MyPurchasesScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const MyPurchasesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { purchases, fetchPurchases } = usePackageStore();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -24,11 +26,11 @@ const MyPurchasesScreen = ({ navigation }: any) => {
   }, [fetchPurchases]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Minhas Compras" showBack onBackPress={() => navigation.goBack()} />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -84,3 +86,4 @@ const MyPurchasesScreen = ({ navigation }: any) => {
 
 
 export default MyPurchasesScreen;
+

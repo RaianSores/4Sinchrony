@@ -1,20 +1,29 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './StudentListScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 import type { AttendanceStatus } from '../../../core/types/attendance';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 
 const StudentListScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { classId } = route.params;
   const { records, isLoading, fetchAttendance } = useAttendanceStore();
+  const tabPadding = useTabBarBottomPadding();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchAttendance(classId);
+  }, [classId, fetchAttendance]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchAttendance(classId);
+    setRefreshing(false);
   }, [classId, fetchAttendance]);
 
   const getStatusColor = (status: AttendanceStatus) => {
@@ -50,10 +59,13 @@ const StudentListScreen = ({ route, navigation }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Alunos</Text>
         <TouchableOpacity>
@@ -89,8 +101,16 @@ const StudentListScreen = ({ route, navigation }: any) => {
           data={records}
           keyExtractor={item => item.id}
           renderItem={renderStudent}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
         />
       )}
     </SafeAreaView>
@@ -99,3 +119,4 @@ const StudentListScreen = ({ route, navigation }: any) => {
 
 
 export default StudentListScreen;
+

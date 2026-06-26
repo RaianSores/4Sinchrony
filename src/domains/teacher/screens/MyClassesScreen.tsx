@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './MyClassesScreen.styles';
@@ -13,7 +13,15 @@ const MyClassesScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
+  const [refreshing, setRefreshing] = useState(false);
+
   useEffect(() => { fetchMyClasses(); }, [fetchMyClasses]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMyClasses();
+    setRefreshing(false);
+  }, [fetchMyClasses]);
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -34,9 +42,20 @@ const MyClassesScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
         ) : classes.length === 0 ? (
@@ -81,3 +100,4 @@ const MyClassesScreen = ({ navigation }: any) => {
 
 
 export default MyClassesScreen;
+

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -46,14 +46,12 @@ const TeacherProfileScreen = ({ navigation }: any) => {
 
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
-    { title: 'Minhas Especialidades', icon: 'ribbon-outline', screen: 'Specialties' },
-    { title: 'Disponibilidade', icon: 'time-outline', screen: 'Availability' },
     { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Perfil</Text>
       </View>
@@ -100,3 +98,4 @@ const TeacherProfileScreen = ({ navigation }: any) => {
 };
 
 export default TeacherProfileScreen;
+

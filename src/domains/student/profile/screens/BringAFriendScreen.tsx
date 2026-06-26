@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Share,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -13,16 +14,25 @@ import Header from '../../../../shared/components/Header';
 import { ReferralInfo } from '../../../../shared/types';
 import { referralService } from '../services/referralService';
 import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './BringAFriendScreen.styles';
 
 const BringAFriendScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
   const { showAlert } = useAppAlert();
   const [referral, setReferral] = useState<ReferralInfo | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     referralService.getReferral().then(setReferral).catch(() => {});
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await referralService.getReferral().then(setReferral).catch(() => {});
+    setRefreshing(false);
   }, []);
 
   const handleShare = async () => {
@@ -47,10 +57,21 @@ const BringAFriendScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Bring a Friend" showBack onBackPress={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.heroSection}>
           <Ionicons name="people" size={64} color={colors.primary} />
           <Text style={styles.heroTitle}>Traga um Amigo</Text>
@@ -110,3 +131,4 @@ const BringAFriendScreen = ({ navigation }: any) => {
 
 
 export default BringAFriendScreen;
+

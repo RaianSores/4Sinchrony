@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useClassStore } from '../store/useClassStore';
@@ -11,11 +11,13 @@ import Button from '../../../../shared/components/Button';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassDetailScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const ClassDetailScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
+  const tabPadding = useTabBarBottomPadding();
   const { classId } = route.params;
   const { classes } = useClassStore();
   const { bookings, bookClass, cancelBooking } = useBookingStore();
@@ -25,6 +27,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bikeStatuses, setBikeStatuses] = useState<{ number: number; status: string }[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (classItem?.type?.toLowerCase() === 'bike') {
@@ -32,9 +35,17 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
     }
   }, [classId, classItem?.type]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    if (classItem?.type?.toLowerCase() === 'bike') {
+      await bookingService.getBikesForClass(classId).then(setBikeStatuses).catch(() => {});
+    }
+    setRefreshing(false);
+  }, [classId, classItem?.type]);
+
   if (!classItem) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <Header title="Detalhes" showBack onBackPress={() => navigation.goBack()} />
         <View style={styles.emptyState}><Text style={styles.emptyText}>Aula não encontrada</Text></View>
       </SafeAreaView>
@@ -86,9 +97,20 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Detalhes da Aula" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.headerCard}>
           <View style={styles.instructorRow}>
             <View style={styles.instructorAvatar}>
@@ -182,3 +204,4 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
 
 
 export default ClassDetailScreen;
+

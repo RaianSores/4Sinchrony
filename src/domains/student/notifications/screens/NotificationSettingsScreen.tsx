@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, Switch, ActivityIndicator } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, Switch, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header';
@@ -7,19 +7,39 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { useNotificationStore } from '../store/useNotificationStore';
 import NotificationToggle from '../components/NotificationToggle';
 import { mkStyles } from './NotificationSettingsScreen.styles';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 const NotificationSettingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
+  const tabPadding = useTabBarBottomPadding();
   const { pushEnabled, emailEnabled, preferences, isLoading, fetchPreferences, togglePreference, togglePush, toggleEmail } = useNotificationStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => { fetchPreferences(); }, [fetchPreferences]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchPreferences();
+    setRefreshing(false);
+  }, [fetchPreferences]);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Notificações" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <Text style={styles.sectionHeader}>Canais</Text>
 
         <View style={styles.channelRow}>
@@ -57,3 +77,4 @@ const NotificationSettingsScreen = ({ navigation }: any) => {
 };
 
 export default NotificationSettingsScreen;
+

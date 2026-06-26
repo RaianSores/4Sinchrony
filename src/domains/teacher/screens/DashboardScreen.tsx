@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './DashboardScreen.styles';
@@ -18,8 +18,15 @@ const DashboardScreen = ({ navigation }: any) => {
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
   const { currentSession, isActive, startSession } = useTeacherSessionStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => { fetchMyClasses(); }, [fetchMyClasses]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMyClasses();
+    setRefreshing(false);
+  }, [fetchMyClasses]);
 
   const todayClasses = classes;
   const pendingCheckin = todayClasses.reduce((sum, c) => sum + (c.totalSpots - c.availableSpots), 0);
@@ -30,7 +37,7 @@ const DashboardScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.title}>Dashboard</Text>
@@ -44,7 +51,18 @@ const DashboardScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <View style={styles.statsRow}>
           {[
             { icon: 'calendar', value: todayClasses.length, label: 'Aulas hoje' },
@@ -118,3 +136,4 @@ const DashboardScreen = ({ navigation }: any) => {
 };
 
 export default DashboardScreen;
+

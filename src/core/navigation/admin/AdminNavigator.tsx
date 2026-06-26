@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../shared/theme/useTheme';
@@ -17,6 +18,12 @@ const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
 const ManagementStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
+
+const TAB_VISIBLE_SCREENS = new Set([
+  'AdminDashboard',
+  'Management', 'Students', 'Teachers', 'Studios',
+  'AdminProfile', 'EditProfile', 'Settings', 'ChangePassword', 'Notifications',
+]);
 
 const DashboardStackScreen = () => (
   <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
@@ -70,7 +77,7 @@ export const AdminNavigator = () => {
     right: 32,
     borderRadius: 32,
     height: 68,
-    borderTopWidth: 0,
+    borderTopWidth: 1,
     borderWidth: 1,
     borderColor: 'rgba(18,135,175,0.22)',
     backgroundColor: colors.card,
@@ -83,12 +90,19 @@ export const AdminNavigator = () => {
 
   return (
     <Tab.Navigator
+      tabBar={(props) => {
+        const activeRoute = props.state.routes[props.state.index];
+        const focusedName = getFocusedRouteNameFromRoute(activeRoute);
+        const show = focusedName === undefined || TAB_VISIBLE_SCREENS.has(focusedName);
+        if (!show) return null;
+        return <BottomTabBar {...props} />;
+      }}
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
         tabBarStyle,
-        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center' },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 2 },
+        tabBarItemStyle: { justifyContent: 'center', alignItems: 'center', alignContent: 'center', alignSelf: 'center' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 4 },
         headerShown: false,
       }}
     >
@@ -102,6 +116,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'stats-chart' : 'stats-chart-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Dashboard',
         }}
       />
@@ -115,6 +130,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'settings' : 'settings-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Gestão',
         }}
       />
@@ -128,6 +144,7 @@ export const AdminNavigator = () => {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name={focused ? 'person-circle' : 'person-circle-outline'} focused={focused} color={color} />
           ),
+          tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Perfil',
         }}
       />

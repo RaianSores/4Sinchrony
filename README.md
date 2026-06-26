@@ -48,7 +48,7 @@
 # ⚡ Fluxo Completo Recomendado
 
 - adb uninstall com.sinchronyapp
-- adb -s 192.168.0.146:43833 uninstall app-release.apk
+- adb -s 192.168.0.146:35069 install app-release.apk
 
 
 - cd android

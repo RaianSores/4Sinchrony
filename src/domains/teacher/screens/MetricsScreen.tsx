@@ -1,25 +1,37 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './MetricsScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useTeacherMetricsStore } from '../stores/useTeacherMetricsStore';
+import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 
 const MetricsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const { metrics, isLoading, fetchMetrics } = useTeacherMetricsStore();
+  const tabPadding = useTabBarBottomPadding();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchMetrics();
   }, [fetchMetrics]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMetrics();
+    setRefreshing(false);
+  }, [fetchMetrics]);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Métricas</Text>
         <View style={{ width: 24 }} />
@@ -30,7 +42,18 @@ const MetricsScreen = ({ navigation }: any) => {
           <Text style={styles.loadingText}>Carregando métricas...</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
           <View style={styles.cardsRow}>
             <View style={[styles.metricCard, { borderLeftColor: colors.primaryDark }]}>
               <Text style={styles.metricValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{metrics.totalClassesThisMonth}</Text>
@@ -96,3 +119,4 @@ const MetricsScreen = ({ navigation }: any) => {
 
 
 export default MetricsScreen;
+
