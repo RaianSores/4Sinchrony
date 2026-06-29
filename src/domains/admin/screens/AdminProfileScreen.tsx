@@ -1,6 +1,6 @@
 ﻿import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../core/auth/store/useAuthStore';
 import { api } from '../../../core/http/api';
@@ -10,6 +10,9 @@ import { pickAndUploadAvatar } from '../../../shared/services/avatarService';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { mkStyles } from './AdminProfileScreen.styles';
+
+
+
 
 const AdminProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

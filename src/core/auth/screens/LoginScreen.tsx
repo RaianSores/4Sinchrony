@@ -18,6 +18,7 @@ import { useAppAlert } from '../../../shared/components/AlertModal';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcone';
 import { mkStyles } from './LoginScreen.styles';
 
 const SCALE_BASE = 375;
@@ -97,7 +98,7 @@ const LoginScreen = ({ navigation }: any) => {
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={[styles.topSection, { paddingTop: Math.min(SCREEN_HEIGHT * 0.12, 120) }]}>
           <View style={[styles.iconCircle, { width: ms(64), height: ms(64), borderRadius: ms(32) }]}>
-            <Ionicons name="fitness" size={ms(32)} color={colors.primaryDark} />
+            <FourSinchronyIcone size={ms(150)} />
           </View>
           <Text style={[styles.title, { fontSize: ms(28) }]}>4Sinchrony Experience</Text>
           <Text style={[styles.tagline, { fontSize: ms(15) }]}>Transforme seu corpo, eleve sua mente</Text>

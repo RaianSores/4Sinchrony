@@ -1,6 +1,6 @@
 ﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, Switch, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, Switch, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
@@ -8,6 +8,9 @@ import { useNotificationStore } from '../store/useNotificationStore';
 import NotificationToggle from '../components/NotificationToggle';
 import { mkStyles } from './NotificationSettingsScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const NotificationSettingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

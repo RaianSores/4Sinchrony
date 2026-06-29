@@ -1,11 +1,11 @@
 ﻿import React, { useState, useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { paymentService } from '../services/paymentService';
 import { usePackageStore } from '../store/usePackageStore';
@@ -16,6 +16,9 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PaymentScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const PaymentScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();

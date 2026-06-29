@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useClassStore } from '../store/useClassStore';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
@@ -12,6 +12,9 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassDetailScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const ClassDetailScreen = ({ navigation, route }: any) => {
   const { colors } = useTheme();

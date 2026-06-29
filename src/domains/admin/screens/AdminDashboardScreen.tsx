@@ -1,6 +1,6 @@
 ﻿import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../services/adminService';
 import type { Activity } from '../services/adminService';
@@ -10,6 +10,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Avatar } from '../../../shared/components/Avatar';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './AdminDashboardScreen.styles';
+
+
+
 
 const ACTIVITY_COLORS: Record<Activity['type'], string> = {
   booking: '#3B82F6', subscription: '#8B5CF6', class: '#10B981', payment: '#10B981',

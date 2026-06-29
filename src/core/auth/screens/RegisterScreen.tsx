@@ -18,6 +18,7 @@ import { useAppAlert } from '../../../shared/components/AlertModal';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcone';
 import { mkStyles } from './RegisterScreen.styles';
 
 const SCALE_BASE = 375;
@@ -30,6 +31,7 @@ const RegisterScreen = ({ navigation }: any) => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -56,12 +58,17 @@ const RegisterScreen = ({ navigation }: any) => {
   const PHONE_REGEX = /^\d{10,11}$/;
 
   const handleRegister = async () => {
-    if (!name || !email || !phone || !password || !confirmPassword) {
+    if (!name || !email || !cpf || !phone || !password || !confirmPassword) {
       showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
       return;
     }
     if (!EMAIL_REGEX.test(email)) {
       showAlert({ title: 'Erro', message: 'Email inválido' });
+      return;
+    }
+    const cpfClean = cpf.replace(/\D/g, '');
+    if (cpfClean.length !== 11) {
+      showAlert({ title: 'Erro', message: 'CPF inválido. Deve conter 11 dígitos' });
       return;
     }
     if (!PHONE_REGEX.test(phone.replace(/\D/g, ''))) {
@@ -79,7 +86,7 @@ const RegisterScreen = ({ navigation }: any) => {
 
     setLoading(true);
     try {
-      const response = await authService.register({ name, email, phone, password });
+      const response = await authService.register({ name, email, cpf: cpfClean, phone, password });
       login(response.user, response.token, response.refresh_token);
       showAlert({
         title: 'Sucesso!',
@@ -99,6 +106,7 @@ const RegisterScreen = ({ navigation }: any) => {
       const response = await authService.register({
         name: googleUser.name,
         email: googleUser.email,
+        cpf: '',
         phone: '',
         password: 'google_oauth',
       });
@@ -126,7 +134,7 @@ const RegisterScreen = ({ navigation }: any) => {
             <Ionicons name="chevron-back" size={ms(24)} color={colors.text} />
           </TouchableOpacity>
           <View style={[styles.iconCircle, { width: ms(56), height: ms(56), borderRadius: ms(28) }]}>
-            <Ionicons name="fitness" size={ms(26)} color={colors.primaryDark} />
+            <FourSinchronyIcone size={ms(100)} />
           </View>
           <Text style={[styles.title, { fontSize: ms(26) }]}>Criar Conta</Text>
           <Text style={[styles.tagline, { fontSize: ms(14) }]}>Comece sua jornada de bem-estar</Text>
@@ -160,6 +168,21 @@ const RegisterScreen = ({ navigation }: any) => {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                placeholderTextColor={colors.grayLight}
+              />
+            </View>
+
+            <View style={[styles.inputWrapper, { height: ms(50) }]}>
+              <Ionicons name="document-text-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { fontSize: ms(15) }]}
+                placeholder="CPF"
+                value={cpf}
+                onChangeText={(t) => {
+                  const d = t.replace(/\D/g, '').slice(0, 11);
+                  setCpf(d.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1-$2'));
+                }}
+                keyboardType="number-pad"
                 placeholderTextColor={colors.grayLight}
               />
             </View>

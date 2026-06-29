@@ -1,4 +1,5 @@
 ﻿import React, { useState, useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -7,7 +8,6 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { authService } from '../../../../core/auth/services/authService';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -16,6 +16,9 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ChangePasswordScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const ChangePasswordScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

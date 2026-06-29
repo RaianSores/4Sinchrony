@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -7,7 +8,6 @@ import {
   Share,
   RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
@@ -16,6 +16,9 @@ import { referralService } from '../services/referralService';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './BringAFriendScreen.styles';
+
+
+
 
 const BringAFriendScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

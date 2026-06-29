@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useClassStore } from '../../classes/store/useClassStore';
@@ -55,8 +55,7 @@ const HomeScreen = ({ navigation }: any) => {
   const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
   const nextClass = classes.find(c =>
-    c.status === 'scheduled' &&
-    (c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr))
+    c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr)
   ) ?? null;
   const totalAttended = progress?.classesAttended ?? 0;
   const targetClasses = progress?.classesGoal ?? 50;
@@ -171,12 +170,6 @@ const HomeScreen = ({ navigation }: any) => {
             <Ionicons name="pricetags" size={24} color={colors.text} />
             <Text style={styles.actionText}>Planos</Text>
           </TouchableOpacity>
-          {/* FEATURE: bring-a-friend (paid add-on)
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ProfileTab', { screen: 'BringAFriend' })}>
-            <Ionicons name="people" size={24} color={colors.text} />
-            <Text style={styles.actionText}>Indicar</Text>
-          </TouchableOpacity>
-          */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -184,4 +177,3 @@ const HomeScreen = ({ navigation }: any) => {
 };
 
 export default HomeScreen;
-

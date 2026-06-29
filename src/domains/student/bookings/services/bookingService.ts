@@ -26,14 +26,21 @@ function adaptClass(c: any): Class {
 }
 
 function adaptBooking(b: any): Booking {
+  const cl = b.class ? adaptClass(b.class) : adaptClass({
+    id: b.classId, name: b.className, studioId: '', studioName: '',
+  });
   return {
     id: b.id,
-    class: b.class ? adaptClass(b.class) : adaptClass({
-      id: b.classId, name: b.className, studioId: '', studioName: '',
-    }),
+    class: cl,
+    classId: b.classId || cl.id,
+    className: b.className || cl.name,
+    studentId: b.studentId,
+    studentName: b.studentName,
+    studentEmail: b.studentEmail,
     bikeNumber: b.bikeNumber,
     status: b.status,
     bookedAt: b.bookedAt,
+    checkedIn: b.checkedIn ?? false,
   };
 }
 
@@ -57,13 +64,20 @@ export const bookingService = {
   async createBooking(classId: string, bikeNumber?: number): Promise<Booking> {
     if (isMock) {
       await new Promise(r => setTimeout(r, 800));
+      const cl: Class = { id: classId, name: '', type: '', instructor: '', startTime: '', duration: 0,
+          studio: { id: '', name: '', city: '', address: '' }, availableSpots: 0, totalSpots: 0, date: '' };
       return {
         id: 'mock_booking_' + Date.now(),
-        class: { id: classId, name: '', type: '', instructor: '', startTime: '', duration: 0,
-          studio: { id: '', name: '', city: '', address: '' }, availableSpots: 0, totalSpots: 0, date: '' },
+        class: cl,
+        classId: cl.id,
+        className: cl.name,
+        studentId: undefined,
+        studentName: undefined,
+        studentEmail: undefined,
         bikeNumber,
         status: 'confirmed',
         bookedAt: new Date().toISOString(),
+        checkedIn: false,
       };
     }
     const res = await api.post<any>('/bookings', { classId, bikeNumber });

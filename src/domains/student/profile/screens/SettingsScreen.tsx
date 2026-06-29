@@ -1,6 +1,6 @@
 ﻿import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -9,6 +9,9 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './SettingsScreen.styles';
 import { APP_LINKS } from '../../../../core/config/appLinks';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const SettingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

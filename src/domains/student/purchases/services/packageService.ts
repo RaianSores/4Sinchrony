@@ -8,7 +8,12 @@ export const packageService = {
   },
 
   async getById(id: string): Promise<ClassPackage | undefined> {
-    const packages = await packageService.getPackages();
-    return packages.find(p => p.id === id);
+    try {
+      const res = await api.get<{ data: ClassPackage }>(`/packages/${id}`);
+      return res.data.data;
+    } catch {
+      const packages = await packageService.getPackages();
+      return packages.find(p => p.id === id);
+    }
   },
 };

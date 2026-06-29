@@ -1,12 +1,15 @@
 ﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { borderRadius } from '../../../shared/theme';
 import { adminService } from '../services/adminService';
 import { mkStyles } from './ManagementScreen.styles';
+
+
+
 
 const managementItems = [
   { title: 'Alunos', icon: 'people', screen: 'Students', color: '#10B981', desc: 'Gerenciar alunos cadastrados' },

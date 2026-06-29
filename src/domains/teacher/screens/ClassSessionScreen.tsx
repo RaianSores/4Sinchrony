@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+﻿import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { mkStyles } from './ClassSessionScreen.styles';
@@ -9,7 +9,8 @@ import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPad
 import { useTeacherSessionStore } from '../stores/useTeacherSessionStore';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 
-// ─── Circular countdown timer ────────────────────────────────────────────────
+
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ Circular countdown timer ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
 const TIMER_SIZE = 220;
 const STROKE_WIDTH = 14;
 const RADIUS = (TIMER_SIZE - STROKE_WIDTH) / 2;
@@ -101,7 +102,7 @@ function CircularTimer({
     </View>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬ââ€â‚¬
 
 const ClassSessionScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
@@ -142,7 +143,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
       alertFired.current = true;
       Alert.alert(
         'Aula finalizada!',
-        `O tempo de ${currentSession.duration} minutos encerrou. Deseja finalizar a sessão?`,
+        `O tempo de ${currentSession.duration} minutos encerrou. Deseja finalizar a sessÃ£o?`,
         [
           { text: 'Continuar', style: 'cancel' },
           {
@@ -164,7 +165,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
         >
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Sessão da Aula</Text>
+        <Text style={styles.title}>SessÃ£o da Aula</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -199,7 +200,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
         ) : !isActive && attendedCount > 0 && (
           <View style={styles.timerPlaceholder}>
             <Ionicons name="timer-outline" size={64} color={colors.border} />
-            <Text style={styles.timerPlaceholderText}>Inicie a aula para ativar o cronômetro</Text>
+            <Text style={styles.timerPlaceholderText}>Inicie a aula para ativar o cronÃ´metro</Text>
           </View>
         )}
 
@@ -250,7 +251,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
           onPress={() => navigation.navigate('CheckInTab', { screen: 'CheckInSession', params: { classId } })}
         >
           <Ionicons name="checkbox" size={20} color={colors.white} />
-          <Text style={styles.actionButtonText}>Gerenciar Presença</Text>
+          <Text style={styles.actionButtonText}>Gerenciar PresenÃ§a</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,6 +1,6 @@
 ﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { usePackageStore } from '../store/usePackageStore';
 import Header from '../../../../shared/components/Header';
@@ -8,6 +8,9 @@ import { ClassPackage } from '../../../../shared/types';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PackagesScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+
+
+
 
 const PackagesScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

@@ -1,6 +1,6 @@
 ﻿import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header';
@@ -9,6 +9,9 @@ import { usePackageStore } from '../../purchases/store/usePackageStore';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ProfileScreen.styles';
+
+
+
 
 const ProfileScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

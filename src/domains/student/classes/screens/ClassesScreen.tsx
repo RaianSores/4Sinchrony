@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useFocusEffect } from '@react-navigation/native';
 import { useClassStore } from '../store/useClassStore';
@@ -10,6 +10,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ClassesScreen.styles';
+
+
+
 
 const TODAS = { label: 'Todas', value: '' };
 
@@ -87,8 +90,25 @@ const ClassesScreen = ({ navigation }: any) => {
   const clearDateFilter = () => setFilters({ date: '' });
 
   const grouped = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const todayLocal = `${y}-${m}-${d}`;
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const upcoming = classes.filter(c => {
+      if (c.date > todayLocal) return true;
+      if (c.date < todayLocal) return false;
+      if (typeof c.startTime !== 'string' || c.startTime.length < 5) return true;
+      const h = parseInt(c.startTime.slice(0, 2), 10);
+      const min = parseInt(c.startTime.slice(3, 5), 10);
+      if (isNaN(h) || isNaN(min)) return true;
+      return (h * 60 + min) >= nowMinutes;
+    });
+
     const map = new Map<string, typeof classes>();
-    classes.forEach(c => { const list = map.get(c.date) || []; list.push(c); map.set(c.date, list); });
+    upcoming.forEach(c => { const list = map.get(c.date) || []; list.push(c); map.set(c.date, list); });
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [classes]);
 

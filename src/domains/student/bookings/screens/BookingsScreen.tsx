@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useBookingStore } from '../store/useBookingStore';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -10,6 +10,9 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './BookingsScreen.styles';
+
+
+
 
 const BookingsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();

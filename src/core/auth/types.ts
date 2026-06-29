@@ -8,6 +8,7 @@ export interface LoginCredentials {
 export interface RegisterData {
   name: string;
   email: string;
+  cpf: string;
   phone: string;
   password: string;
 }
@@ -17,6 +18,7 @@ export interface AuthResponse {
     id: string;
     name: string;
     email: string;
+    cpf?: string;
     role: Role;
     avatar?: string;
     credits?: number;

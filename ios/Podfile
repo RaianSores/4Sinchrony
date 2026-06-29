@@ -28,7 +28,17 @@ target 'SinchronyApp' do
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
     )
+
+    # Fix for Apple Silicon Mac (arm64 simulator)
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Exclude arm64 simulator arch for pods that don't support it yet
+        # Flipper is disabled via Podfile.properties.json so these are safeguards
+        if ['Flipper', 'Flipper-Folly', 'OpenSSL-Universal', 'libevent'].include?(target.name)
+          config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+        end
+      end
+    end
   end
 end
