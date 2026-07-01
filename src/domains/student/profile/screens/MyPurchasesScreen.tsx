@@ -7,11 +7,9 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './MyPurchasesScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { MyPurchasesScreenProps } from '../../../../core/navigation/types/screenProps';
 
-
-
-
-const MyPurchasesScreen = ({ navigation }: any) => {
+const MyPurchasesScreen = ({ navigation }: MyPurchasesScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();

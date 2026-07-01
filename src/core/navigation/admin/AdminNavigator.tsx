@@ -42,11 +42,11 @@ const ManagementStackScreen = () => (
 
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-    <ProfileStack.Screen name="AdminProfile" component={AdminProfileScreen} />
-    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
-    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
-    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-    <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen} />
+    <ProfileStack.Screen name="AdminProfile" component={AdminProfileScreen as any} />
+    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen as any} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen as any} />
+    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
+    <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen as any} />
   </ProfileStack.Navigator>
 );
 

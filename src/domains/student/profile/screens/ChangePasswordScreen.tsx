@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { authService } from '../../../../core/auth/services/authService';
+import type { ChangePasswordScreenProps } from '../../../../core/navigation/types/screenProps';
+import { captureError } from '../../../../lib/sentry';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
@@ -20,7 +22,7 @@ import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottom
 
 
 
-const ChangePasswordScreen = ({ navigation }: any) => {
+const ChangePasswordScreen = ({ navigation }: ChangePasswordScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -55,6 +57,7 @@ const ChangePasswordScreen = ({ navigation }: any) => {
         buttons: [{ text: 'OK', onPress: () => navigation.goBack() }],
       });
     } catch (err: any) {
+      captureError(err);
       showAlert({ title: 'Erro', message: err.message || 'Não foi possível alterar a senha' });
     } finally {
       setLoading(false);

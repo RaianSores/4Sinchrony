@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, TextInput, ScrollView } from 'react-native';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -10,12 +10,14 @@ import { AvatarUpload } from '../../../../shared/components/Avatar';
 import { pickAndUploadAvatar } from '../../../../shared/services/avatarService';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './EditProfileScreen.styles';
+import type { EditProfileScreenProps } from '../../../../core/navigation/types/screenProps';
+import { captureError } from '../../../../lib/sentry';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 
 
 
-const EditProfileScreen = ({ navigation }: any) => {
+const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -35,6 +37,7 @@ const EditProfileScreen = ({ navigation }: any) => {
       await api.put('/profile', { avatar: url });
       updateUser({ avatar: url });
     } catch (err) {
+      captureError(err);
       showAlert({ title: 'Erro', message: err instanceof Error ? err.message : 'Falha no upload' });
     } finally {
       setUploadingAvatar(false);
@@ -49,7 +52,8 @@ const EditProfileScreen = ({ navigation }: any) => {
       await api.put('/profile', { name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim() });
       updateUser({ name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim() });
       showAlert({ title: 'Pronto!', message: 'Dados atualizados com sucesso', buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
-    } catch {
+    } catch (error) {
+      captureError(error);
       showAlert({ title: 'Erro', message: 'Não foi possível salvar. Tente novamente.' });
     }
   };
@@ -57,7 +61,7 @@ const EditProfileScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Editar Perfil" showBack onBackPress={() => navigation.goBack()} />
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding, paddingTop: 20 }]} showsVerticalScrollIndicator={false}>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
           <AvatarUpload
             uri={user?.avatar}

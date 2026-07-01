@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Booking } from '../../../../shared/types';
 import { bookingService } from '../services/bookingService';
+import { captureError } from '../../../../lib/sentry';
 
 interface BookingState {
   bookings: Booking[];
@@ -19,7 +20,8 @@ export const useBookingStore = create<BookingState>((set) => ({
     try {
       const bookings = await bookingService.getMyBookings();
       set({ bookings, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { AttendanceRecord, AttendanceUpdate, AttendanceStatus } from '../../../core/types/attendance';
 import { attendanceService } from '../services/attendanceService';
+import { captureError } from '../../../lib/sentry';
 
 interface AttendanceState {
   records: AttendanceRecord[];
@@ -31,7 +32,8 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
       const attendedCount = records.filter(r => r.status === 'attended').length;
       const noShowCount = records.filter(r => r.status === 'no_show').length;
       set({ records, isLoading: false, totalCount, attendedCount, noShowCount });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },
@@ -68,7 +70,8 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
         attendedCount: records.length,
         noShowCount: 0,
       });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

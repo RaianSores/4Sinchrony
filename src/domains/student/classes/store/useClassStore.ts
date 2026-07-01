@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Class } from '../../../../shared/types';
 import { classService } from '../services/classService';
+import { captureError } from '../../../../lib/sentry';
 
 interface ClassFilters {
   date: string;
@@ -34,7 +35,8 @@ export const useClassStore = create<ClassState>((set, get) => ({
         studioId: filters.studioId,
       });
       set({ classes, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

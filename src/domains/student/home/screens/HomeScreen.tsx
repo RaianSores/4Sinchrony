@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useClassStore } from '../../classes/store/useClassStore';
@@ -12,6 +13,7 @@ import { Avatar } from '../../../../shared/components/Avatar';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './HomeScreen.styles';
+import type { HomeScreenProps } from '../../../../core/navigation/types/screenProps';
 
 function timeGreeting(): string {
   const h = new Date().getHours();
@@ -20,7 +22,7 @@ function timeGreeting(): string {
   return 'Boa noite';
 }
 
-const HomeScreen = ({ navigation }: any) => {
+const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -30,20 +32,23 @@ const HomeScreen = ({ navigation }: any) => {
   const { bookings, fetchBookings } = useBookingStore();
   const { progress, fetchProgress } = useProgressStore();
   const [refreshing, setRefreshing] = useState(false);
+  const mountedRef = useRef(true);
 
   const firstName = user?.name?.split(' ')[0] || 'Aluno';
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
+    mountedRef.current = true;
     fetchClasses();
     fetchBookings();
     fetchProgress();
-  }, [fetchClasses, fetchBookings, fetchProgress]);
+    return () => { mountedRef.current = false; };
+  }, [fetchClasses, fetchBookings, fetchProgress]));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([fetchClasses(), fetchBookings(), fetchProgress()]);
-    setRefreshing(false);
+    if (mountedRef.current) setRefreshing(false);
   }, [fetchClasses, fetchBookings, fetchProgress]);
 
   const now = new Date();
@@ -100,7 +105,7 @@ const HomeScreen = ({ navigation }: any) => {
 
         <TouchableOpacity
           style={styles.creditsBanner}
-          onPress={() => navigation.navigate('ProfileTab', { screen: 'Packages' })}
+          onPress={() => navigation.navigate('ProfileTab', { screen: 'MyPurchases' })}
         >
           <Ionicons name="flash" size={22} color={colors.primary} />
           <Text style={styles.creditsBannerText}>
@@ -114,20 +119,25 @@ const HomeScreen = ({ navigation }: any) => {
         {activeBookings.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Próximas Aulas</Text>
-            {activeBookings.slice(0, 2).map(b => (
-              <ClassCard
-                key={b.id}
-                instructor={b.class.instructor}
-                instructorAvatar={b.class.instructorAvatar}
-                className={b.class.name}
-                time={b.class.startTime}
-                duration={b.class.duration}
-                studio={b.class.studio?.name || ''}
-                availableSpots={b.class.availableSpots}
-                totalSpots={b.class.totalSpots}
-                onPress={() => navigation.navigate('ClassDetail', { classId: b.class.id })}
-              />
-            ))}
+            {activeBookings.slice(0, 2).map(b => {
+              const liveClass = classes.find(c => c.id === b.class.id);
+              const spots = liveClass?.availableSpots ?? b.class.availableSpots;
+              return (
+                <ClassCard
+                  key={b.id}
+                  enrolled
+                  instructor={b.class.instructor}
+                    instructorAvatar={b.class.instructorAvatar}
+                    className={b.class.name}
+                    time={b.class.startTime}
+                    duration={b.class.duration}
+                    studio={b.class.studio?.name || ''}
+                    availableSpots={spots}
+                    totalSpots={b.class.totalSpots}
+                    onPress={() => navigation.navigate('ClassDetail', { classId: b.class.id })}
+                  />
+              );
+            })}
           </View>
         )}
 

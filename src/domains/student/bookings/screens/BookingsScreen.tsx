@@ -1,6 +1,7 @@
-﻿import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useBookingStore } from '../store/useBookingStore';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -9,12 +10,15 @@ import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import { canCancelBooking } from '../../../../shared/utils/canCancelBooking';
+import type { BookingsScreenProps } from '../../../../core/navigation/types/screenProps';
+import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './BookingsScreen.styles';
 
 
 
 
-const BookingsScreen = ({ navigation }: any) => {
+const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -24,19 +28,29 @@ const BookingsScreen = ({ navigation }: any) => {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const { showAlert } = useAppAlert();
+  const mountedRef = useRef(true);
 
-  useEffect(() => { fetchBookings(); }, [fetchBookings]);
+  useFocusEffect(useCallback(() => {
+    mountedRef.current = true;
+    fetchBookings();
+    return () => { mountedRef.current = false; };
+  }, [fetchBookings]));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchBookings();
-    setRefreshing(false);
+    if (mountedRef.current) setRefreshing(false);
   }, [fetchBookings]);
 
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
   const pastBookings = bookings.filter(b => b.status === 'cancelled');
 
   const handleCancel = (booking: any) => {
+    const { allowed, reason } = canCancelBooking(booking);
+    if (!allowed) {
+      showAlert({ title: 'Cancelamento indisponível', message: reason! });
+      return;
+    }
     showAlert({ title: 'Cancelar Reserva', message: `Tem certeza que deseja cancelar ${booking.class.name}?`,
       buttons: [{ text: 'Não', style: 'cancel' }, { text: 'Sim, Cancelar', style: 'destructive', onPress: async () => {
         setCancellingId(booking.id);
@@ -44,7 +58,7 @@ const BookingsScreen = ({ navigation }: any) => {
           await cancelBooking(booking.id);
           updateUser({ credits: (user?.credits || 0) + 1 });
           showAlert({ title: 'Cancelada', message: 'Reserva cancelada com sucesso. 1 crédito foi estornado.' });
-        } catch { showAlert({ title: 'Erro', message: 'Não foi possível cancelar' }); }
+        } catch (error) { captureError(error); showAlert({ title: 'Erro', message: 'Não foi possível cancelar' }); }
         finally { setCancellingId(null); }
       }}] });
   };
@@ -87,7 +101,7 @@ const BookingsScreen = ({ navigation }: any) => {
                 </View>
                 <View style={styles.cardDetails}>
                   <View style={styles.detailItem}><Ionicons name="calendar-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.date}</Text></View>
-                  <View style={styles.detailItem}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.startTime} • {b.class.duration}min</Text></View>
+                  <View style={styles.detailItem}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.startTime} - {b.class.duration}min</Text></View>
                   {b.class.studio && <View style={styles.detailItem}><Ionicons name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.studio.name}</Text></View>}
                   {b.bikeNumber && <View style={styles.detailItem}><Ionicons name="bicycle" size={16} color={colors.primary} /><Text style={[styles.detailText, { color: colors.primary }]}>Bike #{b.bikeNumber}</Text></View>}
                 </View>

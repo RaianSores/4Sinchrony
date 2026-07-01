@@ -13,6 +13,7 @@ interface ClassCardProps {
   studio: string;
   availableSpots: number;
   totalSpots: number;
+  enrolled?: boolean;
   onPress: () => void;
 }
 
@@ -50,6 +51,20 @@ const ClassCard: React.FC<ClassCardProps> = ({
       onPress={onPress}
       activeOpacity={0.9}
     >
+      {enrolled && (
+        <View style={{
+          backgroundColor: colors.success + '18',
+          alignSelf: 'flex-start',
+          borderRadius: 6,
+          paddingHorizontal: 8,
+          paddingVertical: 3,
+          marginBottom: 8,
+        }}>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: colors.success }}>
+            <Ionicons name="checkmark-circle" size={11} color={colors.success} /> Matriculado
+          </Text>
+        </View>
+      )}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           {instructorAvatar ? (

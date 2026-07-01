@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CardInfo, AddCardData } from '../../../../shared/types';
 import { cardService } from '../services/cardService';
 import { getLastFour } from '../utils/cardUtils';
+import { captureError } from '../../../../lib/sentry';
 
 interface CardState {
   cards: CardInfo[];
@@ -27,7 +28,8 @@ export const useCardStore = create<CardState>()(
         try {
           const cards = await cardService.getCards();
           set({ cards, isLoading: false });
-        } catch {
+        } catch (error) {
+          captureError(error);
           set({ isLoading: false });
         }
       },

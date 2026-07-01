@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,6 +10,7 @@ import { pickAndUploadAvatar } from '../../../shared/services/avatarService';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './TeacherProfileScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
+import { captureError } from '../../../lib/sentry';
 
 
 
@@ -41,6 +42,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
       await api.put('/profile', { avatar: url });
       updateUser({ avatar: url });
     } catch (err) {
+      captureError(err);
       showAlert({ title: 'Erro', message: err instanceof Error ? err.message : 'Falha no upload' });
     } finally {
       setUploadingAvatar(false);
@@ -59,7 +61,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
         <Text style={styles.title}>Perfil</Text>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabPadding }}>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabPadding, paddingTop: 20 }}>
         <View style={styles.profileHeader}>
           <AvatarUpload
             uri={user?.avatar}

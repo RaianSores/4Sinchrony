@@ -1,8 +1,5 @@
-import { PAYMENT_MOCK } from '@env';
 import { api } from '../../../../core/http/api';
 import { Booking, Class } from '../../../../shared/types';
-
-const isMock = PAYMENT_MOCK === 'true';
 
 function adaptClass(c: any): Class {
   return {
@@ -23,6 +20,11 @@ function adaptClass(c: any): Class {
     status: c.status,
     enrolledCount: c.enrolledCount,
   };
+}
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + (m || 0);
 }
 
 function adaptBooking(b: any): Booking {
@@ -52,49 +54,55 @@ export interface BookingConflict {
 
 export const bookingService = {
   async getMyBookings(): Promise<Booking[]> {
-    if (isMock) return [];
     const res = await api.get<{ data: any[] }>('/bookings');
     return (res.data.data ?? []).map(adaptBooking);
   },
 
-  checkConflicts(_targetClass: Class, _existingBookings: Booking[]): BookingConflict | null {
+  checkConflicts(targetClass: Class, existingBookings: Booking[]): BookingConflict | null {
+    const sameDateBookings = existingBookings.filter(
+      b => b.status === 'confirmed' && b.class.date === targetClass.date
+    );
+
+    const duplicate = sameDateBookings.find(b => b.class.id === targetClass.id);
+    if (duplicate) {
+      return {
+        type: 'duplicate',
+        existingBooking: duplicate,
+        message: `Você já está inscrito nesta aula.`,
+      };
+    }
+
+    if (!targetClass.startTime) return null;
+    const targetStart = timeToMinutes(targetClass.startTime);
+    const targetEnd = targetStart + (targetClass.duration || 60);
+
+    for (const booking of sameDateBookings) {
+      const existingStart = timeToMinutes(booking.class.startTime);
+      const existingEnd = existingStart + (booking.class.duration || 60);
+
+      if (targetStart < existingEnd && targetEnd > existingStart) {
+        return {
+          type: 'time_conflict',
+          existingBooking: booking,
+          message: `Conflito de horário com ${booking.class.name} (${booking.class.startTime}).`,
+        };
+      }
+    }
+
     return null;
   },
 
   async createBooking(classId: string, bikeNumber?: number): Promise<Booking> {
-    if (isMock) {
-      await new Promise(r => setTimeout(r, 800));
-      const cl: Class = { id: classId, name: '', type: '', instructor: '', startTime: '', duration: 0,
-          studio: { id: '', name: '', city: '', address: '' }, availableSpots: 0, totalSpots: 0, date: '' };
-      return {
-        id: 'mock_booking_' + Date.now(),
-        class: cl,
-        classId: cl.id,
-        className: cl.name,
-        studentId: undefined,
-        studentName: undefined,
-        studentEmail: undefined,
-        bikeNumber,
-        status: 'confirmed',
-        bookedAt: new Date().toISOString(),
-        checkedIn: false,
-      };
-    }
     const res = await api.post<any>('/bookings', { classId, bikeNumber });
     const raw = res.data?.data ?? res.data;
     return adaptBooking(raw);
   },
 
   async cancelBooking(bookingId: string): Promise<void> {
-    if (isMock) {
-      await new Promise(r => setTimeout(r, 500));
-      return;
-    }
     await api.post(`/bookings/${bookingId}/cancel`);
   },
 
   async getBikesForClass(classId: string): Promise<{ number: number; status: string }[]> {
-    if (isMock) return [];
     const res = await api.get<{ data: { number: number; status: string }[] }>(`/classes/${classId}/bikes`);
     return res.data.data ?? [];
   },

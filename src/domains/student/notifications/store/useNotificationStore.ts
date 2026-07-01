@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NotificationPreference } from '../../../../shared/types';
 import { notificationService } from '../services/notificationService';
+import { captureError } from '../../../../lib/sentry';
 
 const DEFAULT_PREFERENCES: NotificationPreference[] = [
   { id: 'booking_reminder',      title: 'Lembrete de aula',      description: 'Aviso 1h antes do início da aula',           icon: 'alarm-outline',            enabled: true  },
@@ -47,7 +48,8 @@ export const useNotificationStore = create<NotificationState>()(
             });
             set({ preferences: merged, isLoading: false });
           }
-        } catch {
+        } catch (error) {
+          captureError(error);
           if (get().preferences.length === 0) {
             set({ preferences: DEFAULT_PREFERENCES, isLoading: false });
           } else {

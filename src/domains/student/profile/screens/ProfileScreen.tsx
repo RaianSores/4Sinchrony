@@ -9,11 +9,9 @@ import { usePackageStore } from '../../purchases/store/usePackageStore';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ProfileScreen.styles';
+import type { ProfileScreenProps } from '../../../../core/navigation/types/screenProps';
 
-
-
-
-const ProfileScreen = ({ navigation }: any) => {
+const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -27,7 +25,6 @@ const ProfileScreen = ({ navigation }: any) => {
     { title: 'Histórico de Aulas', icon: 'time-outline', screen: 'ClassHistory' },
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
     { title: 'Planos', icon: 'pricetags-outline', screen: 'Packages' },
-    // { title: 'Indicar Amigos', icon: 'people-outline', screen: 'BringAFriend' }, // FEATURE: bring-a-friend (paid add-on)
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 
@@ -37,7 +34,7 @@ const ProfileScreen = ({ navigation }: any) => {
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: tabPadding }}
+        contentContainerStyle={{ paddingBottom: tabPadding, paddingTop: 20 }}
       >
         <TouchableOpacity style={styles.profileHeader} onPress={() => navigation.navigate('EditProfile')} activeOpacity={0.8}>
           <Avatar uri={user?.avatar} name={user?.name || 'U'} size="xl" style={styles.avatar} />

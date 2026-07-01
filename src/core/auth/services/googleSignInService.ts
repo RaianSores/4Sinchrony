@@ -2,6 +2,7 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { captureError } from '../../../lib/sentry';
 
 export interface GoogleUser {
   id: string;
@@ -45,6 +46,7 @@ export const googleSignInService = {
         photo: user.photo || null,
       };
     } catch (error: any) {
+      captureError(error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         throw new Error('Login cancelado');
       }
@@ -62,8 +64,8 @@ export const googleSignInService = {
     if (configured) {
       try {
         await GoogleSignin.signOut();
-      } catch {
-        // ignore
+      } catch (error) {
+        captureError(error);
       }
     }
   },

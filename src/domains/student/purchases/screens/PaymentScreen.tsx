@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
@@ -9,26 +9,24 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { paymentService } from '../services/paymentService';
 import { usePackageStore } from '../store/usePackageStore';
-import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
+import type { PaymentScreenProps } from '../../../../core/navigation/types/screenProps';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
 import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PaymentScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import { captureError } from '../../../../lib/sentry';
 
 
 
 
-const PaymentScreen = ({ navigation, route }: any) => {
+const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
   const { amount } = route.params;
-  const { cart, clearCart, addPurchase,
-    // coupon, // FEATURE: coupon (paid add-on)
-  } = usePackageStore();
-  const { user, updateUser } = useAuthStore();
+  const { cart, clearCart, addPurchase } = usePackageStore();
   const { showAlert } = useAppAlert();
   const [method, setMethod] = useState<'pix'>('pix');
   const [processing, setProcessing] = useState(false);
@@ -37,27 +35,23 @@ const PaymentScreen = ({ navigation, route }: any) => {
     setProcessing(true);
     try {
       const packageIds = cart.map(item => item.id);
-      // const couponCode = coupon?.code; // FEATURE: coupon (paid add-on)
       const result = await paymentService.processPixPayment(amount, packageIds);
 
       const purchase = {
         id: 'pur_' + Date.now(),
         package: cart[0],
         amount,
-        // coupon, // FEATURE: coupon (paid add-on)
         paymentMethod: method,
         status: 'confirmed' as const,
         createdAt: new Date().toISOString(),
       };
       addPurchase(purchase);
 
-      const totalCredits = cart.reduce((sum, item) => sum + item.credits * item.quantity, 0);
-      updateUser({ credits: (user?.credits || 0) + totalCredits });
-
       clearCart();
 
       navigation.replace('PaymentConfirmation', { result, purchase, method, amount });
-    } catch {
+    } catch (error) {
+      captureError(error);
       showAlert({ title: 'Erro', message: 'Pagamento não foi processado. Tente novamente.' });
     } finally {
       setProcessing(false);

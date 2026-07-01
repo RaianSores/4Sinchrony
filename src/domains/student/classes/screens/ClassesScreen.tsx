@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo, useCallback } from 'react';
+﻿import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -10,7 +10,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ClassesScreen.styles';
-
+import type { ClassesScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
@@ -26,7 +26,7 @@ const formatDate = (dateStr: string) => {
 
 const isToday = (dateStr: string) => dateStr === new Date().toISOString().split('T')[0];
 
-const ClassesScreen = ({ navigation }: any) => {
+const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -35,6 +35,7 @@ const ClassesScreen = ({ navigation }: any) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [classTypes, setClassTypes] = useState<{ label: string; value: string }[]>([TODAS]);
+  const mountedRef = useRef(true);
 
   // Rebuild type chips from classes loaded without a type filter (all types present)
   useEffect(() => {
@@ -73,7 +74,11 @@ const ClassesScreen = ({ navigation }: any) => {
     textDayHeaderFontSize: 14,
   }), [colors]);
 
-  useEffect(() => { fetchClasses(); }, [filters.date, filters.type, fetchClasses]);
+  useEffect(() => {
+    mountedRef.current = true;
+    fetchClasses();
+    return () => { mountedRef.current = false; };
+  }, [filters.date, filters.type, fetchClasses]);
 
   useFocusEffect(useCallback(() => {
     setFilters({ date: '', type: '' });
@@ -83,7 +88,7 @@ const ClassesScreen = ({ navigation }: any) => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchClasses();
-    setRefreshing(false);
+    if (mountedRef.current) setRefreshing(false);
   }, [fetchClasses]);
 
   const handleDateChange = (newDate: string) => { setFilters({ date: newDate }); setShowCalendar(false); };

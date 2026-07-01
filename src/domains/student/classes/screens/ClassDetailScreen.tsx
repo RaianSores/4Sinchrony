@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -12,11 +12,13 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassDetailScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { ClassDetailScreenProps } from '../../../../core/navigation/types/screenProps';
+import { captureError } from '../../../../lib/sentry';
 
 
 
 
-const ClassDetailScreen = ({ navigation, route }: any) => {
+const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
@@ -34,14 +36,14 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
 
   useEffect(() => {
     if (classItem?.type?.toLowerCase() === 'bike') {
-      bookingService.getBikesForClass(classId).then(setBikeStatuses).catch(() => {});
+      bookingService.getBikesForClass(classId).then(setBikeStatuses).catch((error) => { captureError(error); });
     }
   }, [classId, classItem?.type]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     if (classItem?.type?.toLowerCase() === 'bike') {
-      await bookingService.getBikesForClass(classId).then(setBikeStatuses).catch(() => {});
+      await bookingService.getBikesForClass(classId).then(setBikeStatuses).catch((error) => { captureError(error); });
     }
     setRefreshing(false);
   }, [classId, classItem?.type]);
@@ -73,6 +75,13 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
         buttons: [{ text: 'Fechar', style: 'cancel' }, { text: 'Ver Planos', onPress: () => navigation.navigate('ProfileTab', { screen: 'Packages' }) }] });
       return;
     }
+    const activeBookingCount = bookings.filter(b => b.status === 'confirmed').length;
+    const maxBookings = user?.maxBookings ?? 5;
+    if (activeBookingCount >= maxBookings) {
+      showAlert({ title: 'Limite de reservas', message: `Você atingiu o limite de ${maxBookings} reservas ativas. Cancele uma reserva existente para fazer uma nova.`,
+        buttons: [{ text: 'Fechar', style: 'cancel' }] });
+      return;
+    }
     const conflict = bookingService.checkConflicts(classItem, bookings);
     if (conflict) {
       if (conflict.type === 'duplicate') { showAlert({ title: 'Aula já reservada', message: conflict.message }); return; }
@@ -84,7 +93,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
             await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
             deductCredit();
             showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso.`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
-          } catch { showAlert({ title: 'Erro', message: 'Não foi possível completar a reserva' }); }
+          } catch (error) { captureError(error); showAlert({ title: 'Erro', message: 'Não foi possível completar a reserva' }); }
           finally { setLoading(false); }
         }}] });
       return;
@@ -94,7 +103,8 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
       await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
       deductCredit();
       showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso!`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
-    } catch {
+    } catch (error) {
+      captureError(error);
       showAlert({ title: 'Erro', message: 'Não foi possível reservar' });
     } finally { setLoading(false); }
   };
@@ -128,7 +138,7 @@ const ClassDetailScreen = ({ navigation, route }: any) => {
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Ionicons name="time-outline" size={20} color={colors.textSecondary} />
-              <Text style={styles.metaText}>{classItem.startTime} • {classItem.duration}min</Text>
+              <Text style={styles.metaText}>{classItem.startTime} - {classItem.duration}min</Text>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />

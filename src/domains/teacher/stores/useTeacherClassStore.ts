@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Class, ClassSession } from '../../../core/types/class';
 import { teacherClassService } from '../services/teacherClassService';
+import { captureError } from '../../../lib/sentry';
 
 interface TeacherClassState {
   classes: Class[];
@@ -29,7 +30,8 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
     try {
       const classes = await teacherClassService.getMyClasses(date);
       set({ classes, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },
@@ -39,7 +41,8 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
     try {
       const cls = await teacherClassService.getClassById(id);
       set({ selectedClass: cls ?? null, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },
@@ -49,7 +52,8 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
     try {
       const session = await teacherClassService.startClass(classId);
       set({ currentSession: session, sessionLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ sessionLoading: false });
     }
   },
@@ -59,7 +63,8 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
     try {
       const session = await teacherClassService.endClass(classId);
       set({ currentSession: session, sessionLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ sessionLoading: false });
     }
   },
@@ -69,7 +74,8 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
     try {
       const session = await teacherClassService.getCurrentSession(classId);
       set({ currentSession: session, sessionLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ sessionLoading: false });
     }
   },

@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,6 +6,7 @@ import { useTheme } from '../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
 import { borderRadius } from '../../../shared/theme';
 import { adminService } from '../services/adminService';
+import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './ManagementScreen.styles';
 
 
@@ -63,12 +64,12 @@ export const StudentsScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    adminService.getStudents().then(data => { setStudents(data); setLoading(false); }).catch(() => setLoading(false));
+    adminService.getStudents().then(data => { setStudents(data); setLoading(false); }).catch((error) => { captureError(error); setLoading(false); });
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await adminService.getStudents().then(setStudents).catch(() => {});
+    await adminService.getStudents().then(setStudents).catch((error) => { captureError(error); });
     setRefreshing(false);
   }, []);
 
@@ -131,12 +132,12 @@ export const TeachersScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    adminService.getTeachers().then(data => { setTeachers(data); setLoading(false); }).catch(() => setLoading(false));
+    adminService.getTeachers().then(data => { setTeachers(data); setLoading(false); }).catch((error) => { captureError(error); setLoading(false); });
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await adminService.getTeachers().then(setTeachers).catch(() => {});
+    await adminService.getTeachers().then(setTeachers).catch((error) => { captureError(error); });
     setRefreshing(false);
   }, []);
 
@@ -198,12 +199,12 @@ export const StudiosScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    adminService.getStudios().then(data => { setStudios(data); setLoading(false); }).catch(() => setLoading(false));
+    adminService.getStudios().then(data => { setStudios(data); setLoading(false); }).catch((error) => { captureError(error); setLoading(false); });
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await adminService.getStudios().then(setStudios).catch(() => {});
+    await adminService.getStudios().then(setStudios).catch((error) => { captureError(error); });
     setRefreshing(false);
   }, []);
 

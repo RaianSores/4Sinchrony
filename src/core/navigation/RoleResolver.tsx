@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { NavigationContainer, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuthStore } from '../auth/store/useAuthStore';
@@ -11,14 +11,42 @@ import { AdminNavigator } from './admin/AdminNavigator';
 import LoginScreen from '../auth/screens/LoginScreen';
 import RegisterScreen from '../auth/screens/RegisterScreen';
 import ForgotPasswordScreen from '../auth/screens/ForgotPasswordScreen';
+import VerifyEmailScreen from '../auth/screens/VerifyEmailScreen';
+import ResetPasswordScreen from '../auth/screens/ResetPasswordScreen';
 
-const Stack = createNativeStackNavigator();
+export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+  VerifyEmail: { email?: string };
+  ResetPassword: { token: string };
+  StudentTabs: undefined;
+  TeacherTabs: undefined;
+  AdminTabs: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['4sinchrony://'],
+  config: {
+    screens: {
+      ResetPassword: 'auth/reset-password',
+      VerifyEmail: 'auth/verify-email',
+      ForgotPassword: 'auth/forgot-password',
+      Login: 'auth/login',
+      Register: 'auth/register',
+    },
+  },
+};
 
 const AuthNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+    <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
   </Stack.Navigator>
 );
 
@@ -62,7 +90,7 @@ export const RoleResolver = () => {
   };
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer theme={navTheme} linking={linking}>
       {renderNavigator()}
     </NavigationContainer>
   );

@@ -9,12 +9,13 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useCardStore } from '../store/useCardStore';
 import CardItem from '../components/CardItem';
+import type { MyCardsScreenProps } from '../../../../core/navigation/types/screenProps';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 
 
 
-const MyCardsScreen = ({ navigation }: any) => {
+const MyCardsScreen = ({ navigation }: MyCardsScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();

@@ -1,5 +1,6 @@
 import { api } from '../../../../core/http/api';
 import { Class } from '../../../../shared/types';
+import { captureError } from '../../../../lib/sentry';
 
 function adaptClass(c: any): Class {
   return {
@@ -29,7 +30,8 @@ export const classService = {
       return (res.data.data ?? [])
         .filter(t => t.active)
         .map(t => ({ label: t.name, value: t.name.toLowerCase() }));
-    } catch {
+    } catch (error) {
+      captureError(error);
       return [];
     }
   },
@@ -43,7 +45,8 @@ export const classService = {
     try {
       const res = await api.get<{ data: any }>(`/classes/${id}`);
       return adaptClass(res.data.data);
-    } catch {
+    } catch (error) {
+      captureError(error);
       return undefined;
     }
   },

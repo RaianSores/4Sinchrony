@@ -1,4 +1,5 @@
 import { api } from '../../../core/http/api';
+import { captureError } from '../../../lib/sentry';
 import type { Class, ClassSession } from '../../../core/types/class';
 
 function adaptClass(c: any): Class {
@@ -39,7 +40,8 @@ export const teacherClassService = {
     try {
       const res = await api.get<{ data: any }>(`/teachers/me/classes/${id}`);
       return adaptClass(res.data.data);
-    } catch {
+    } catch (error) {
+      captureError(error);
       return undefined;
     }
   },

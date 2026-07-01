@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { StudentProgress } from '../../../../shared/types';
 import { progressService } from '../services/progressService';
+import { captureError } from '../../../../lib/sentry';
 
 interface ProgressState {
   progress: StudentProgress | null;
@@ -17,7 +18,8 @@ export const useProgressStore = create<ProgressState>((set) => ({
     try {
       const progress = await progressService.getProgress();
       set({ progress, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

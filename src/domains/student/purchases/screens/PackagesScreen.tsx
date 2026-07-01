@@ -8,11 +8,12 @@ import { ClassPackage } from '../../../../shared/types';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PackagesScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { PackagesScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
 
-const PackagesScreen = ({ navigation }: any) => {
+const PackagesScreen = ({ navigation }: PackagesScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -22,6 +23,7 @@ const PackagesScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     fetchPackages();
+    console.log('packages:', JSON.stringify(packages, undefined, 2));
   }, [fetchPackages]);
 
   const onRefresh = useCallback(async () => {

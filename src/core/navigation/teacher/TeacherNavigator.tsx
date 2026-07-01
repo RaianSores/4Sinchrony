@@ -59,10 +59,10 @@ const CheckInStackScreen = () => (
 
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-    <ProfileStack.Screen name="TeacherProfile" component={TeacherProfileScreen} />
-    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
-    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
-    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+    <ProfileStack.Screen name="TeacherProfile" component={TeacherProfileScreen as any} />
+    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen as any} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen as any} />
+    <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
   </ProfileStack.Navigator>
 );
 

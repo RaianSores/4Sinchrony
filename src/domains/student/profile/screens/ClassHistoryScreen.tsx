@@ -7,11 +7,12 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './ClassHistoryScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { ClassHistoryScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
 
-const ClassHistoryScreen = ({ navigation }: any) => {
+const ClassHistoryScreen = ({ navigation }: ClassHistoryScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();

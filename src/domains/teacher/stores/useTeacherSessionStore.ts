@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ClassSession } from '../../../core/types/class';
 import { teacherClassService } from '../services/teacherClassService';
+import { captureError } from '../../../lib/sentry';
 
 interface SessionState {
   currentSession: ClassSession | null;
@@ -23,7 +24,8 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
     try {
       const session = await teacherClassService.startClass(classId);
       set({ currentSession: session, isLoading: false, isActive: true });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },
@@ -33,7 +35,8 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
     try {
       const session = await teacherClassService.endClass(classId);
       set({ currentSession: session, isLoading: false, isActive: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },
@@ -43,7 +46,8 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
     try {
       const session = await teacherClassService.getCurrentSession(classId);
       set({ currentSession: session, isLoading: false, isActive: session?.status === 'in_progress' });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

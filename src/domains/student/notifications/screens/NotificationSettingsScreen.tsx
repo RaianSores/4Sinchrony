@@ -8,11 +8,12 @@ import { useNotificationStore } from '../store/useNotificationStore';
 import NotificationToggle from '../components/NotificationToggle';
 import { mkStyles } from './NotificationSettingsScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { NotificationSettingsScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
 
-const NotificationSettingsScreen = ({ navigation }: any) => {
+const NotificationSettingsScreen = ({ navigation }: NotificationSettingsScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 

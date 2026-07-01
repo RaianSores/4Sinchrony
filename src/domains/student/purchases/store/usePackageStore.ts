@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ClassPackage, Coupon, Purchase } from '../../../../shared/types';
 import { packageService } from '../services/packageService';
 import { paymentService } from '../services/paymentService';
+import { captureError } from '../../../../lib/sentry';
 
 interface PackageState {
   packages: ClassPackage[];
@@ -18,10 +19,7 @@ interface PackageState {
   addToCart: (pkg: ClassPackage) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
-  // applyCoupon: (code: string) => Promise<Coupon | null>; // FEATURE: coupon (paid add-on)
-  // removeCoupon: () => void; // FEATURE: coupon (paid add-on)
   getCartTotal: () => number;
-  // getDiscountedTotal: () => number; // FEATURE: coupon (paid add-on)
   addPurchase: (purchase: Purchase) => void;
 }
 
@@ -39,7 +37,8 @@ export const usePackageStore = create<PackageState>()(
         try {
           const packages = await packageService.getPackages();
           set({ packages, isLoading: false });
-        } catch {
+        } catch (error) {
+          captureError(error);
           set({ isLoading: false });
         }
       },
@@ -48,7 +47,9 @@ export const usePackageStore = create<PackageState>()(
         try {
           const purchases = await paymentService.getPurchases();
           set({ purchases });
-        } catch {}
+        } catch (error) {
+          captureError(error);
+        }
       },
 
       clearPurchases: () => set({ purchases: [], cart: [], coupon: null }),
@@ -70,21 +71,6 @@ export const usePackageStore = create<PackageState>()(
         set(state => ({ cart: state.cart.filter(i => i.id !== id) })),
 
       clearCart: () => set({ cart: [], coupon: null }),
-
-      // FEATURE: coupon (paid add-on)
-      // applyCoupon: async (code) => {
-      //   const coupon = await paymentService.validateCoupon(code);
-      //   if (coupon) set({ coupon });
-      //   return coupon;
-      // },
-      // removeCoupon: () => set({ coupon: null }),
-      // getDiscountedTotal: () => {
-      //   const total = get().getCartTotal();
-      //   const coupon = get().coupon;
-      //   if (!coupon) return total;
-      //   if (coupon.discountType === 'percentage') return total - (total * coupon.discount) / 100;
-      //   return Math.max(0, total - coupon.discount);
-      // },
 
       getCartTotal: () =>
         get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),

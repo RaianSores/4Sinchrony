@@ -1,6 +1,7 @@
 import { Alert, Platform } from 'react-native';
 import { launchImageLibrary, launchCamera, ImagePickerResponse } from 'react-native-image-picker';
 import { tokenStorage } from '../../core/storage';
+import { captureError } from '../../lib/sentry';
 import { API_URL } from '@env';
 
 const BASE_URL = API_URL || 'https://sinchrony.onrender.com';
@@ -18,7 +19,7 @@ async function uploadToApi(uri: string, fileName: string, type: string): Promise
     body: formData,
   });
 
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch((parseError) => { captureError(parseError); return {}; });
   if (!res.ok) throw new Error(data.message || data.error || 'Falha no upload');
   return data.url as string;
 }
@@ -41,6 +42,7 @@ export function pickAndUploadAvatar(): Promise<string | null> {
               );
               resolve(url);
             } catch (err) {
+              captureError(err);
               Alert.alert('Erro', err instanceof Error ? err.message : 'Falha no upload');
               resolve(null);
             }
@@ -62,6 +64,7 @@ export function pickAndUploadAvatar(): Promise<string | null> {
               );
               resolve(url);
             } catch (err) {
+              captureError(err);
               Alert.alert('Erro', err instanceof Error ? err.message : 'Falha no upload');
               resolve(null);
             }

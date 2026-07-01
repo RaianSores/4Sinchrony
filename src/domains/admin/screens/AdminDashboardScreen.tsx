@@ -70,7 +70,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
       </View>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: tabPadding, paddingTop: 10 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

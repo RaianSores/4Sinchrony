@@ -1,4 +1,4 @@
-ï»¿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
+import type { BringAFriendScreenProps } from '../../../../core/navigation/types/screenProps';
 import Header from '../../../../shared/components/Header';
 import { ReferralInfo } from '../../../../shared/types';
 import { referralService } from '../services/referralService';
+import { captureError } from '../../../../lib/sentry';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './BringAFriendScreen.styles';
@@ -20,7 +22,7 @@ import { mkStyles } from './BringAFriendScreen.styles';
 
 
 
-const BringAFriendScreen = ({ navigation }: any) => {
+const BringAFriendScreen = ({ navigation }: BringAFriendScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
@@ -29,12 +31,12 @@ const BringAFriendScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    referralService.getReferral().then(setReferral).catch(() => {});
+    referralService.getReferral().then(setReferral).catch((error) => { captureError(error); });
   }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await referralService.getReferral().then(setReferral).catch(() => {});
+    await referralService.getReferral().then(setReferral).catch((error) => { captureError(error); });
     setRefreshing(false);
   }, []);
 
@@ -42,11 +44,12 @@ const BringAFriendScreen = ({ navigation }: any) => {
     if (!referral) return;
     try {
       await Share.share({
-        message: `Vem treinar comigo no 4Sinchrony Experience! Use meu cÃ³digo ${referral.code} e ganhe crÃ©ditos extras. Baixe o app: ${referral.url}`,
+        message: `Vem treinar comigo no 4Sinchrony Experience! Use meu código ${referral.code} e ganhe créditos extras. Baixe o app: ${referral.url}`,
         title: '4Sinchrony Experience - Bring a Friend',
       });
-    } catch {
-      showAlert({ title: 'Erro', message: 'NÃ£o foi possÃ­vel compartilhar' });
+    } catch (error) {
+      captureError(error);
+      showAlert({ title: 'Erro', message: 'Não foi possível compartilhar' });
     }
   };
 
@@ -54,8 +57,9 @@ const BringAFriendScreen = ({ navigation }: any) => {
     if (!referral) return;
     try {
       await Share.share({ message: referral.code });
-    } catch {
-      showAlert({ title: 'Erro', message: 'NÃ£o foi possÃ­vel copiar o cÃ³digo' });
+    } catch (error) {
+      captureError(error);
+      showAlert({ title: 'Erro', message: 'Não foi possível copiar o código' });
     }
   };
 
@@ -80,7 +84,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
           <Ionicons name="people" size={64} color={colors.primary} />
           <Text style={styles.heroTitle}>Traga um Amigo</Text>
           <Text style={styles.heroSubtitle}>
-            Indique seus amigos e ganhe crÃ©ditos gratuitos para suas aulas!
+            Indique seus amigos e ganhe créditos gratuitos para suas aulas!
           </Text>
         </View>
 
@@ -92,14 +96,14 @@ const BringAFriendScreen = ({ navigation }: any) => {
           <View style={styles.statDivider} />
           <View style={styles.statBox}>
             <Text style={styles.statValue}>{referral?.totalCreditsEarned ?? 0}</Text>
-            <Text style={styles.statLabel}>CrÃ©ditos ganhos</Text>
+            <Text style={styles.statLabel}>Créditos ganhos</Text>
           </View>
         </View>
 
         <View style={styles.codeSection}>
-          <Text style={styles.codeLabel}>Seu cÃ³digo de indicaÃ§Ã£o</Text>
+          <Text style={styles.codeLabel}>Seu código de indicação</Text>
           <TouchableOpacity style={styles.codeBox} onPress={handleCopy}>
-            <Text style={styles.codeText}>{referral?.code ?? 'â€”'}</Text>
+            <Text style={styles.codeText}>{referral?.code ?? '—'}</Text>
             <Ionicons name="copy-outline" size={22} color={colors.primary} />
           </TouchableOpacity>
         </View>
@@ -107,9 +111,9 @@ const BringAFriendScreen = ({ navigation }: any) => {
         <View style={styles.howItWorks}>
           <Text style={styles.howTitle}>Como funciona</Text>
           {[
-            { icon: 'link-outline', step: '1. Compartilhe seu cÃ³digo', desc: 'Envie para seus amigos' },
-            { icon: 'person-add-outline', step: '2. Amigo se cadastra', desc: 'Usando seu cÃ³digo de indicaÃ§Ã£o' },
-            { icon: 'gift-outline', step: '3. VocÃªs ganham crÃ©ditos', desc: '2 crÃ©ditos extras para cada um!' },
+            { icon: 'link-outline', step: '1. Compartilhe seu código', desc: 'Envie para seus amigos' },
+            { icon: 'person-add-outline', step: '2. Amigo se cadastra', desc: 'Usando seu código de indicação' },
+            { icon: 'gift-outline', step: '3. Vocês ganham créditos', desc: '2 créditos extras para cada um!' },
           ].map((item, i) => (
             <View key={i} style={styles.stepRow}>
               <View style={styles.stepIcon}>
@@ -125,7 +129,7 @@ const BringAFriendScreen = ({ navigation }: any) => {
 
         <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
           <Ionicons name="share-outline" size={22} color={colors.black} />
-          <Text style={styles.shareText}>Compartilhar CÃ³digo</Text>
+          <Text style={styles.shareText}>Compartilhar Código</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

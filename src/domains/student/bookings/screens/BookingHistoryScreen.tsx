@@ -7,11 +7,12 @@ import Header from '../../../../shared/components/Header';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './BookingHistoryScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { BookingHistoryScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
 
-const BookingHistoryScreen = ({ navigation }: any) => {
+const BookingHistoryScreen = ({ navigation }: BookingHistoryScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();

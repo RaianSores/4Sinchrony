@@ -1,5 +1,6 @@
 import { api } from '../../../../core/http/api';
 import { ClassPackage } from '../../../../shared/types';
+import { captureError } from '../../../../lib/sentry';
 
 export const packageService = {
   async getPackages(): Promise<ClassPackage[]> {
@@ -11,7 +12,8 @@ export const packageService = {
     try {
       const res = await api.get<{ data: ClassPackage }>(`/packages/${id}`);
       return res.data.data;
-    } catch {
+    } catch (error) {
+      captureError(error);
       const packages = await packageService.getPackages();
       return packages.find(p => p.id === id);
     }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useAuthStore } from '../auth/store/useAuthStore';
+import { captureError } from '../../lib/sentry';
 
 type EventHandler = (data: unknown) => void;
 
@@ -51,7 +52,9 @@ export const RealtimeProvider = ({ children, url }: RealtimeProviderProps) => {
         if (handlers) {
           handlers.forEach(handler => handler(payload));
         }
-      } catch {}
+      } catch (error) {
+        captureError(error);
+      }
     };
 
     return () => {

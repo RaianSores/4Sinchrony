@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { teacherMetricsService } from '../services/teacherMetricsService';
+import { captureError } from '../../../lib/sentry';
 import type { TeacherMetrics } from '../services/teacherMetricsService';
 
 interface MetricsState {
@@ -21,7 +22,8 @@ export const useTeacherMetricsStore = create<MetricsState>((set) => ({
     try {
       const metrics = await teacherMetricsService.getMetrics();
       set({ metrics, isLoading: false });
-    } catch {
+    } catch (error) {
+      captureError(error);
       set({ isLoading: false });
     }
   },

@@ -2,14 +2,15 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_URL } from '@env';
 import { tokenStorage } from '../storage';
 import { useAuthStore } from '../auth/store/useAuthStore';
+import { captureError } from '../../lib/sentry';
 
 export const api = axios.create({
   baseURL: API_URL || 'http://10.0.2.2:3333',
   timeout: 10000,
 });
 
-api.interceptors.request.use((config) => {
-  const token = tokenStorage.getToken();
+api.interceptors.request.use(async (config) => {
+  const token = await tokenStorage.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -35,7 +36,7 @@ api.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const refreshToken = tokenStorage.getRefreshToken();
+      const refreshToken = await tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
         await useAuthStore.getState().logout();
@@ -62,6 +63,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return api(originalRequest);
       } catch (refreshError) {
+        captureError(refreshError);
         processQueue(refreshError, null);
         await useAuthStore.getState().logout();
         return Promise.reject(refreshError);
@@ -71,7 +73,10 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 403) {
-      await useAuthStore.getState().logout();
+      const url = error.config?.url || '';
+      if (url.startsWith('/auth/')) {
+        await useAuthStore.getState().logout();
+      }
     }
 
     return Promise.reject(error);

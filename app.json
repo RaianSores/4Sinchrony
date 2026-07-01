@@ -1,4 +1,5 @@
 {
   "name": "SinchronyApp",
-  "displayName": "4Sinchrony"
+  "displayName": "4Sinchrony",
+  "scheme": "4sinchrony"
 }

@@ -20,6 +20,7 @@ import CardForm from '../components/CardForm';
 import CardFlagIcon from '../components/CardFlagIcon';
 import { detectBrand } from '../utils/cardUtils';
 import { isValidCardNumber, isValidExpiry, isValidCVV, isValidHolderName } from '../validators/cardValidator';
+import type { AddCardScreenProps } from '../../../../core/navigation/types/screenProps';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 
 
@@ -38,7 +39,7 @@ interface FormErrors {
   cvv?: string;
 }
 
-const AddCardScreen = ({ navigation }: any) => {
+const AddCardScreen = ({ navigation }: AddCardScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();

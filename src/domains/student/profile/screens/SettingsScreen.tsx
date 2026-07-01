@@ -9,11 +9,12 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './SettingsScreen.styles';
 import { APP_LINKS } from '../../../../core/config/appLinks';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import type { SettingsScreenProps } from '../../../../core/navigation/types/screenProps';
 
 
 
 
-const SettingsScreen = ({ navigation }: any) => {
+const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
 

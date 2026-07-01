@@ -5,6 +5,7 @@ import type { Role } from '../../types/role';
 import type { User } from '../../types/user';
 import { tokenStorage } from '../../storage';
 import { usePackageStore } from '../../../domains/student/purchases/store/usePackageStore';
+import { captureError } from '../../../lib/sentry';
 
 interface AuthState {
   user: User | null;
@@ -15,18 +16,19 @@ interface AuthState {
   activeRole: Role;
   availableRoles: Role[];
 
-  login: (user: User, token: string, refreshToken: string) => void;
+  login: (user: User, token: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
+  refreshUser: () => Promise<void>;
   setLoading: (loading: boolean) => void;
-  setTokens: (token: string, refreshToken: string) => void;
+  setTokens: (token: string, refreshToken: string) => Promise<void>;
   switchRole: (role: Role) => void;
   initialize: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isLoading: false,
@@ -35,9 +37,9 @@ export const useAuthStore = create<AuthState>()(
       activeRole: 'student',
       availableRoles: ['student'],
 
-      login: (user, token, refreshToken) => {
-        tokenStorage.setToken(token);
-        tokenStorage.setRefreshToken(refreshToken);
+      login: async (user, token, refreshToken) => {
+        await tokenStorage.setToken(token);
+        await tokenStorage.setRefreshToken(refreshToken);
         set({
           user,
           token,
@@ -49,10 +51,9 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // importação lazy para evitar circular dependency
         const { authService } = await import('../services/authService');
         await authService.logout();
-        tokenStorage.clear();
+        await tokenStorage.clear();
         usePackageStore.getState().clearPurchases();
         set({
           user: null,
@@ -69,11 +70,21 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, ...data } : null,
         })),
 
+      refreshUser: async () => {
+        try {
+          const { authService } = await import('../services/authService');
+          const user = await authService.getMe();
+          set({ user });
+        } catch (error) {
+          captureError(error);
+        }
+      },
+
       setLoading: (loading) => set({ isLoading: loading }),
 
-      setTokens: (token, refreshToken) => {
-        tokenStorage.setToken(token);
-        tokenStorage.setRefreshToken(refreshToken);
+      setTokens: async (token, refreshToken) => {
+        await tokenStorage.setToken(token);
+        await tokenStorage.setRefreshToken(refreshToken);
         set({ token });
       },
 
@@ -84,7 +95,7 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       initialize: async () => {
-        const storedToken = tokenStorage.getToken();
+        const storedToken = await tokenStorage.getToken();
         if (!storedToken) {
           set({ initialized: true, isAuthenticated: false });
           return;
@@ -93,9 +104,9 @@ export const useAuthStore = create<AuthState>()(
           const { authService } = await import('../services/authService');
           const user = await authService.getMe();
           set({ user, isAuthenticated: true, initialized: true });
-        } catch {
-          // token inválido ou expirado — limpar sessão
-          tokenStorage.clear();
+        } catch (error) {
+          captureError(error);
+          await tokenStorage.clear();
           set({
             user: null,
             token: null,

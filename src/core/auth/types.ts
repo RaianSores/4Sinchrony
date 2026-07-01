@@ -18,6 +18,7 @@ export interface AuthResponse {
     id: string;
     name: string;
     email: string;
+    emailVerified?: boolean;
     cpf?: string;
     role: Role;
     avatar?: string;
@@ -25,4 +26,21 @@ export interface AuthResponse {
   };
   token: string;
   refresh_token: string;
+}
+
+export interface VerifyEmailData {
+  email: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface ResendVerificationData {
+  email: string;
+}
+
+export interface ResendVerificationResponse {
+  message: string;
 }

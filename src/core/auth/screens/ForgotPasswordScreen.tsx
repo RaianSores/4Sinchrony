@@ -16,6 +16,7 @@ import { useAppAlert } from '../../../shared/components/AlertModal';
 import { useTheme } from '../../../shared/theme/useTheme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './ForgotPasswordScreen.styles';
+import { captureError } from '../../../lib/sentry';
 
 const SCALE_BASE = 375;
 
@@ -24,7 +25,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
 
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
-  const scale = SCREEN_WIDTH / SCALE_BASE;
+  const scale = useMemo(() => SCREEN_WIDTH / SCALE_BASE, [SCREEN_WIDTH]);
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,8 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     setLoading(true);
     try {
       await authService.forgotPassword(email);
-    } catch {
+    } catch (error) {
+      captureError(error);
       // exibir sucesso independente do resultado (anti-enumeração)
     } finally {
       setLoading(false);
