@@ -12,8 +12,11 @@ export const mkStyles = (colors: any) =>
       paddingVertical: 12,
     },
     title: { fontSize: 18, fontWeight: '700', color: colors.text },
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, paddingHorizontal: 32 },
     loadingText: { fontSize: 16, color: colors.textSecondary },
+    errorTitle: { fontSize: 16, fontWeight: '600', color: colors.text, textAlign: 'center' },
+    retryButton: { backgroundColor: colors.primaryDark, paddingHorizontal: 20, paddingVertical: 10, borderRadius: borderRadius.md, marginTop: 4 },
+    retryButtonText: { color: colors.white, fontWeight: '600', fontSize: 14 },
     scrollContent: { padding: 16, paddingBottom: 40 },
     cardsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
     metricCard: {

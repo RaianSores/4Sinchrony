@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, RefreshControl, SectionList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import type { Booking } from '../../../../shared/types';
 import { useBookingStore } from '../store/useBookingStore';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -14,6 +15,26 @@ import { canCancelBooking } from '../../../../shared/utils/canCancelBooking';
 import type { BookingsScreenProps } from '../../../../core/navigation/types/screenProps';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './BookingsScreen.styles';
+import Skeleton from '../../../../shared/components/Skeleton';
+
+const BookingCardSkeleton = ({ styles }: { styles: ReturnType<typeof mkStyles> }) => (
+  <View style={styles.bookingCard}>
+    <View style={styles.cardHeader}>
+      <View style={styles.cardLeft}>
+        <Skeleton width={48} height={48} borderRadius={24} style={{ marginRight: 12 }} />
+        <View style={{ gap: 6 }}>
+          <Skeleton width={130} height={15} />
+          <Skeleton width={90} height={13} />
+        </View>
+      </View>
+      <Skeleton width={70} height={22} borderRadius={12} />
+    </View>
+    <View style={styles.cardDetails}>
+      <Skeleton width={110} height={13} />
+      <Skeleton width={140} height={13} />
+    </View>
+  </View>
+);
 
 
 
@@ -42,10 +63,17 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
     if (mountedRef.current) setRefreshing(false);
   }, [fetchBookings]);
 
-  const activeBookings = bookings.filter(b => b.status === 'confirmed');
-  const pastBookings = bookings.filter(b => b.status === 'cancelled');
+  const statusCfg: Record<string, { label: string; bg: string; color: string }> = {
+    confirmed: { label: 'Confirmada',   bg: colors.success + '20', color: colors.success },
+    attended:  { label: 'Presente',     bg: colors.success + '20', color: colors.success },
+    cancelled: { label: 'Cancelada',    bg: colors.danger + '20',  color: colors.danger },
+    no_show:   { label: 'Não compareceu', bg: colors.warning + '20', color: colors.warning },
+  };
 
-  const handleCancel = (booking: any) => {
+  const activeBookings = bookings.filter(b => b.status === 'confirmed');
+  const pastBookings = bookings.filter(b => b.status !== 'confirmed');
+
+  const handleCancel = (booking: Booking) => {
     const { allowed, reason } = canCancelBooking(booking);
     if (!allowed) {
       showAlert({ title: 'Cancelamento indisponível', message: reason! });
@@ -63,11 +91,19 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
       }}] });
   };
 
+  const sections: { title: string; data: Booking[]; kind: 'active' | 'past' }[] = [
+    ...(activeBookings.length > 0 ? [{ title: 'Ativas', data: activeBookings, kind: 'active' as const }] : []),
+    ...(pastBookings.length > 0 ? [{ title: 'Anteriores', data: pastBookings, kind: 'past' as const }] : []),
+  ];
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Header title="Minhas Reservas" />
-      <ScrollView
+      <SectionList
         style={{ flex: 1 }}
+        sections={sections}
+        keyExtractor={b => b.id}
+        stickySectionHeadersEnabled={false}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -79,73 +115,72 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
             {...({ backgroundColor: colors.background } as any)}
           />
         }
-      >
-        {isLoading ? (
-          <Text style={styles.loadingText}>Carregando...</Text>
-        ) : activeBookings.length > 0 ? (
-          <>
-            <Text style={styles.sectionTitle}>Ativas</Text>
-            {activeBookings.map(b => (
-              <View key={b.id} style={styles.bookingCard}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.cardLeft}>
-                    <View style={styles.avatar}>
-                      <Ionicons name="calendar-outline" size={24} color={colors.primary} />
-                    </View>
-                    <View>
-                      <Text style={styles.className}>{b.class.name}</Text>
-                      <Text style={styles.instructor}>{b.class.instructor}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.statusBadge}><Text style={styles.statusText}>Confirmada</Text></View>
-                </View>
-                <View style={styles.cardDetails}>
-                  <View style={styles.detailItem}><Ionicons name="calendar-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.date}</Text></View>
-                  <View style={styles.detailItem}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.startTime} - {b.class.duration}min</Text></View>
-                  {b.class.studio && <View style={styles.detailItem}><Ionicons name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.studio.name}</Text></View>}
-                  {b.bikeNumber && <View style={styles.detailItem}><Ionicons name="bicycle" size={16} color={colors.primary} /><Text style={[styles.detailText, { color: colors.primary }]}>Bike #{b.bikeNumber}</Text></View>}
-                </View>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel(b)} disabled={cancellingId === b.id}>
-                  <Text style={styles.cancelText}>{cancellingId === b.id ? 'Cancelando...' : 'Cancelar Reserva'}</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </>
-        ) : (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={80} color={colors.border} />
-            <Text style={styles.emptyTitle}>Nenhuma reserva ativa</Text>
-            <Text style={styles.emptySubtitle}>Suas reservas agendadas aparecerão aqui</Text>
-            <Button title="Ver Agenda" onPress={() => navigation.navigate('AgendaTab')} style={{ marginTop: 32 }} />
-          </View>
+        ListEmptyComponent={
+          isLoading ? (
+            <View>
+              <BookingCardSkeleton styles={styles} />
+              <BookingCardSkeleton styles={styles} />
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={80} color={colors.border} />
+              <Text style={styles.emptyTitle}>Nenhuma reserva ativa</Text>
+              <Text style={styles.emptySubtitle}>Suas reservas agendadas aparecerão aqui</Text>
+              <Button title="Ver Agenda" onPress={() => navigation.navigate('AgendaTab')} style={{ marginTop: 32 }} />
+            </View>
+          )
+        }
+        renderSectionHeader={({ section }) => (
+          <Text style={styles.sectionTitle}>{section.title}</Text>
         )}
-
-        {pastBookings.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Canceladas</Text>
-            {pastBookings.map(b => (
-              <View key={b.id} style={[styles.bookingCard, { opacity: 0.7 }]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.cardLeft}>
-                    <View>
-                      <Text style={[styles.className, { color: colors.textSecondary }]}>{b.class.name}</Text>
-                      <Text style={[styles.instructor, { color: colors.textSecondary }]}>{b.class.instructor}</Text>
-                    </View>
+        renderItem={({ item: b, section }) =>
+          section.kind === 'active' ? (
+            <View style={styles.bookingCard}>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardLeft}>
+                  <View style={styles.avatar}>
+                    <Ionicons name="calendar-outline" size={24} color={colors.primary} />
                   </View>
-                  <View style={[styles.statusBadge, { backgroundColor: colors.danger + '20' }]}>
-                    <Text style={[styles.statusText, { color: colors.danger }]}>Cancelada</Text>
+                  <View>
+                    <Text style={styles.className}>{b.class.name}</Text>
+                    <Text style={styles.instructor}>{b.class.instructor}</Text>
                   </View>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: statusCfg[b.status]?.bg || colors.success + '20' }]}><Text style={[styles.statusText, { color: statusCfg[b.status]?.color || colors.success }]}>{statusCfg[b.status]?.label || 'Confirmada'}</Text></View>
+              </View>
+              <View style={styles.cardDetails}>
+                <View style={styles.detailItem}><Ionicons name="calendar-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.date}</Text></View>
+                <View style={styles.detailItem}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.startTime} - {b.class.duration}min</Text></View>
+                {b.class.studio && <View style={styles.detailItem}><Ionicons name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{b.class.studio.name}</Text></View>}
+                {b.bikeNumber && <View style={styles.detailItem}><Ionicons name="bicycle" size={16} color={colors.primary} /><Text style={[styles.detailText, { color: colors.primary }]}>Bike #{b.bikeNumber}</Text></View>}
+              </View>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancel(b)} disabled={cancellingId === b.id}>
+                <Text style={styles.cancelText}>{cancellingId === b.id ? 'Cancelando...' : 'Cancelar Reserva'}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={[styles.bookingCard, { opacity: 0.7 }]}>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardLeft}>
+                  <View>
+                    <Text style={[styles.className, { color: colors.textSecondary }]}>{b.class.name}</Text>
+                    <Text style={[styles.instructor, { color: colors.textSecondary }]}>{b.class.instructor}</Text>
+                  </View>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: (statusCfg[b.status] || statusCfg.cancelled).bg }]}>
+                  <Text style={[styles.statusText, { color: (statusCfg[b.status] || statusCfg.cancelled).color }]}>{(statusCfg[b.status] || statusCfg.cancelled).label}</Text>
                 </View>
               </View>
-            ))}
-          </>
-        )}
-
-        <TouchableOpacity style={styles.historyLink} onPress={() => navigation.navigate('BookingHistory')}>
-          <Text style={styles.historyLinkText}>Ver Histórico Completo</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.primary} />
-        </TouchableOpacity>
-      </ScrollView>
+            </View>
+          )
+        }
+        ListFooterComponent={
+          <TouchableOpacity style={styles.historyLink} onPress={() => navigation.navigate('BookingHistory')}>
+            <Text style={styles.historyLinkText}>Ver Histórico Completo</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        }
+      />
     </SafeAreaView>
   );
 };

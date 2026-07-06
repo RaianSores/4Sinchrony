@@ -6,6 +6,8 @@ import { mkStyles } from './CheckInSessionScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { useAttendanceStore } from '../stores/useAttendanceStore';
 import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPadding';
+import { useAppAlert } from '../../../shared/components/AlertModal';
+import { getApiErrorMessage } from '../../../shared/utils/getApiErrorMessage';
 
 
 
@@ -17,6 +19,7 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
   const { records, isLoading, fetchAttendance, confirmAll, updateStatus } = useAttendanceStore();
   const tabPadding = useTabBarBottomPadding();
   const [refreshing, setRefreshing] = useState(false);
+  const { showAlert } = useAppAlert();
 
   useEffect(() => {
     fetchAttendance(classId);
@@ -32,7 +35,19 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
     const record = records.find(r => r.studentId === studentId);
     if (!record) return;
     const newStatus = record.status === 'attended' ? 'no_show' : 'attended';
-    await updateStatus(classId, studentId, newStatus);
+    try {
+      await updateStatus(classId, studentId, newStatus);
+    } catch (error) {
+      showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível atualizar a presença deste aluno. Tente novamente.') });
+    }
+  };
+
+  const handleConfirmAll = async () => {
+    try {
+      await confirmAll(classId);
+    } catch (error) {
+      showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível confirmar a presença de todos. Tente novamente.') });
+    }
   };
 
   const renderStudent = ({ item }: any) => {
@@ -68,7 +83,7 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Check-in</Text>
-        <TouchableOpacity onPress={() => confirmAll(classId)}>
+        <TouchableOpacity onPress={handleConfirmAll}>
           <Text style={styles.confirmAllText}>Todos Presentes</Text>
         </TouchableOpacity>
       </View>
@@ -111,6 +126,13 @@ const CheckInSessionScreen = ({ route, navigation }: any) => {
               colors={[colors.primary]}
               tintColor={colors.primary}
             />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={48} color={colors.border} />
+              <Text style={styles.emptyText}>Nenhum aluno inscrito</Text>
+              <Text style={styles.emptySubtext}>Alunos aparecerão aqui assim que reservarem esta aula.</Text>
+            </View>
           }
         />
       )}

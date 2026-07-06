@@ -42,6 +42,7 @@ const LoginScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const { showAlert } = useAppAlert();
   const login = useAuthStore(state => state.login);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -60,14 +61,18 @@ const LoginScreen = ({ navigation }: any) => {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
-      return;
+    const newErrors: { email?: string; password?: string } = {};
+    if (!email) {
+      newErrors.email = 'Informe seu email';
+    } else if (!EMAIL_REGEX.test(email)) {
+      newErrors.email = 'Email inválido';
     }
-    if (!EMAIL_REGEX.test(email)) {
-      showAlert({ title: 'Erro', message: 'Email inválido' });
-      return;
+    if (!password) {
+      newErrors.password = 'Informe sua senha';
     }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     setLoading(true);
     try {
       const response = await authService.login({ email, password });
@@ -123,13 +128,13 @@ const LoginScreen = ({ navigation }: any) => {
               <Text style={[styles.formTitle, { fontSize: ms(isSmallScreen ? 20 : 22) }]}>Bem-vindo de volta</Text>
               <Text style={[styles.formSubtitle, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Faca login para continuar</Text>
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 46 : 50) }]}>
+              <View style={[styles.inputWrapper, errors.email && styles.inputWrapperError, { height: ms(isSmallScreen ? 46 : 50) }]}>
                 <Ionicons name="mail-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 15 : 16) }]}
                   placeholder="Email"
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={text => { setEmail(text); if (errors.email) setErrors(prev => ({ ...prev, email: undefined })); }}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -141,15 +146,16 @@ const LoginScreen = ({ navigation }: any) => {
                   blurOnSubmit={false}
                 />
               </View>
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 46 : 50) }]}>
+              <View style={[styles.inputWrapper, errors.password && styles.inputWrapperError, { height: ms(isSmallScreen ? 46 : 50) }]}>
                 <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={passwordRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 15 : 16) }]}
                   placeholder="Senha"
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={text => { setPassword(text); if (errors.password) setErrors(prev => ({ ...prev, password: undefined })); }}
                   secureTextEntry={!showPassword}
                   placeholderTextColor={colors.grayLight}
                   importantForAutofill="no"
@@ -160,6 +166,7 @@ const LoginScreen = ({ navigation }: any) => {
                   <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
                 </TouchableOpacity>
               </View>
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
               <Button
                 title={loading ? 'Entrando...' : 'Entrar'}

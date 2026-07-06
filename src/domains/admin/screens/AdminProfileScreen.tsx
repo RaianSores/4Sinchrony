@@ -11,6 +11,7 @@ import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPad
 import { useTheme } from '../../../shared/theme/useTheme';
 import { mkStyles } from './AdminProfileScreen.styles';
 import { captureError } from '../../../lib/sentry';
+import { buildProfilePayload } from '../../../shared/utils/buildProfilePayload';
 
 
 
@@ -39,7 +40,7 @@ const AdminProfileScreen = ({ navigation }: any) => {
     try {
       const url = await pickAndUploadAvatar();
       if (!url) return;
-      await api.put('/profile', { avatar: url });
+      await api.put('/profile', buildProfilePayload(user, { avatar: url }));
       updateUser({ avatar: url });
     } catch (err) {
       captureError(err);

@@ -60,6 +60,8 @@ export const mkStyles = (colors: any) =>
       marginBottom: 10,
       paddingHorizontal: 14,
     },
+    inputWrapperError: { borderColor: colors.danger, marginBottom: 4 },
+    errorText: { color: colors.danger, fontSize: 12, marginLeft: 4, marginBottom: 10 },
     inputIcon: { marginRight: 10 },
     input: { flex: 1, color: colors.text, height: '100%' },
     eyeIcon: { padding: 4 },

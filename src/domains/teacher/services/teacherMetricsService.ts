@@ -12,8 +12,10 @@ export interface TeacherMetrics {
 
 export const teacherMetricsService = {
   async getMetrics(): Promise<TeacherMetrics> {
-    const res = await api.get<{ data: TeacherMetrics }>('/teachers/me/metrics');
-    return res.data.data;
+    // GET /teachers/me/metrics returns the metrics object at the top level (no `data` wrapper),
+    // unlike most other endpoints in this API — confirmed against the real API 2026-07-02.
+    const res = await api.get<TeacherMetrics>('/teachers/me/metrics');
+    return res.data;
   },
 
   async getMonthlyMetrics(_month: number, _year: number): Promise<TeacherMetrics> {

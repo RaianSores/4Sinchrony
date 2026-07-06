@@ -23,16 +23,36 @@ const DashboardScreen = ({ navigation }: any) => {
   const { currentSession, isActive, startSession } = useTeacherSessionStore();
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => { fetchMyClasses(); }, [fetchMyClasses]);
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, []);
+
+  useEffect(() => { fetchMyClasses(todayStr); }, [fetchMyClasses, todayStr]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchMyClasses();
+    await fetchMyClasses(todayStr);
     setRefreshing(false);
-  }, [fetchMyClasses]);
+  }, [fetchMyClasses, todayStr]);
 
-  const todayClasses = classes;
+  // `classes` is a shared store also populated (unfiltered, any date) by other teacher
+  // screens (MyClasses, CheckIn), so re-check the date here instead of trusting the
+  // date filter passed to fetchMyClasses().
+  const todayClasses = useMemo(() => classes.filter(c => c.date === todayStr), [classes, todayStr]);
   const pendingCheckin = todayClasses.reduce((sum, c) => sum + (c.totalSpots - c.availableSpots), 0);
+
+  const upcomingClasses = useMemo(() => {
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    return todayClasses.filter(c => {
+      if (typeof c.startTime !== 'string' || c.startTime.length < 5) return true;
+      const h = parseInt(c.startTime.slice(0, 2), 10);
+      const min = parseInt(c.startTime.slice(3, 5), 10);
+      if (isNaN(h) || isNaN(min)) return true;
+      return (h * 60 + min) >= nowMinutes;
+    });
+  }, [todayClasses]);
 
   const handleStartClass = async (classId: string) => {
     await startSession(classId);
@@ -99,13 +119,13 @@ const DashboardScreen = ({ navigation }: any) => {
 
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
-        ) : todayClasses.length === 0 ? (
+        ) : upcomingClasses.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="calendar-outline" size={48} color={colors.border} />
             <Text style={styles.emptyText}>Nenhuma aula hoje</Text>
           </View>
         ) : (
-          todayClasses.map(cls => (
+          upcomingClasses.map(cls => (
             <TouchableOpacity key={cls.id} style={styles.classCard}
               onPress={() => navigation.navigate('ClassesTab', { screen: 'ClassSession', params: { classId: cls.id } })}>
               <View style={styles.classTime}>

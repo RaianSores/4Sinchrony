@@ -9,6 +9,23 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PackagesScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import type { PackagesScreenProps } from '../../../../core/navigation/types/screenProps';
+import Skeleton from '../../../../shared/components/Skeleton';
+
+const PackageCardSkeleton = ({ styles }: { styles: ReturnType<typeof mkStyles> }) => (
+  <View style={styles.pkgCard}>
+    <View style={styles.pkgHeader}>
+      <Skeleton width={120} height={18} />
+      <Skeleton width={70} height={22} />
+    </View>
+    <View style={[styles.pkgDetails, { alignItems: 'center' }]}>
+      <Skeleton width={60} height={14} />
+      <Skeleton width={100} height={14} />
+    </View>
+    <View style={styles.pkgFooter}>
+      <Skeleton width={110} height={13} />
+    </View>
+  </View>
+);
 
 
 
@@ -23,7 +40,6 @@ const PackagesScreen = ({ navigation }: PackagesScreenProps) => {
 
   useEffect(() => {
     fetchPackages();
-    console.log('packages:', JSON.stringify(packages, undefined, 2));
   }, [fetchPackages]);
 
   const onRefresh = useCallback(async () => {
@@ -72,7 +88,11 @@ const PackagesScreen = ({ navigation }: PackagesScreenProps) => {
         <Text style={styles.sectionTitle}>Escolha seu plano</Text>
 
         {isLoading && packages.length === 0 ? (
-          <Text style={styles.loadingText}>Carregando...</Text>
+          <>
+            <PackageCardSkeleton styles={styles} />
+            <PackageCardSkeleton styles={styles} />
+            <PackageCardSkeleton styles={styles} />
+          </>
         ) : (
           packages.map(pkg => (
             <TouchableOpacity

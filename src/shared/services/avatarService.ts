@@ -7,7 +7,7 @@ import { API_URL } from '@env';
 const BASE_URL = API_URL || 'https://sinchrony.onrender.com';
 
 async function uploadToApi(uri: string, fileName: string, type: string): Promise<string> {
-  const token = tokenStorage.getToken();
+  const token = await tokenStorage.getToken();
   if (!token) throw new Error('Não autenticado');
 
   const formData = new FormData();

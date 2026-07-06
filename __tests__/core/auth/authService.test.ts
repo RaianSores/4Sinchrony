@@ -57,6 +57,26 @@ describe('authService', () => {
 
       await expect(authService.login({ email: 'wrong', password: 'wrong' })).rejects.toThrow('Invalid credentials');
     });
+
+    it('normalizes the real API camelCase response (accessToken/refreshToken) instead of returning refresh_token as undefined', async () => {
+      const credentials = { email: 'test@test.com', password: '123456' };
+      const mockResponse = {
+        data: {
+          user: mockUser,
+          token: 'abc',
+          accessToken: 'abc',
+          refreshToken: 'real-refresh-token',
+          tokenType: 'Bearer',
+          expiresIn: 900,
+        },
+      };
+      (mockedApi.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result = await authService.login(credentials);
+
+      expect(result.token).toBe('abc');
+      expect(result.refresh_token).toBe('real-refresh-token');
+    });
   });
 
   describe('register', () => {

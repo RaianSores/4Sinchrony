@@ -11,7 +11,7 @@ function makeBooking(date: string, startTime: string): Booking {
       instructor: 'Instrutor',
       startTime,
       duration: 45,
-      studio: { id: 's1', name: 'Studio', address: 'Rua X', phone: '63 99999-0000' },
+      studio: { id: 's1', name: 'Studio', address: 'Rua X', phone: '63 99999-0000', city: 'Palmas' },
       availableSpots: 5,
       totalSpots: 20,
       date,

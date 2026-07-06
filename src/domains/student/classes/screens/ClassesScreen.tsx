@@ -1,11 +1,13 @@
 ﻿import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, RefreshControl, SectionList } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import type { Class } from '../../../../shared/types';
 import { useFocusEffect } from '@react-navigation/native';
 import { useClassStore } from '../store/useClassStore';
 import Header from '../../../../shared/components/Header';
 import ClassCard from '../../../../shared/components/ClassCard';
+import ClassCardSkeleton from '../../../../shared/components/ClassCardSkeleton';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -94,7 +96,7 @@ const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
   const handleDateChange = (newDate: string) => { setFilters({ date: newDate }); setShowCalendar(false); };
   const clearDateFilter = () => setFilters({ date: '' });
 
-  const grouped = useMemo(() => {
+  const sections = useMemo(() => {
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, '0');
@@ -112,9 +114,11 @@ const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
       return (h * 60 + min) >= nowMinutes;
     });
 
-    const map = new Map<string, typeof classes>();
+    const map = new Map<string, Class[]>();
     upcoming.forEach(c => { const list = map.get(c.date) || []; list.push(c); map.set(c.date, list); });
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, data]) => ({ title: date, data }));
   }, [classes]);
 
   const markedDates = filters.date ? { [filters.date]: { selected: true, selectedColor: colors.primary } } : {};
@@ -128,8 +132,11 @@ const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
         </TouchableOpacity>
       } />
 
-      <ScrollView
+      <SectionList
         style={{ flex: 1 }}
+        sections={sections}
+        keyExtractor={c => c.id}
+        stickySectionHeadersEnabled={false}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -141,68 +148,74 @@ const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
             {...({ backgroundColor: colors.background } as any)}
           />
         }
-      >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
-          {classTypes.map(t => (
-            <TouchableOpacity key={t.value} style={[styles.chip, filters.type === t.value && styles.chipActive]} onPress={() => setFilters({ type: t.value })}>
-              <Text style={[styles.chipText, filters.type === t.value && styles.chipTextActive]}>{t.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
-          <TouchableOpacity style={[styles.chip, !filters.date && styles.chipActive]} onPress={clearDateFilter}>
-            <Text style={[styles.chipText, !filters.date && styles.chipTextActive]}>Todas as datas</Text>
-          </TouchableOpacity>
-          {[
-            { label: 'Hoje', value: new Date().toISOString().split('T')[0] },
-            { label: 'Amanhã', value: (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })() },
-          ].map(p => (
-            <TouchableOpacity key={p.value} style={[styles.chip, filters.date === p.value && styles.chipActive]} onPress={() => handleDateChange(p.value)}>
-              <Text style={[styles.chipText, filters.date === p.value && styles.chipTextActive]}>{p.label}</Text>
-              <Text style={[styles.chipSub, filters.date === p.value && styles.chipSubActive]}>{p.value.slice(5)}</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity style={[styles.chip, styles.chipCalendar]} onPress={() => setShowCalendar(true)}>
-            <Ionicons name="calendar-outline" size={16} color={colors.text} />
-          </TouchableOpacity>
-        </ScrollView>
-
-        {isLoading && classes.length === 0 ? (
-          <Text style={styles.loadingText}>Carregando...</Text>
-        ) : classes.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color={colors.border} />
-            <Text style={styles.emptyTitle}>Nenhuma aula encontrada</Text>
-            <Text style={styles.emptySubtitle}>Tente alterar os filtros</Text>
-            {hasActiveFilter && (
-              <TouchableOpacity style={styles.clearFilter} onPress={() => setFilters({ date: '', type: '' })}>
-                <Text style={styles.clearFilterText}>Limpar filtros</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ) : (
-          grouped.map(([date, dayClasses]) => (
-            <View key={date}>
-              <View style={styles.dateHeader}>
-                <View style={styles.dateHeaderLeft}>
-                  <Text style={styles.dateHeaderDay}>{formatDate(date)}</Text>
-                  {isToday(date) && <View style={styles.todayBadge}><Text style={styles.todayBadgeText}>Hoje</Text></View>}
-                </View>
-                <TouchableOpacity onPress={() => handleDateChange(date)}>
-                  <Text style={styles.dateHeaderAction}>{dayClasses.length} aula{dayClasses.length > 1 ? 's' : ''}</Text>
+        ListHeaderComponent={
+          <View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
+              {classTypes.map(t => (
+                <TouchableOpacity key={t.value} style={[styles.chip, filters.type === t.value && styles.chipActive]} onPress={() => setFilters({ type: t.value })}>
+                  <Text style={[styles.chipText, filters.type === t.value && styles.chipTextActive]}>{t.label}</Text>
                 </TouchableOpacity>
-              </View>
-              {dayClasses.map(c => (
-                <ClassCard key={c.id} instructor={c.instructor} instructorAvatar={c.instructorAvatar}
-                  className={c.name} time={c.startTime} duration={c.duration} studio={c.studio?.name || ''}
-                  availableSpots={c.availableSpots} totalSpots={c.totalSpots}
-                  onPress={() => navigation.navigate('ClassDetail', { classId: c.id })} />
               ))}
+            </ScrollView>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow} contentContainerStyle={styles.chipContent}>
+              <TouchableOpacity style={[styles.chip, !filters.date && styles.chipActive]} onPress={clearDateFilter}>
+                <Text style={[styles.chipText, !filters.date && styles.chipTextActive]}>Todas as datas</Text>
+              </TouchableOpacity>
+              {[
+                { label: 'Hoje', value: new Date().toISOString().split('T')[0] },
+                { label: 'Amanhã', value: (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })() },
+              ].map(p => (
+                <TouchableOpacity key={p.value} style={[styles.chip, filters.date === p.value && styles.chipActive]} onPress={() => handleDateChange(p.value)}>
+                  <Text style={[styles.chipText, filters.date === p.value && styles.chipTextActive]}>{p.label}</Text>
+                  <Text style={[styles.chipSub, filters.date === p.value && styles.chipSubActive]}>{p.value.slice(5)}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity style={[styles.chip, styles.chipCalendar]} onPress={() => setShowCalendar(true)}>
+                <Ionicons name="calendar-outline" size={16} color={colors.text} />
+              </TouchableOpacity>
+            </ScrollView>
+
+          </View>
+        }
+        ListEmptyComponent={
+          isLoading && classes.length === 0 ? (
+            <View>
+              <ClassCardSkeleton />
+              <ClassCardSkeleton />
+              <ClassCardSkeleton />
             </View>
-          ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={64} color={colors.border} />
+              <Text style={styles.emptyTitle}>Nenhuma aula encontrada</Text>
+              <Text style={styles.emptySubtitle}>Tente alterar os filtros</Text>
+              {hasActiveFilter && (
+                <TouchableOpacity style={styles.clearFilter} onPress={() => setFilters({ date: '', type: '' })}>
+                  <Text style={styles.clearFilterText}>Limpar filtros</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )
+        }
+        renderSectionHeader={({ section }) => (
+          <View style={styles.dateHeader}>
+            <View style={styles.dateHeaderLeft}>
+              <Text style={styles.dateHeaderDay}>{formatDate(section.title)}</Text>
+              {isToday(section.title) && <View style={styles.todayBadge}><Text style={styles.todayBadgeText}>Hoje</Text></View>}
+            </View>
+            <TouchableOpacity onPress={() => handleDateChange(section.title)}>
+              <Text style={styles.dateHeaderAction}>{section.data.length} aula{section.data.length > 1 ? 's' : ''}</Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </ScrollView>
+        renderItem={({ item: c }) => (
+          <ClassCard instructor={c.instructor} instructorAvatar={c.instructorAvatar}
+            className={c.name} time={c.startTime} duration={c.duration} studio={c.studio?.name || ''}
+            availableSpots={c.availableSpots} totalSpots={c.totalSpots}
+            onPress={() => navigation.navigate('ClassDetail', { classId: c.id })} />
+        )}
+      />
 
       <Modal visible={showCalendar} transparent animationType="slide" onRequestClose={() => setShowCalendar(false)}>
         <View style={styles.modalOverlay}>

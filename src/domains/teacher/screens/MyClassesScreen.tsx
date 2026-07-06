@@ -17,6 +17,7 @@ const MyClassesScreen = ({ navigation }: any) => {
 
   const { classes, fetchMyClasses, isLoading } = useTeacherClassStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [filterMode, setFilterMode] = useState<'upcoming' | 'past'>('upcoming');
 
   useEffect(() => { fetchMyClasses(); }, [fetchMyClasses]);
 
@@ -25,6 +26,29 @@ const MyClassesScreen = ({ navigation }: any) => {
     await fetchMyClasses();
     setRefreshing(false);
   }, [fetchMyClasses]);
+
+  const filteredClasses = useMemo(() => {
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const isUpcoming = (c: typeof classes[number]) => {
+      if (c.date > todayStr) return true;
+      if (c.date < todayStr) return false;
+      if (typeof c.startTime !== 'string' || c.startTime.length < 5) return true;
+      const h = parseInt(c.startTime.slice(0, 2), 10);
+      const min = parseInt(c.startTime.slice(3, 5), 10);
+      if (isNaN(h) || isNaN(min)) return true;
+      return (h * 60 + min) >= nowMinutes;
+    };
+
+    return classes
+      .filter(c => (filterMode === 'upcoming' ? isUpcoming(c) : !isUpcoming(c)))
+      .sort((a, b) => {
+        const cmp = a.date === b.date ? a.startTime.localeCompare(b.startTime) : a.date.localeCompare(b.date);
+        return filterMode === 'upcoming' ? cmp : -cmp;
+      });
+  }, [classes, filterMode]);
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -47,6 +71,22 @@ const MyClassesScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
+
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[styles.filterChip, filterMode === 'past' && styles.filterChipActive]}
+          onPress={() => setFilterMode('past')}
+        >
+          <Text style={[styles.filterChipText, filterMode === 'past' && styles.filterChipTextActive]}>Anteriores</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterChip, filterMode === 'upcoming' && styles.filterChipActive]}
+          onPress={() => setFilterMode('upcoming')}
+        >
+          <Text style={[styles.filterChipText, filterMode === 'upcoming' && styles.filterChipTextActive]}>Próximas</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: tabPadding }]}
@@ -62,13 +102,15 @@ const MyClassesScreen = ({ navigation }: any) => {
       >
         {isLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
-        ) : classes.length === 0 ? (
+        ) : filteredClasses.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="calendar-outline" size={48} color={colors.border} />
-            <Text style={styles.emptyText}>Nenhuma aula encontrada</Text>
+            <Text style={styles.emptyText}>
+              {filterMode === 'upcoming' ? 'Nenhuma aula futura encontrada' : 'Nenhuma aula anterior encontrada'}
+            </Text>
           </View>
         ) : (
-          classes.map(cls => (
+          filteredClasses.map(cls => (
             <TouchableOpacity key={cls.id} style={styles.classCard}
               onPress={() => navigation.navigate('ClassSession', { classId: cls.id })}>
               <View style={styles.classHeader}>

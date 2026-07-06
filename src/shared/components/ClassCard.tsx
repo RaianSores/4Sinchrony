@@ -26,6 +26,7 @@ const ClassCard: React.FC<ClassCardProps> = ({
   studio,
   availableSpots,
   totalSpots,
+  enrolled,
   onPress,
 }) => {
   const { colors, isDark } = useTheme();

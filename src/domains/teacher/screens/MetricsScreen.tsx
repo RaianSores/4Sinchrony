@@ -13,7 +13,7 @@ import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPad
 const MetricsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { metrics, isLoading, fetchMetrics } = useTeacherMetricsStore();
+  const { metrics, isLoading, hasError, fetchMetrics } = useTeacherMetricsStore();
   const tabPadding = useTabBarBottomPadding();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -40,9 +40,17 @@ const MetricsScreen = ({ navigation }: any) => {
         <View style={{ width: 24 }} />
       </View>
 
-      {isLoading || !metrics ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Carregando métricas...</Text>
+        </View>
+      ) : hasError || !metrics ? (
+        <View style={styles.loadingContainer}>
+          <Ionicons name="alert-circle-outline" size={40} color={colors.textSecondary} />
+          <Text style={styles.errorTitle}>Não foi possível carregar as métricas.</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchMetrics}>
+            <Text style={styles.retryButtonText}>Tentar novamente</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <ScrollView

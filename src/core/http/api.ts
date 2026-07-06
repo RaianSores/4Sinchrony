@@ -1,12 +1,12 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { API_URL } from '@env';
 import { tokenStorage } from '../storage';
 import { useAuthStore } from '../auth/store/useAuthStore';
 import { captureError } from '../../lib/sentry';
+import { API_BASE_URL, API_TIMEOUT } from './config';
 
 export const api = axios.create({
-  baseURL: API_URL || 'http://10.0.2.2:3333',
-  timeout: 10000,
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT,
 });
 
 api.interceptors.request.use(async (config) => {
@@ -39,7 +39,7 @@ api.interceptors.response.use(
       const refreshToken = await tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
-        await useAuthStore.getState().logout();
+        await useAuthStore.getState().logout(true);
         return Promise.reject(error);
       }
 
@@ -65,7 +65,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         captureError(refreshError);
         processQueue(refreshError, null);
-        await useAuthStore.getState().logout();
+        await useAuthStore.getState().logout(true);
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -75,7 +75,7 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       const url = error.config?.url || '';
       if (url.startsWith('/auth/')) {
-        await useAuthStore.getState().logout();
+        await useAuthStore.getState().logout(true);
       }
     }
 

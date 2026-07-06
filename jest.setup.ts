@@ -9,26 +9,13 @@ jest.mock('react-native-gesture-handler', () => {
     gestureHandlerRootHOC: (Component: any) => Component,
   };
 });
-jest.mock('react-native-mmkv');
 jest.mock('react-native-nitro-modules');
 jest.mock('react-native-keychain');
-jest.mock('@sentry/react-native', () => {
-  return {
-    init: jest.fn(),
-    captureException: jest.fn(),
-    captureError: jest.fn(),
-    addBreadcrumb: jest.fn(),
-    setUser: jest.fn(),
-    setTag: jest.fn(),
-    withScope: jest.fn(),
-  };
-});
 jest.mock('@env', () => ({
   API_URL: 'http://test.api.com',
   GOOGLE_WEB_CLIENT_ID: '',
   GOOGLE_IOS_CLIENT_ID: '',
   GOOGLE_ANDROID_CLIENT_ID: '',
-  SENTRY_DSN: '',
 }), { virtual: true });
 
 jest.mock('react-native-safe-area-context', () => {

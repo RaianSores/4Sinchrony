@@ -27,7 +27,9 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
   fetchAttendance: async (classId) => {
     set({ isLoading: true });
     try {
-      const records = await attendanceService.getAttendanceByClass(classId);
+      // Sourced from bookings (/classes/:id/students), not the attendance table — see
+      // attendanceService.getStudentsByClass for why.
+      const records = await attendanceService.getStudentsByClass(classId);
       const totalCount = records.length;
       const attendedCount = records.filter(r => r.status === 'attended').length;
       const noShowCount = records.filter(r => r.status === 'no_show').length;
@@ -39,10 +41,25 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
   },
 
   markAttendance: async (classId, update) => {
-    const record = await attendanceService.markAttendance(classId, update);
+    try {
+      await attendanceService.markAttendance(classId, update);
+    } catch (error: any) {
+      console.log('[DEBUG markAttendance] FAILED', {
+        classId,
+        studentId: update.studentId,
+        status: update.status,
+        httpStatus: error?.response?.status,
+        responseBody: error?.response?.data,
+        message: error?.message,
+      });
+      captureError(error);
+      throw error;
+    }
+    // Update status locally instead of trusting the attendance-table response, which can
+    // omit the student entirely if their booking has no matching attendance row server-side.
     set(state => ({
       records: state.records.map(r =>
-        r.studentId === record.studentId ? record : r
+        r.studentId === update.studentId ? { ...r, status: update.status } : r
       ),
     }));
     set(state => ({
@@ -52,32 +69,62 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
   },
 
   markBulkAttendance: async (classId, updates) => {
-    const records = await attendanceService.markBulkAttendance(classId, updates);
-    set({
-      records,
-      attendedCount: records.filter(r => r.status === 'attended').length,
-      noShowCount: records.filter(r => r.status === 'no_show').length,
-    });
+    try {
+      await attendanceService.markBulkAttendance(classId, updates);
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
+    const statusByStudent = new Map(updates.map(u => [u.studentId, u.status]));
+    set(state => ({
+      records: state.records.map(r =>
+        statusByStudent.has(r.studentId) ? { ...r, status: statusByStudent.get(r.studentId)! } : r
+      ),
+    }));
+    set(state => ({
+      attendedCount: state.records.filter(r => r.status === 'attended').length,
+      noShowCount: state.records.filter(r => r.status === 'no_show').length,
+    }));
   },
 
   confirmAll: async (classId) => {
     set({ isLoading: true });
     try {
-      const records = await attendanceService.confirmAll(classId);
-      set({
-        records,
-        isLoading: false,
-        attendedCount: records.length,
-        noShowCount: 0,
+      await attendanceService.confirmAll(classId);
+    } catch (error: any) {
+      console.log('[DEBUG confirmAll] FAILED', {
+        classId,
+        httpStatus: error?.response?.status,
+        responseBody: error?.response?.data,
+        message: error?.message,
       });
-    } catch (error) {
       captureError(error);
       set({ isLoading: false });
+      throw error;
     }
+    set(state => ({
+      records: state.records.map(r => ({ ...r, status: 'attended' as const })),
+      isLoading: false,
+      attendedCount: state.records.length,
+      noShowCount: 0,
+    }));
   },
 
   updateStatus: async (classId, studentId, status) => {
-    await attendanceService.updateAttendanceStatus(classId, studentId, status);
+    try {
+      await attendanceService.updateAttendanceStatus(classId, studentId, status);
+    } catch (error: any) {
+      console.log('[DEBUG updateStatus] FAILED', {
+        classId,
+        studentId,
+        status,
+        httpStatus: error?.response?.status,
+        responseBody: error?.response?.data,
+        message: error?.message,
+      });
+      captureError(error);
+      throw error;
+    }
     set(state => ({
       records: state.records.map(r =>
         r.studentId === studentId ? { ...r, status } : r

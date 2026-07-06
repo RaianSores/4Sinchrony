@@ -17,7 +17,7 @@ interface AuthState {
   availableRoles: Role[];
 
   login: (user: User, token: string, refreshToken: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (skipServerCall?: boolean) => Promise<void>;
   updateUser: (data: Partial<User>) => void;
   refreshUser: () => Promise<void>;
   setLoading: (loading: boolean) => void;
@@ -50,9 +50,11 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      logout: async () => {
-        const { authService } = await import('../services/authService');
-        await authService.logout();
+      logout: async (skipServerCall = false) => {
+        if (!skipServerCall) {
+          const { authService } = await import('../services/authService');
+          await authService.logout();
+        }
         await tokenStorage.clear();
         usePackageStore.getState().clearPurchases();
         set({

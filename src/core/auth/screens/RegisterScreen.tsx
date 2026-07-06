@@ -24,6 +24,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcone';
 import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './RegisterScreen.styles';
+import { formatCPF, validateCPF, cleanCPF } from '../../../shared/utils/validateCPF';
+
+interface RegisterErrors {
+  name?: string;
+  email?: string;
+  cpf?: string;
+  phone?: string;
+  password?: string;
+  confirmPassword?: string;
+}
 
 const SCALE_BASE = 375;
 const SMALL_SCREEN = 568;
@@ -47,7 +57,12 @@ const RegisterScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [errors, setErrors] = useState<RegisterErrors>({});
   const { showAlert } = useAppAlert();
+
+  const clearError = (field: keyof RegisterErrors) => {
+    setErrors(prev => (prev[field] ? { ...prev, [field]: undefined } : prev));
+  };
 
   const emailRef = useRef<TextInput>(null);
   const cpfRef = useRef<TextInput>(null);
@@ -103,31 +118,37 @@ const RegisterScreen = ({ navigation }: any) => {
   const PHONE_REGEX = /^\d{10,11}$/;
 
   const handleRegister = async () => {
-    if (!name || !email || !cpf || !phone || !password || !confirmPassword) {
-      showAlert({ title: 'Erro', message: 'Preencha todos os campos' });
-      return;
+    const newErrors: RegisterErrors = {};
+    if (!name) newErrors.name = 'Informe seu nome';
+    if (!email) {
+      newErrors.email = 'Informe seu email';
+    } else if (!EMAIL_REGEX.test(email)) {
+      newErrors.email = 'Email inválido';
     }
-    if (!EMAIL_REGEX.test(email)) {
-      showAlert({ title: 'Erro', message: 'Email inválido' });
-      return;
+    const cpfClean = cleanCPF(cpf);
+    if (!cpf) {
+      newErrors.cpf = 'Informe seu CPF';
+    } else if (!validateCPF(cpfClean)) {
+      newErrors.cpf = 'CPF inválido';
     }
-    const cpfClean = cpf.replace(/\D/g, '');
-    if (cpfClean.length !== 11) {
-      showAlert({ title: 'Erro', message: 'CPF inválido. Deve conter 11 dígitos' });
-      return;
+    if (!phone) {
+      newErrors.phone = 'Informe seu telefone';
+    } else if (!PHONE_REGEX.test(phone.replace(/\D/g, ''))) {
+      newErrors.phone = 'Telefone inválido. Informe DDD + número';
     }
-    if (!PHONE_REGEX.test(phone.replace(/\D/g, ''))) {
-      showAlert({ title: 'Erro', message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos)' });
-      return;
+    if (!password) {
+      newErrors.password = 'Informe uma senha';
+    } else if (password.length < 6) {
+      newErrors.password = 'Mínimo de 6 caracteres';
     }
-    if (password !== confirmPassword) {
-      showAlert({ title: 'Erro', message: 'As senhas nao coincidem' });
-      return;
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Confirme sua senha';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'As senhas não coincidem';
     }
-    if (password.length < 6) {
-      showAlert({ title: 'Erro', message: 'A senha deve ter no minimo 6 caracteres' });
-      return;
-    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
 
     setLoading(true);
     try {
@@ -201,13 +222,13 @@ const RegisterScreen = ({ navigation }: any) => {
               <Text style={[styles.formTitle, { fontSize: ms(isSmallScreen ? 18 : 20) }]}>Vamos comecar</Text>
               <Text style={[styles.formSubtitle, { fontSize: ms(isSmallScreen ? 13 : 14) }]}>Preencha seus dados abaixo</Text>
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.name && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="person-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="Nome completo"
                   value={name}
-                  onChangeText={setName}
+                  onChangeText={text => { setName(text); clearError('name'); }}
                   autoCapitalize="words"
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="next"
@@ -216,15 +237,16 @@ const RegisterScreen = ({ navigation }: any) => {
                   onFocus={() => { focusedInputKey.current = 'name'; scrollToInput('name'); }}
                 />
               </View>
+              {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.email && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="mail-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={emailRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="Email"
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={text => { setEmail(text); clearError('email'); }}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   placeholderTextColor={colors.grayLight}
@@ -234,18 +256,16 @@ const RegisterScreen = ({ navigation }: any) => {
                   onFocus={() => { focusedInputKey.current = 'email'; scrollToInput('email'); }}
                 />
               </View>
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.cpf && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="document-text-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={cpfRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="CPF"
                   value={cpf}
-                  onChangeText={(t) => {
-                    const d = t.replace(/\D/g, '').slice(0, 11);
-                    setCpf(d.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1-$2'));
-                  }}
+                  onChangeText={(t) => { setCpf(formatCPF(t)); clearError('cpf'); }}
                   keyboardType="number-pad"
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="next"
@@ -254,15 +274,16 @@ const RegisterScreen = ({ navigation }: any) => {
                   onFocus={() => { focusedInputKey.current = 'cpf'; scrollToInput('cpf'); }}
                 />
               </View>
+              {errors.cpf && <Text style={styles.errorText}>{errors.cpf}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.phone && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="call-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={phoneRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="Telefone (com DDD)"
                   value={phone}
-                  onChangeText={setPhone}
+                  onChangeText={text => { setPhone(text); clearError('phone'); }}
                   keyboardType="phone-pad"
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="next"
@@ -271,15 +292,16 @@ const RegisterScreen = ({ navigation }: any) => {
                   onFocus={() => { focusedInputKey.current = 'phone'; scrollToInput('phone'); }}
                 />
               </View>
+              {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.password && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={passwordRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="Senha"
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={text => { setPassword(text); clearError('password'); }}
                   secureTextEntry={!showPassword}
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="next"
@@ -291,15 +313,16 @@ const RegisterScreen = ({ navigation }: any) => {
                   <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
                 </TouchableOpacity>
               </View>
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-              <View style={[styles.inputWrapper, { height: ms(isSmallScreen ? 44 : 48) }]}>
+              <View style={[styles.inputWrapper, errors.confirmPassword && styles.inputWrapperError, { height: ms(isSmallScreen ? 44 : 48) }]}>
                 <Ionicons name="lock-closed-outline" size={ms(20)} color={colors.gray} style={styles.inputIcon} />
                 <TextInput
                   ref={confirmPasswordRef}
                   style={[styles.input, { fontSize: ms(isSmallScreen ? 14 : 15) }]}
                   placeholder="Confirmar Senha"
                   value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  onChangeText={text => { setConfirmPassword(text); clearError('confirmPassword'); }}
                   secureTextEntry
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="done"
@@ -307,6 +330,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   onFocus={() => { focusedInputKey.current = 'confirmPassword'; scrollToInput('confirmPassword'); }}
                 />
               </View>
+              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
 
               <Button
                 title={loading ? 'Criando conta...' : 'Criar Conta'}

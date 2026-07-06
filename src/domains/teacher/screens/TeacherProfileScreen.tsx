@@ -11,6 +11,7 @@ import { useTabBarBottomPadding } from '../../../shared/hooks/useTabBarBottomPad
 import { mkStyles } from './TeacherProfileScreen.styles';
 import { useTheme } from '../../../shared/theme/useTheme';
 import { captureError } from '../../../lib/sentry';
+import { buildProfilePayload } from '../../../shared/utils/buildProfilePayload';
 
 
 
@@ -39,7 +40,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
     try {
       const url = await pickAndUploadAvatar();
       if (!url) return;
-      await api.put('/profile', { avatar: url });
+      await api.put('/profile', buildProfilePayload(user, { avatar: url }));
       updateUser({ avatar: url });
     } catch (err) {
       captureError(err);

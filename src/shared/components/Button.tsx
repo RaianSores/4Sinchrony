@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, ViewStyle, ActivityIndicator } from 'react-native';
+import { Pressable, Text, ViewStyle, ActivityIndicator } from 'react-native';
 import { useTheme } from '../theme/useTheme';
 import { borderRadius, spacing } from '../theme';
 
@@ -42,8 +42,8 @@ const Button: React.FC<ButtonProps> = ({
     : undefined;
 
   return (
-    <TouchableOpacity
-      style={[
+    <Pressable
+      style={({ pressed }) => [
         {
           height,
           borderRadius: borderRadius.lg,
@@ -52,14 +52,16 @@ const Button: React.FC<ButtonProps> = ({
           marginVertical: spacing.xs,
           paddingHorizontal: spacing.xl,
           backgroundColor: bgColor,
-          opacity: disabled ? 0.5 : 1,
+          opacity: disabled ? 0.5 : pressed ? 0.7 : 1,
         },
         borderStyle,
         style,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.85}
+      hitSlop={8}
+      android_ripple={{ color: 'rgba(255,255,255,0.2)', borderless: false }}
+      android_disableSound
     >
       {loading ? (
         <ActivityIndicator color={variant === 'outline' ? colors.primary : colors.white} size="small" />
@@ -68,7 +70,7 @@ const Button: React.FC<ButtonProps> = ({
           {title}
         </Text>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

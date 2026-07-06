@@ -1,10 +1,38 @@
 import { api } from '../../../core/http/api';
 import type { AttendanceRecord, AttendanceUpdate, AttendanceStatus } from '../../../core/types/attendance';
 
+interface ClassStudent {
+  id: string;
+  name: string;
+  email?: string;
+  bikeNumber?: number;
+  status: AttendanceStatus;
+}
+
 export const attendanceService = {
   async getAttendanceByClass(classId: string): Promise<AttendanceRecord[]> {
     const res = await api.get<{ data: AttendanceRecord[] }>(`/classes/${classId}/attendance`);
     return res.data.data ?? [];
+  },
+
+  // GET /classes/{id}/students is derived straight from bookings, so it always matches the
+  // "X/Y vagas" count shown on the class card. GET /classes/{id}/attendance reads from a
+  // separate attendance table that can be missing rows for real bookings (confirmed backend
+  // data bug, 2026-07-02) — use this as the source of truth for "who is enrolled".
+  async getStudentsByClass(classId: string): Promise<AttendanceRecord[]> {
+    const res = await api.get<{ data: ClassStudent[] }>(`/classes/${classId}/students`);
+    return (res.data.data ?? []).map((s) => ({
+      id: s.id,
+      classId,
+      className: '',
+      studentId: s.id,
+      studentName: s.name,
+      studentEmail: s.email,
+      date: '',
+      time: '',
+      status: s.status,
+      bikeNumber: s.bikeNumber,
+    }));
   },
 
   async markAttendance(classId: string, update: AttendanceUpdate): Promise<AttendanceRecord> {

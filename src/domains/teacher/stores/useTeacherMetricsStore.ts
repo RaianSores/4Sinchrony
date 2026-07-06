@@ -6,6 +6,7 @@ import type { TeacherMetrics } from '../services/teacherMetricsService';
 interface MetricsState {
   metrics: TeacherMetrics | null;
   isLoading: boolean;
+  hasError: boolean;
   period: 'month' | 'week';
 
   fetchMetrics: () => Promise<void>;
@@ -15,16 +16,17 @@ interface MetricsState {
 export const useTeacherMetricsStore = create<MetricsState>((set) => ({
   metrics: null,
   isLoading: false,
+  hasError: false,
   period: 'month',
 
   fetchMetrics: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, hasError: false });
     try {
       const metrics = await teacherMetricsService.getMetrics();
       set({ metrics, isLoading: false });
     } catch (error) {
       captureError(error);
-      set({ isLoading: false });
+      set({ isLoading: false, hasError: true });
     }
   },
 

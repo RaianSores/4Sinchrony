@@ -14,6 +14,7 @@ import { mkStyles } from './ClassDetailScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import type { ClassDetailScreenProps } from '../../../../core/navigation/types/screenProps';
 import { captureError } from '../../../../lib/sentry';
+import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 
 
 
@@ -24,8 +25,8 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
 
   const tabPadding = useTabBarBottomPadding();
   const { classId } = route.params;
-  const { classes } = useClassStore();
-  const { bookings, bookClass, cancelBooking } = useBookingStore();
+  const { classes, fetchClasses } = useClassStore();
+  const { bookings, bookClass, cancelBooking, fetchBookings } = useBookingStore();
   const { user, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
   const classItem = classes.find(c => c.id === classId);
@@ -39,6 +40,10 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
       bookingService.getBikesForClass(classId).then(setBikeStatuses).catch((error) => { captureError(error); });
     }
   }, [classId, classItem?.type]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -93,7 +98,11 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
             await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined);
             deductCredit();
             showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso.`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
-          } catch (error) { captureError(error); showAlert({ title: 'Erro', message: 'Não foi possível completar a reserva' }); }
+          } catch (error) {
+            captureError(error);
+            await Promise.all([fetchClasses(), fetchBookings()]);
+            showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível completar a reserva') });
+          }
           finally { setLoading(false); }
         }}] });
       return;
@@ -105,7 +114,8 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
       showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada com sucesso!`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
     } catch (error) {
       captureError(error);
-      showAlert({ title: 'Erro', message: 'Não foi possível reservar' });
+      await Promise.all([fetchClasses(), fetchBookings()]);
+      showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível reservar') });
     } finally { setLoading(false); }
   };
 

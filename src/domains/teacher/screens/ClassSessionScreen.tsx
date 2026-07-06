@@ -143,7 +143,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
       alertFired.current = true;
       Alert.alert(
         'Aula finalizada!',
-        `O tempo de ${currentSession.duration} minutos encerrou. Deseja finalizar a sessÃ£o?`,
+        `O tempo de ${currentSession.duration} minutos encerrou. Deseja finalizar a sessão?`,
         [
           { text: 'Continuar', style: 'cancel' },
           {
@@ -165,7 +165,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
         >
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>SessÃ£o da Aula</Text>
+        <Text style={styles.title}>Sessão da Aula</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -251,7 +251,7 @@ const ClassSessionScreen = ({ route, navigation }: any) => {
           onPress={() => navigation.navigate('CheckInTab', { screen: 'CheckInSession', params: { classId } })}
         >
           <Ionicons name="checkbox" size={20} color={colors.white} />
-          <Text style={styles.actionButtonText}>Gerenciar PresenÃ§a</Text>
+          <Text style={styles.actionButtonText}>Gerenciar Presença</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

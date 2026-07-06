@@ -115,6 +115,13 @@ const StudentListScreen = ({ route, navigation }: any) => {
               tintColor={colors.primary}
             />
           }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={48} color={colors.border} />
+              <Text style={styles.emptyText}>Nenhum aluno inscrito</Text>
+              <Text style={styles.emptySubtext}>Alunos aparecerão aqui assim que reservarem esta aula.</Text>
+            </View>
+          }
         />
       )}
     </SafeAreaView>

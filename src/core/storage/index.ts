@@ -1,37 +1,52 @@
-import { createMMKV } from 'react-native-mmkv';
+import * as Keychain from 'react-native-keychain';
 
-const storage = createMMKV({ id: 'studio-4sinchrony-experience-storage' });
+// JWT access/refresh tokens are sensitive — stored in the OS-encrypted Keychain (iOS)
+// / Keystore (Android) instead of plain MMKV. Two separate keychain "services" so the
+// access and refresh token can be set/cleared independently. `setGenericPassword` requires
+// a username; it's unused here (only the password/secret slot is meaningful), so a fixed
+// placeholder is fine.
+const ACCESS_TOKEN_SERVICE = 'studio.4sinchrony.access-token';
+const REFRESH_TOKEN_SERVICE = 'studio.4sinchrony.refresh-token';
+const USERNAME_PLACEHOLDER = 'token';
 
-const TOKEN_KEY = 'auth.token';
-const REFRESH_TOKEN_KEY = 'auth.refresh_token';
+async function getSecret(service: string): Promise<string | null> {
+  try {
+    const credentials = await Keychain.getGenericPassword({ service });
+    return credentials ? credentials.password : null;
+  } catch {
+    return null;
+  }
+}
+
+async function setSecret(service: string, value: string | null): Promise<void> {
+  if (value) {
+    await Keychain.setGenericPassword(USERNAME_PLACEHOLDER, value, { service });
+  } else {
+    await Keychain.resetGenericPassword({ service });
+  }
+}
 
 export const tokenStorage = {
-  getToken(): string | null {
-    return storage.getString(TOKEN_KEY) ?? null;
+  async getToken(): Promise<string | null> {
+    return getSecret(ACCESS_TOKEN_SERVICE);
   },
 
-  setToken(token: string | null): void {
-    if (token) {
-      storage.set(TOKEN_KEY, token);
-    } else {
-      storage.remove(TOKEN_KEY);
-    }
+  async setToken(token: string | null): Promise<void> {
+    await setSecret(ACCESS_TOKEN_SERVICE, token);
   },
 
-  getRefreshToken(): string | null {
-    return storage.getString(REFRESH_TOKEN_KEY) ?? null;
+  async getRefreshToken(): Promise<string | null> {
+    return getSecret(REFRESH_TOKEN_SERVICE);
   },
 
-  setRefreshToken(token: string | null): void {
-    if (token) {
-      storage.set(REFRESH_TOKEN_KEY, token);
-    } else {
-      storage.remove(REFRESH_TOKEN_KEY);
-    }
+  async setRefreshToken(token: string | null): Promise<void> {
+    await setSecret(REFRESH_TOKEN_SERVICE, token);
   },
 
-  clear(): void {
-    storage.remove(TOKEN_KEY);
-    storage.remove(REFRESH_TOKEN_KEY);
+  async clear(): Promise<void> {
+    await Promise.all([
+      Keychain.resetGenericPassword({ service: ACCESS_TOKEN_SERVICE }),
+      Keychain.resetGenericPassword({ service: REFRESH_TOKEN_SERVICE }),
+    ]);
   },
 };

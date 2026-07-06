@@ -27,7 +27,10 @@ export const mkStyles = (colors: any) =>
     statLabel: { fontSize: 11, color: colors.textSecondary, marginTop: 2 },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     loadingText: { fontSize: 16, color: colors.textSecondary },
-    listContent: { paddingHorizontal: 16, paddingBottom: 40 },
+    emptyState: { alignItems: 'center', marginTop: 60, gap: 8, paddingHorizontal: 32 },
+    emptyText: { fontSize: 16, fontWeight: '600', color: colors.text, textAlign: 'center' },
+    emptySubtext: { fontSize: 13, color: colors.textSecondary, textAlign: 'center' },
+    listContent: { paddingHorizontal: 16, paddingBottom: 40, flexGrow: 1 },
     studentRow: {
       flexDirection: 'row',
       alignItems: 'center',

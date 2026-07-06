@@ -9,6 +9,8 @@ import { useBookingStore } from '../../bookings/store/useBookingStore';
 import { useProgressStore } from '../../profile/store/useProgressStore';
 import StatCard from '../../../../shared/components/StatCard';
 import ClassCard from '../../../../shared/components/ClassCard';
+import ClassCardSkeleton from '../../../../shared/components/ClassCardSkeleton';
+import Skeleton from '../../../../shared/components/Skeleton';
 import { Avatar } from '../../../../shared/components/Avatar';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -28,11 +30,13 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const tabPadding = useTabBarBottomPadding();
 
   const { user } = useAuthStore();
-  const { classes, fetchClasses } = useClassStore();
-  const { bookings, fetchBookings } = useBookingStore();
-  const { progress, fetchProgress } = useProgressStore();
+  const { classes, fetchClasses, isLoading: classesLoading } = useClassStore();
+  const { bookings, fetchBookings, isLoading: bookingsLoading } = useBookingStore();
+  const { progress, fetchProgress, isLoading: progressLoading } = useProgressStore();
   const [refreshing, setRefreshing] = useState(false);
   const mountedRef = useRef(true);
+
+  const initialLoading = progress === null && (classesLoading || bookingsLoading || progressLoading);
 
   const firstName = user?.name?.split(' ')[0] || 'Aluno';
   const activeBookings = bookings.filter(b => b.status === 'confirmed');
@@ -97,79 +101,95 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           />
         }
       >
-        <View style={styles.statsContainer}>
-          <StatCard title="Aulas Realizadas" value={totalAttended} />
-          <StatCard title="Reservas" value={activeBookings.length} />
-          <StatCard title="Streak" value={streakWeeks} subtitle="semanas" />
-        </View>
+        {initialLoading ? (
+          <>
+            <View style={styles.statsContainer}>
+              <Skeleton height={84} borderRadius={16} style={{ flex: 1 }} />
+              <Skeleton height={84} borderRadius={16} style={{ flex: 1 }} />
+              <Skeleton height={84} borderRadius={16} style={{ flex: 1 }} />
+            </View>
+            <View style={styles.section}>
+              <Skeleton width={140} height={18} style={{ marginHorizontal: 16, marginBottom: 12 }} />
+              <ClassCardSkeleton />
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.statsContainer}>
+              <StatCard title="Aulas Realizadas" value={totalAttended} />
+              <StatCard title="Reservas" value={activeBookings.length} />
+              <StatCard title="Streak" value={streakWeeks} subtitle="semanas" />
+            </View>
 
-        <TouchableOpacity
-          style={styles.creditsBanner}
-          onPress={() => navigation.navigate('ProfileTab', { screen: 'MyPurchases' })}
-        >
-          <Ionicons name="flash" size={22} color={colors.primary} />
-          <Text style={styles.creditsBannerText}>
-            {(user?.credits ?? 0) > 0
-              ? `${user?.credits} crédito${user?.credits !== 1 ? 's' : ''} disponível(is)`
-              : 'Sem créditos — Adquira um plano'}
-          </Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.creditsBanner}
+              onPress={() => navigation.navigate('ProfileTab', { screen: 'MyPurchases' })}
+            >
+              <Ionicons name="flash" size={22} color={colors.primary} />
+              <Text style={styles.creditsBannerText}>
+                {(user?.credits ?? 0) > 0
+                  ? `${user?.credits} crédito${user?.credits !== 1 ? 's' : ''} disponível(is)`
+                  : 'Sem créditos — Adquira um plano'}
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
 
-        {activeBookings.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Próximas Aulas</Text>
-            {activeBookings.slice(0, 2).map(b => {
-              const liveClass = classes.find(c => c.id === b.class.id);
-              const spots = liveClass?.availableSpots ?? b.class.availableSpots;
-              return (
+            {activeBookings.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Próximas Aulas</Text>
+                {activeBookings.slice(0, 2).map(b => {
+                  const liveClass = classes.find(c => c.id === b.class.id);
+                  const spots = liveClass?.availableSpots ?? b.class.availableSpots;
+                  return (
+                    <ClassCard
+                      key={b.id}
+                      enrolled
+                      instructor={b.class.instructor}
+                        instructorAvatar={b.class.instructorAvatar}
+                        className={b.class.name}
+                        time={b.class.startTime}
+                        duration={b.class.duration}
+                        studio={b.class.studio?.name || ''}
+                        availableSpots={spots}
+                        totalSpots={b.class.totalSpots}
+                        onPress={() => navigation.navigate('ClassDetail', { classId: b.class.id })}
+                      />
+                  );
+                })}
+              </View>
+            )}
+
+            {nextClass && activeBookings.length === 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Próxima Aula</Text>
                 <ClassCard
-                  key={b.id}
-                  enrolled
-                  instructor={b.class.instructor}
-                    instructorAvatar={b.class.instructorAvatar}
-                    className={b.class.name}
-                    time={b.class.startTime}
-                    duration={b.class.duration}
-                    studio={b.class.studio?.name || ''}
-                    availableSpots={spots}
-                    totalSpots={b.class.totalSpots}
-                    onPress={() => navigation.navigate('ClassDetail', { classId: b.class.id })}
-                  />
-              );
-            })}
-          </View>
-        )}
+                  instructor={nextClass.instructor}
+                  instructorAvatar={nextClass.instructorAvatar}
+                  className={nextClass.name}
+                  time={nextClass.startTime}
+                  duration={nextClass.duration}
+                  studio={nextClass.studio?.name || ''}
+                  availableSpots={nextClass.availableSpots}
+                  totalSpots={nextClass.totalSpots}
+                  onPress={() => navigation.navigate('ClassDetail', { classId: nextClass.id })}
+                />
+              </View>
+            )}
 
-        {nextClass && activeBookings.length === 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Próxima Aula</Text>
-            <ClassCard
-              instructor={nextClass.instructor}
-              instructorAvatar={nextClass.instructorAvatar}
-              className={nextClass.name}
-              time={nextClass.startTime}
-              duration={nextClass.duration}
-              studio={nextClass.studio?.name || ''}
-              availableSpots={nextClass.availableSpots}
-              totalSpots={nextClass.totalSpots}
-              onPress={() => navigation.navigate('ClassDetail', { classId: nextClass.id })}
-            />
-          </View>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Minha Jornada 2026</Text>
+              <View style={styles.progressContainer}>
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressText}>{totalAttended} / {targetClasses} aulas</Text>
+                  <Text style={styles.progressPct}>{progressPct}%</Text>
+                </View>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progress, { width: `${progressPct}%` }]} />
+                </View>
+              </View>
+            </View>
+          </>
         )}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Minha Jornada 2026</Text>
-          <View style={styles.progressContainer}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressText}>{totalAttended} / {targetClasses} aulas</Text>
-              <Text style={styles.progressPct}>{progressPct}%</Text>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progress, { width: `${progressPct}%` }]} />
-            </View>
-          </View>
-        </View>
 
         <View style={styles.quickActions}>
           <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('AgendaTab')}>

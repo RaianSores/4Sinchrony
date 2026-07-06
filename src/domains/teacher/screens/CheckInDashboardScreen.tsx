@@ -19,19 +19,29 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
   const { fetchAttendance } = useAttendanceStore();
   const [refreshing, setRefreshing] = useState(false);
 
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }, []);
+
   useEffect(() => {
-    fetchMyClasses();
-  }, [fetchMyClasses]);
+    fetchMyClasses(todayStr);
+  }, [fetchMyClasses, todayStr]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchMyClasses();
+    await fetchMyClasses(todayStr);
     setRefreshing(false);
-  }, [fetchMyClasses]);
+  }, [fetchMyClasses, todayStr]);
 
-  const handleOpenCheckIn = async (classId: string) => {
-    await fetchAttendance(classId);
-    navigation.navigate('CheckInSession', { classId });
+  // `classes` is a shared store also populated (unfiltered, any date) by other teacher
+  // screens (Dashboard, MyClasses), so re-check the date here instead of trusting the
+  // date filter passed to fetchMyClasses().
+  const todayClasses = useMemo(() => classes.filter(c => c.date === todayStr), [classes, todayStr]);
+
+  const handleOpenCheckIn = async (cls: { id: string }) => {
+    await fetchAttendance(cls.id);
+    navigation.navigate('CheckInSession', { classId: cls.id });
   };
 
   return (
@@ -56,17 +66,17 @@ const CheckInDashboardScreen = ({ navigation }: any) => {
       >
         {classesLoading ? (
           <Text style={styles.loadingText}>Carregando...</Text>
-        ) : classes.length === 0 ? (
+        ) : todayClasses.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="checkbox-outline" size={48} color={colors.grayLight} />
-            <Text style={styles.emptyText}>Nenhuma aula disponível</Text>
+            <Text style={styles.emptyText}>Nenhuma aula hoje</Text>
           </View>
         ) : (
-          classes.map((cls) => (
+          todayClasses.map((cls) => (
             <TouchableOpacity
               key={cls.id}
               style={styles.classCard}
-              onPress={() => handleOpenCheckIn(cls.id)}
+              onPress={() => handleOpenCheckIn(cls)}
             >
               <View style={styles.classTime}>
                 <Text style={styles.classTimeText}>{cls.startTime}</Text>
