@@ -1,0 +1,60 @@
+import { StyleSheet } from 'react-native';
+import { borderRadius, spacing } from '../../../../shared/theme';
+
+export const mkStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    title: { fontSize: 18, fontWeight: '700', color: colors.text },
+    searchContainer: { paddingHorizontal: 16, marginBottom: 10 },
+    filterContainer: { paddingHorizontal: 16, marginBottom: 12 },
+    listContent: { paddingHorizontal: 16, flexGrow: 1 },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    resultCount: { fontSize: 12, color: colors.textSecondary, marginBottom: 8 },
+    row: {
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: spacing.sm,
+      marginBottom: 8,
+    },
+    rowTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    avatar: {
+      width: 40, height: 40, borderRadius: 20,
+      backgroundColor: colors.background,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    rowInfo: { flex: 1 },
+    studentName: { fontSize: 15, fontWeight: '600', color: colors.text },
+    rowSubtitle: { fontSize: 12, color: colors.textSecondary, marginTop: 1 },
+    badge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: borderRadius.full },
+    badgeText: { fontSize: 11, fontWeight: '600' },
+    actionsRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+    confirmButton: {
+      flex: 1,
+      height: 38,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+    },
+    confirmButtonText: { fontSize: 12, fontWeight: '700', color: colors.white },
+    noShowButton: {
+      flex: 1,
+      height: 38,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.warning,
+    },
+    noShowButtonText: { fontSize: 12, fontWeight: '700', color: colors.warning },
+    pendingNote: { fontSize: 11, color: colors.textSecondary, marginTop: 8, fontStyle: 'italic' },
+  });

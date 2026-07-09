@@ -1,0 +1,124 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '../../../../shared/theme/useTheme';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import { teacherAdminService, AdminTeacher } from '../../services/teacherAdminService';
+import SearchBar from '../../../../shared/components/SearchBar';
+import ListItemCard from '../../../../shared/components/ListItemCard';
+import EmptyState from '../../../../shared/components/EmptyState';
+import { captureError } from '../../../../lib/sentry';
+import { mkStyles } from './TeacherListScreen.styles';
+
+const TeacherListScreen = ({ navigation }: any) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => mkStyles(colors), [colors]);
+  const tabPadding = useTabBarBottomPadding();
+
+  const [teachers, setTeachers] = useState<AdminTeacher[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      const data = await teacherAdminService.list();
+      setTeachers(data);
+    } catch (error) {
+      captureError(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    load().finally(() => setLoading(false));
+  }, [load]);
+
+  // Refaz a busca sempre que a tela volta a ficar em foco (ex: depois de criar/editar
+  // um professor e voltar da tela de formulário).
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', load);
+    return unsubscribe;
+  }, [navigation, load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+  const filtered = teachers.filter(t =>
+    t.name.toLowerCase().includes(search.toLowerCase()) ||
+    t.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const renderItem = ({ item }: { item: AdminTeacher }) => {
+    const specialtiesLabel = item.specialties.length > 0
+      ? ` · ${item.specialties.length} especialidade${item.specialties.length !== 1 ? 's' : ''}`
+      : '';
+    return (
+      <ListItemCard
+        icon="school"
+        title={item.name}
+        subtitle={`${item.email}${specialtiesLabel}`}
+        badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
+        onPress={() => navigation.navigate('TeacherForm', { teacherId: item.id })}
+      />
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ padding: 6, borderRadius: 50, borderWidth: 1, borderColor: 'rgba(18,135,175,0.22)' }}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Professores</Text>
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TeacherForm', {})}>
+          <Ionicons name="add" size={22} color={colors.white} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <SearchBar value={search} onChangeText={setSearch} placeholder="Buscar por nome ou email..." />
+      </View>
+
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+          }
+          ListHeaderComponent={
+            teachers.length > 0 ? (
+              <Text style={styles.resultCount}>
+                {filtered.length} professor{filtered.length !== 1 ? 'es' : ''}
+              </Text>
+            ) : null
+          }
+          ListEmptyComponent={
+            <EmptyState
+              icon="school-outline"
+              title={search ? 'Nenhum professor encontrado' : 'Nenhum professor cadastrado'}
+              subtitle={search ? 'Tente buscar por outro nome ou email' : 'Toque em + para cadastrar o primeiro'}
+            />
+          }
+        />
+      )}
+    </SafeAreaView>
+  );
+};
+
+export default TeacherListScreen;

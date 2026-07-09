@@ -7,7 +7,23 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../../shared/theme/useTheme';
 import AdminDashboardScreen from '../../../domains/admin/screens/AdminDashboardScreen';
-import { ManagementScreen, StudentsScreen, TeachersScreen, StudiosScreen } from '../../../domains/admin/screens/ManagementScreen';
+import { ManagementScreen } from '../../../domains/admin/screens/ManagementScreen';
+import TeacherListScreen from '../../../domains/admin/screens/teachers/TeacherListScreen';
+import TeacherFormScreen from '../../../domains/admin/screens/teachers/TeacherFormScreen';
+import StudentListScreen from '../../../domains/admin/screens/students/StudentListScreen';
+import StudentFormScreen from '../../../domains/admin/screens/students/StudentFormScreen';
+import StudentHistoryScreen from '../../../domains/admin/screens/students/StudentHistoryScreen';
+import StudioListScreen from '../../../domains/admin/screens/studios/StudioListScreen';
+import StudioFormScreen from '../../../domains/admin/screens/studios/StudioFormScreen';
+import BikeManagementScreen from '../../../domains/admin/screens/studios/BikeManagementScreen';
+import ClassTypeListScreen from '../../../domains/admin/screens/classTypes/ClassTypeListScreen';
+import ClassListScreen from '../../../domains/admin/screens/classes/ClassListScreen';
+import ClassFormScreen from '../../../domains/admin/screens/classes/ClassFormScreen';
+import PackageListScreen from '../../../domains/admin/screens/packages/PackageListScreen';
+import PackageFormScreen from '../../../domains/admin/screens/packages/PackageFormScreen';
+import AdminBookingListScreen from '../../../domains/admin/screens/bookings/AdminBookingListScreen';
+import AdminBookingDetailScreen from '../../../domains/admin/screens/bookings/AdminBookingDetailScreen';
+import AdminCheckinScreen from '../../../domains/admin/screens/checkin/AdminCheckinScreen';
 import AdminProfileScreen from '../../../domains/admin/screens/AdminProfileScreen';
 import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
@@ -21,7 +37,8 @@ const ProfileStack = createNativeStackNavigator();
 
 const TAB_VISIBLE_SCREENS = new Set([
   'AdminDashboard',
-  'Management', 'Students', 'Teachers', 'Studios',
+  'Management', 'StudentList', 'TeacherList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
+  'AdminBookingList', 'AdminCheckin',
   'AdminProfile', 'EditProfile', 'Settings', 'ChangePassword', 'Notifications',
 ]);
 
@@ -31,12 +48,29 @@ const DashboardStackScreen = () => (
   </DashboardStack.Navigator>
 );
 
+// Telas de formulário/fluxo focado ("TeacherForm", "StudentForm", "StudentHistory",
+// "StudioForm", "BikeManagement", "ClassForm", "PackageForm", "AdminBookingDetail") ficam fora
+// do TAB_VISIBLE_SCREENS de propósito — a barra de abas some igual já acontece em outros
+// fluxos de formulário do app.
 const ManagementStackScreen = () => (
   <ManagementStack.Navigator screenOptions={{ headerShown: false }}>
     <ManagementStack.Screen name="Management" component={ManagementScreen} />
-    <ManagementStack.Screen name="Students" component={StudentsScreen} />
-    <ManagementStack.Screen name="Teachers" component={TeachersScreen} />
-    <ManagementStack.Screen name="Studios" component={StudiosScreen} />
+    <ManagementStack.Screen name="StudentList" component={StudentListScreen} />
+    <ManagementStack.Screen name="StudentForm" component={StudentFormScreen} />
+    <ManagementStack.Screen name="StudentHistory" component={StudentHistoryScreen} />
+    <ManagementStack.Screen name="TeacherList" component={TeacherListScreen} />
+    <ManagementStack.Screen name="TeacherForm" component={TeacherFormScreen} />
+    <ManagementStack.Screen name="StudioList" component={StudioListScreen} />
+    <ManagementStack.Screen name="StudioForm" component={StudioFormScreen} />
+    <ManagementStack.Screen name="BikeManagement" component={BikeManagementScreen} />
+    <ManagementStack.Screen name="ClassTypeList" component={ClassTypeListScreen} />
+    <ManagementStack.Screen name="ClassList" component={ClassListScreen} />
+    <ManagementStack.Screen name="ClassForm" component={ClassFormScreen} />
+    <ManagementStack.Screen name="PackageList" component={PackageListScreen} />
+    <ManagementStack.Screen name="PackageForm" component={PackageFormScreen} />
+    <ManagementStack.Screen name="AdminBookingList" component={AdminBookingListScreen} />
+    <ManagementStack.Screen name="AdminBookingDetail" component={AdminBookingDetailScreen} />
+    <ManagementStack.Screen name="AdminCheckin" component={AdminCheckinScreen} />
   </ManagementStack.Navigator>
 );
 

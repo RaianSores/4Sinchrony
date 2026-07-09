@@ -33,34 +33,4 @@ export const adminService = {
       .catch(() => res.data.occupancyRate);
     return { ...res.data, occupancyRate };
   },
-
-  async getStudents(): Promise<{ id: string; name: string; email: string; active: boolean }[]> {
-    const res = await api.get<{ data: any[] }>('/api/students');
-    return (res.data.data ?? []).map((s: any) => ({
-      id: s.id,
-      name: s.name,
-      email: s.email,
-      active: s.status === 'active',
-    }));
-  },
-
-  async getTeachers(): Promise<{ id: string; name: string; email: string; specialty: string }[]> {
-    const res = await api.get<{ data: any[] }>('/api/teachers');
-    return (res.data.data ?? []).map((t: any) => ({
-      id: t.id,
-      name: t.name,
-      email: t.email,
-      specialty: (t.specialties || []).join(', '),
-    }));
-  },
-
-  async getStudios(): Promise<{ id: string; name: string; city: string; active: boolean }[]> {
-    const res = await api.get<{ data: any[] }>('/api/studios');
-    return (res.data.data ?? []).map((s: any) => ({
-      id: s.id,
-      name: s.name,
-      city: s.address || '',
-      active: s.active,
-    }));
-  },
 };
