@@ -16,6 +16,7 @@ export const mkStyles = (colors: any) =>
     emptyState: { alignItems: 'center', marginTop: 60, gap: 8 },
     emptyText: { fontSize: 16, color: colors.textSecondary },
     classCard: { backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border, ...shadow.sm },
+    classCardDisabled: { opacity: 0.55 },
     classHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
     statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.full, gap: 6 },
     statusDot: { width: 8, height: 8, borderRadius: 4 },

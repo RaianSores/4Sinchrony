@@ -27,6 +27,7 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
     } catch (error) {
       captureError(error);
       set({ isLoading: false });
+      throw error;
     }
   },
 
@@ -38,6 +39,7 @@ export const useTeacherSessionStore = create<SessionState>((set) => ({
     } catch (error) {
       captureError(error);
       set({ isLoading: false });
+      throw error;
     }
   },
 

@@ -7,6 +7,7 @@ function adaptClass(c: any): Class {
     id: c.id,
     name: c.name,
     type: c.type,
+    usesBikes: c.usesBikes,
     instructor: c.instructor,
     instructorAvatar: c.instructorAvatar,
     teacherId: c.teacherId,

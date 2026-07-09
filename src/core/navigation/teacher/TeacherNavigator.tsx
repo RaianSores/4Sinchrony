@@ -10,11 +10,8 @@ import { useTheme } from '../../../shared/theme/useTheme';
 import TeacherDashboardScreen from '../../../domains/teacher/screens/DashboardScreen';
 import TeacherMetricsScreen from '../../../domains/teacher/screens/MetricsScreen';
 import MyClassesScreen from '../../../domains/teacher/screens/MyClassesScreen';
-import ClassSessionScreen from '../../../domains/teacher/screens/ClassSessionScreen';
 import StudentListScreen from '../../../domains/teacher/screens/StudentListScreen';
-import CheckInDashboardScreen from '../../../domains/teacher/screens/CheckInDashboardScreen';
 import CheckInSessionScreen from '../../../domains/teacher/screens/CheckInSessionScreen';
-import AttendanceScreen from '../../../domains/teacher/screens/AttendanceScreen';
 import TeacherProfileScreen from '../../../domains/teacher/screens/TeacherProfileScreen';
 import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
@@ -23,14 +20,12 @@ import ChangePasswordScreen from '../../../domains/student/profile/screens/Chang
 const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
 const ClassesStack = createNativeStackNavigator();
-const CheckInStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 
 // Root screens of each stack — tab bar stays visible only on these
 const TAB_VISIBLE_SCREENS = new Set([
   'Dashboard', 'Metrics',
   'MyClasses', 'ClassSession', 'StudentList',
-  'CheckInDashboard', 'CheckInSession', 'Attendance',
   'TeacherProfile', 'EditProfile', 'Settings', 'ChangePassword',
 ]);
 
@@ -41,20 +36,14 @@ const DashboardStackScreen = () => (
   </DashboardStack.Navigator>
 );
 
+// A antiga aba "Check-in" foi removida (09/07/2026) — era redundante com "Aulas", que já
+// leva pra essa mesma tela de check-in/sessão (tocando o card ou o botão "Check-in").
 const ClassesStackScreen = () => (
   <ClassesStack.Navigator screenOptions={{ headerShown: false }}>
     <ClassesStack.Screen name="MyClasses" component={MyClassesScreen} />
-    <ClassesStack.Screen name="ClassSession" component={ClassSessionScreen} />
+    <ClassesStack.Screen name="ClassSession" component={CheckInSessionScreen} />
     <ClassesStack.Screen name="StudentList" component={StudentListScreen} />
   </ClassesStack.Navigator>
-);
-
-const CheckInStackScreen = () => (
-  <CheckInStack.Navigator screenOptions={{ headerShown: false }}>
-    <CheckInStack.Screen name="CheckInDashboard" component={CheckInDashboardScreen} />
-    <CheckInStack.Screen name="CheckInSession" component={CheckInSessionScreen} />
-    <CheckInStack.Screen name="Attendance" component={AttendanceScreen} />
-  </CheckInStack.Navigator>
 );
 
 const ProfileStackScreen = () => (
@@ -148,20 +137,6 @@ export const TeacherNavigator = () => {
           ),
           tabBarIconStyle: { marginTop: 5 },
           tabBarLabel: 'Aulas',
-        }}
-      />
-      <Tab.Screen
-        name="CheckInTab"
-        component={CheckInStackScreen}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => { e.preventDefault(); navigation.navigate('CheckInTab', { screen: 'CheckInDashboard' }); },
-        })}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'checkbox' : 'checkbox-outline'} focused={focused} color={color} />
-          ),
-          tabBarIconStyle: { marginTop: 5 },
-          tabBarLabel: 'Check-in',
         }}
       />
       <Tab.Screen

@@ -70,8 +70,17 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
     no_show:   { label: 'Não compareceu', bg: colors.warning + '20', color: colors.warning },
   };
 
-  const activeBookings = bookings.filter(b => b.status === 'confirmed');
-  const pastBookings = bookings.filter(b => b.status !== 'confirmed');
+  // "confirmed" sozinho não basta: uma reserva fica "confirmed" pra sempre se o professor
+  // encerrar a aula sem marcar presença/ausência de ninguém — sem checar a data/hora da
+  // aula, ela nunca sairia de "Ativas" mesmo depois de já ter acontecido.
+  const now = new Date();
+  const todayStr = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+  const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const isUpcoming = (b: Booking) =>
+    b.class.date > todayStr || (b.class.date === todayStr && b.class.startTime > currentTimeStr);
+
+  const activeBookings = bookings.filter(b => b.status === 'confirmed' && isUpcoming(b));
+  const pastBookings = bookings.filter(b => b.status !== 'confirmed' || !isUpcoming(b));
 
   const handleCancel = (booking: Booking) => {
     const { allowed, reason } = canCancelBooking(booking);

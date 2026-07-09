@@ -88,6 +88,7 @@ export const mkStyles = (colors: any) =>
       overflow: 'hidden',
     },
     progress: { height: '100%', backgroundColor: colors.primary },
+    progressSubtext: { color: colors.textSecondary, fontSize: 12, marginTop: 8 },
     quickActions: {
       flexDirection: 'row',
       justifyContent: 'space-around',

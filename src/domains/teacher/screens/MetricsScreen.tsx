@@ -89,33 +89,47 @@ const MetricsScreen = ({ navigation }: any) => {
           </View>
 
           <Text style={styles.sectionTitle}>Aulas por Semana</Text>
-          <View style={styles.barChart}>
-            {(() => {
-              const maxCount = Math.max(...metrics.classesByWeek.map(w => w.count), 1);
-              return metrics.classesByWeek.map((week, index) => (
-                <View key={index} style={styles.barColumn}>
-                  <Text style={styles.barValue}>{week.count}</Text>
-                  <View style={styles.barTrack}>
-                    <View style={[styles.bar, { height: Math.max((week.count / maxCount) * 80, 4) }]} />
+          {metrics.classesByWeek.length === 0 ? (
+            <View style={styles.chartEmptyState}>
+              <Ionicons name="bar-chart-outline" size={28} color={colors.textSecondary} />
+              <Text style={styles.chartEmptyText}>Sem dados suficientes para este período</Text>
+            </View>
+          ) : (
+            <View style={styles.barChart}>
+              {(() => {
+                const maxCount = Math.max(...metrics.classesByWeek.map(w => w.count), 1);
+                return metrics.classesByWeek.map((week, index) => (
+                  <View key={index} style={styles.barColumn}>
+                    <Text style={styles.barValue}>{week.count}</Text>
+                    <View style={styles.barTrack}>
+                      <View style={[styles.bar, { height: Math.max((week.count / maxCount) * 80, 4) }]} />
+                    </View>
+                    <Text style={styles.barLabel}>{week.week}</Text>
                   </View>
-                  <Text style={styles.barLabel}>{week.week}</Text>
-                </View>
-              ));
-            })()}
-          </View>
+                ));
+              })()}
+            </View>
+          )}
 
           <Text style={styles.sectionTitle}>Taxa de Ocupação</Text>
-          <View style={styles.occupancyChart}>
-            {metrics.occupancyTrend.map((day, index) => (
-              <View key={index} style={styles.barColumn}>
-                <Text style={styles.barValue}>{day.rate}%</Text>
-                <View style={styles.occupancyTrack}>
-                  <View style={[styles.occupancyBar, { height: Math.max((day.rate / 100) * 100, 4) }]} />
+          {metrics.occupancyTrend.length === 0 ? (
+            <View style={styles.chartEmptyState}>
+              <Ionicons name="trending-up-outline" size={28} color={colors.textSecondary} />
+              <Text style={styles.chartEmptyText}>Sem dados suficientes para este período</Text>
+            </View>
+          ) : (
+            <View style={styles.occupancyChart}>
+              {metrics.occupancyTrend.map((day, index) => (
+                <View key={index} style={styles.barColumn}>
+                  <Text style={styles.barValue}>{day.rate}%</Text>
+                  <View style={styles.occupancyTrack}>
+                    <View style={[styles.occupancyBar, { height: Math.max((day.rate / 100) * 100, 4) }]} />
+                  </View>
+                  <Text style={styles.barLabel}>{day.date}</Text>
                 </View>
-                <Text style={styles.barLabel}>{day.date}</Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          )}
 
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={20} color={colors.primaryDark} />

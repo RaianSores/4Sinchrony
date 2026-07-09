@@ -7,6 +7,8 @@ export interface Class {
   name: string;
   type: string;
   classTypeId?: string;
+  /** Denormalizado do ClassType — proposto em DEMANDA_CLASSTYPE_BIKE_FLAG_BACKEND.md, ainda não existe na API real. */
+  usesBikes?: boolean;
   instructor: string;
   instructorAvatar?: string;
   teacherId?: string;

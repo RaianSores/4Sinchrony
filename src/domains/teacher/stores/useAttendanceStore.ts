@@ -17,7 +17,7 @@ interface AttendanceState {
   updateStatus: (classId: string, studentId: string, status: AttendanceStatus) => Promise<void>;
 }
 
-export const useAttendanceStore = create<AttendanceState>((set) => ({
+export const useAttendanceStore = create<AttendanceState>((set, get) => ({
   records: [],
   isLoading: false,
   totalCount: 0,
@@ -29,7 +29,21 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
     try {
       // Sourced from bookings (/classes/:id/students), not the attendance table — see
       // attendanceService.getStudentsByClass for why.
-      const records = await attendanceService.getStudentsByClass(classId);
+      const fresh = await attendanceService.getStudentsByClass(classId);
+      const previous = get().records;
+      const sameClass = previous[0]?.classId === classId;
+      // O backend não atualiza de forma confiável o status refletido em
+      // /classes/:id/students quando presença é marcada (mesma dessincronia de
+      // DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md) — sem isso, reabrir/atualizar a tela
+      // fazia um aluno já marcado "Presente" voltar a aparecer como "Pendente".
+      // Um status já confirmado localmente (attended/no_show) é mais confiável que
+      // um "confirmed" recém-chegado do servidor pra mesma aula.
+      const records = fresh.map(r => {
+        const local = sameClass ? previous.find(p => p.studentId === r.studentId) : undefined;
+        return local && local.status !== 'confirmed' && r.status === 'confirmed'
+          ? { ...r, status: local.status }
+          : r;
+      });
       const totalCount = records.length;
       const attendedCount = records.filter(r => r.status === 'attended').length;
       const noShowCount = records.filter(r => r.status === 'no_show').length;

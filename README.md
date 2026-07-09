@@ -4,7 +4,6 @@
 - Android (Gradle)
 - ADB (Android Debug Bridge)
 
-
 ## 🧹 Limpeza e Desinstalação
 
 - adb uninstall com.sinchronyapp
@@ -49,7 +48,6 @@
 
 - adb uninstall com.sinchronyapp
 - adb -s 192.168.0.135:38865 install app-release.apk
-
 
 - cd android
   -  ./gradlew clean

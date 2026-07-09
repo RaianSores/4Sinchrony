@@ -68,6 +68,10 @@ const MyClassesScreen = ({ navigation }: any) => {
     }
   };
 
+  // Só aulas ainda abertas (agendadas ou em andamento) podem ser acessadas para
+  // check-in/sessão — uma aula concluída ou cancelada não tem mais ação possível ali.
+  const isOpen = (status?: string) => status !== 'completed' && status !== 'cancelled';
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}><Text style={styles.title}>Minhas Aulas</Text></View>
@@ -110,34 +114,40 @@ const MyClassesScreen = ({ navigation }: any) => {
             </Text>
           </View>
         ) : (
-          filteredClasses.map(cls => (
-            <TouchableOpacity key={cls.id} style={styles.classCard}
-              onPress={() => navigation.navigate('ClassSession', { classId: cls.id })}>
-              <View style={styles.classHeader}>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(cls.status) + '20' }]}>
-                  <View style={[styles.statusDot, { backgroundColor: getStatusColor(cls.status) }]} />
-                  <Text style={[styles.statusText, { color: getStatusColor(cls.status) }]}>{getStatusLabel(cls.status)}</Text>
+          filteredClasses.map(cls => {
+            const open = isOpen(cls.status);
+            return (
+              <TouchableOpacity key={cls.id} style={[styles.classCard, !open && styles.classCardDisabled]}
+                disabled={!open}
+                onPress={() => navigation.navigate('ClassSession', { classId: cls.id })}>
+                <View style={styles.classHeader}>
+                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(cls.status) + '20' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: getStatusColor(cls.status) }]} />
+                    <Text style={[styles.statusText, { color: getStatusColor(cls.status) }]}>{getStatusLabel(cls.status)}</Text>
+                  </View>
+                  <Text style={styles.classTime}>{cls.startTime}</Text>
                 </View>
-                <Text style={styles.classTime}>{cls.startTime}</Text>
-              </View>
-              <Text style={styles.className}>{cls.name}</Text>
-              <View style={styles.classDetails}>
-                <View style={styles.detailRow}><Ionicons name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.studio.name}</Text></View>
-                <View style={styles.detailRow}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.duration} minutos</Text></View>
-                <View style={styles.detailRow}><Ionicons name="people-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.totalSpots - cls.availableSpots}/{cls.totalSpots} vagas ocupadas</Text></View>
-              </View>
-              <View style={styles.classActions}>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('StudentList', { classId: cls.id })}>
-                  <Ionicons name="people" size={18} color={colors.primary} />
-                  <Text style={[styles.actionBtnText, { color: colors.primary }]}>Alunos</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('CheckInTab', { screen: 'CheckInSession', params: { classId: cls.id } })}>
-                  <Ionicons name="checkbox" size={18} color={colors.primary} />
-                  <Text style={[styles.actionBtnText, { color: colors.primary }]}>Check-in</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))
+                <Text style={styles.className}>{cls.name}</Text>
+                <View style={styles.classDetails}>
+                  <View style={styles.detailRow}><Ionicons name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.studio.name}</Text></View>
+                  <View style={styles.detailRow}><Ionicons name="time-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.duration} minutos</Text></View>
+                  <View style={styles.detailRow}><Ionicons name="people-outline" size={16} color={colors.textSecondary} /><Text style={styles.detailText}>{cls.totalSpots - cls.availableSpots}/{cls.totalSpots} vagas ocupadas</Text></View>
+                </View>
+                <View style={styles.classActions}>
+                  <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('StudentList', { classId: cls.id })}>
+                    <Ionicons name="people" size={18} color={colors.primary} />
+                    <Text style={[styles.actionBtnText, { color: colors.primary }]}>Alunos</Text>
+                  </TouchableOpacity>
+                  {open && (
+                    <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('ClassSession', { classId: cls.id })}>
+                      <Ionicons name="checkbox" size={18} color={colors.primary} />
+                      <Text style={[styles.actionBtnText, { color: colors.primary }]}>Check-in</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })
         )}
       </ScrollView>
     </SafeAreaView>

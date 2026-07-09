@@ -40,10 +40,7 @@ const StudentListScreen = ({ route, navigation }: any) => {
   const renderStudent = ({ item }: any) => (
     <TouchableOpacity
       style={styles.studentRow}
-      onPress={() => navigation.navigate('CheckInTab', {
-        screen: 'Attendance',
-        params: { classId },
-      })}
+      onPress={() => navigation.navigate('ClassSession', { classId })}
     >
       <View style={styles.studentAvatar}>
         <Ionicons name="person" size={22} color={colors.primary} />

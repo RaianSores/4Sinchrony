@@ -63,7 +63,6 @@ const PaymentConfirmationScreen = ({ navigation, route }: PaymentConfirmationScr
         );
         if (match) {
           setConfirmed(true);
-          refreshUser();
           return;
         }
         setPollAttempts(prev => prev + 1);
@@ -73,6 +72,12 @@ const PaymentConfirmationScreen = ({ navigation, route }: PaymentConfirmationScr
     }, POLL_INTERVAL_MS);
     return () => clearTimeout(poll);
   }, [pollAttempts, confirmed, result?.transactionId]);
+
+  // Recarrega o usuário (créditos) sempre que a tela mostra pagamento confirmado —
+  // cobre tanto confirmação imediata (cartão/PIX instantâneo) quanto via polling.
+  useEffect(() => {
+    if (confirmed) refreshUser();
+  }, [confirmed, refreshUser]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

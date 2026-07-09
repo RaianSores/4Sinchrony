@@ -16,6 +16,7 @@ interface TeacherClassState {
   endClass: (classId: string) => Promise<void>;
   getCurrentSession: (classId: string) => Promise<void>;
   selectClass: (cls: Class | null) => void;
+  updateClassStatus: (classId: string, status: Class['status']) => void;
 }
 
 export const useTeacherClassStore = create<TeacherClassState>((set) => ({
@@ -81,4 +82,13 @@ export const useTeacherClassStore = create<TeacherClassState>((set) => ({
   },
 
   selectClass: (cls) => set({ selectedClass: cls }),
+
+  // Atualização local otimista: encerrar uma sessão (POST /classes/:id/session/end) não
+  // atualiza o campo `status` da aula em si no backend (são registros separados) — sem
+  // isso, "Minhas Aulas" continuaria mostrando a aula como "Em andamento" mesmo depois
+  // de encerrada.
+  updateClassStatus: (classId, status) =>
+    set(state => ({
+      classes: state.classes.map(c => (c.id === classId ? { ...c, status } : c)),
+    })),
 }));

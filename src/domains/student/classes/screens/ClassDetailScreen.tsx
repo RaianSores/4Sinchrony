@@ -16,8 +16,11 @@ import type { ClassDetailScreenProps } from '../../../../core/navigation/types/s
 import { captureError } from '../../../../lib/sentry';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 
-
-
+// `usesBikes` (vindo do ClassType via backend) é a fonte de verdade quando presente.
+// Fallback para o nome do tipo só existe pra manter compatibilidade até o backend
+// implementar o campo — ver DEMANDA_CLASSTYPE_BIKE_FLAG_BACKEND.md.
+const resolveIsBikeClass = (c?: { usesBikes?: boolean; type?: string }) =>
+  typeof c?.usesBikes === 'boolean' ? c.usesBikes : c?.type?.toLowerCase() === 'bike';
 
 const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const { colors } = useTheme();
@@ -36,10 +39,10 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (classItem?.type?.toLowerCase() === 'bike') {
+    if (resolveIsBikeClass(classItem)) {
       bookingService.getBikesForClass(classId).then(setBikeStatuses).catch((error) => { captureError(error); });
     }
-  }, [classId, classItem?.type]);
+  }, [classId, classItem]);
 
   useEffect(() => {
     fetchBookings();
@@ -47,11 +50,11 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (classItem?.type?.toLowerCase() === 'bike') {
+    if (resolveIsBikeClass(classItem)) {
       await bookingService.getBikesForClass(classId).then(setBikeStatuses).catch((error) => { captureError(error); });
     }
     setRefreshing(false);
-  }, [classId, classItem?.type]);
+  }, [classId, classItem]);
 
   if (!classItem) {
     return (
@@ -65,7 +68,7 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const existingBooking = bookings.find(b => b.class.id === classId && b.status === 'confirmed');
   const isAlreadyBooked = !!existingBooking;
   const effectiveBike = isAlreadyBooked ? (existingBooking?.bikeNumber ?? null) : selectedBike;
-  const isBikeClass = classItem.type?.toLowerCase() === 'bike';
+  const isBikeClass = resolveIsBikeClass(classItem);
   const occupancy = Math.round(((classItem.totalSpots - classItem.availableSpots) / classItem.totalSpots) * 100);
   const hasCredits = (user?.credits || 0) > 0;
 

@@ -39,7 +39,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const initialLoading = progress === null && (classesLoading || bookingsLoading || progressLoading);
 
   const firstName = user?.name?.split(' ')[0] || 'Aluno';
-  const activeBookings = bookings.filter(b => b.status === 'confirmed');
 
   useFocusEffect(useCallback(() => {
     mountedRef.current = true;
@@ -63,13 +62,22 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   ].join('-');
   const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-  const nextClass = classes.find(c =>
-    c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr)
-  ) ?? null;
+  const isUpcoming = (c: { date: string; startTime: string }) =>
+    c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr);
+
+  const nextClass = classes.find(isUpcoming) ?? null;
+  // "confirmed" sozinho não basta: uma reserva fica "confirmed" pra sempre se o professor
+  // encerrar a aula sem marcar presença/ausência de ninguém — sem checar a data/hora da
+  // aula, ela continuaria aparecendo aqui mesmo depois de já ter acontecido.
+  const activeBookings = bookings.filter(b => b.status === 'confirmed' && isUpcoming(b.class));
   const totalAttended = progress?.classesAttended ?? 0;
-  const targetClasses = progress?.classesGoal ?? 50;
+  // Meta dinâmica por marcos de 10 em vez de um alvo fixo (a API tem um `classesGoal`
+  // fixo, mas 50 não faz sentido pra quem já fez muito mais aulas que isso no ano).
+  // Sempre mostra progresso em direção ao próximo marco, nunca trava em 100%.
+  const targetClasses = Math.ceil((totalAttended + 1) / 10) * 10;
+  const remainingToMilestone = targetClasses - totalAttended;
   const streakWeeks = progress?.streakWeeks ?? 0;
-  const progressPct = targetClasses > 0 ? Math.round((totalAttended / targetClasses) * 100) : 0;
+  const progressPct = Math.round((totalAttended / targetClasses) * 100);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -186,6 +194,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
                 <View style={styles.progressBar}>
                   <View style={[styles.progress, { width: `${progressPct}%` }]} />
                 </View>
+                <Text style={styles.progressSubtext}>
+                  Faltam {remainingToMilestone} aula{remainingToMilestone !== 1 ? 's' : ''} para o próximo marco
+                </Text>
               </View>
             </View>
           </>

@@ -9,7 +9,6 @@ export type {
 export type {
   TeacherDashboardStackParamList,
   TeacherClassesStackParamList,
-  TeacherCheckInStackParamList,
   TeacherProfileStackParamList,
   TeacherMainTabParamList,
 } from './teacher';

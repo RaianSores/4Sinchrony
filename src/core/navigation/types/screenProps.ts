@@ -1,20 +1,11 @@
 import type { RouteProp } from '@react-navigation/native';
 import type {
-  StudentHomeStackParamList,
   StudentAgendaStackParamList,
-  StudentBookingsStackParamList,
   StudentProfileStackParamList,
 } from './student';
 import type {
-  TeacherDashboardStackParamList,
   TeacherClassesStackParamList,
-  TeacherCheckInStackParamList,
-  TeacherProfileStackParamList,
 } from './teacher';
-import type {
-  AdminDashboardStackParamList,
-  AdminManagementStackParamList,
-} from './admin';
 
 type WithNavigation<
   T extends Record<string, object | undefined>,
@@ -51,9 +42,6 @@ export type TeacherMetricsScreenProps = { navigation: any };
 export type TeacherMyClassesScreenProps = { navigation: any };
 export type ClassSessionScreenProps = WithNavigation<TeacherClassesStackParamList, 'ClassSession'>;
 export type StudentListScreenProps = WithNavigation<TeacherClassesStackParamList, 'StudentList'>;
-export type CheckInDashboardScreenProps = { navigation: any };
-export type CheckInSessionScreenProps = WithNavigation<TeacherCheckInStackParamList, 'CheckInSession'>;
-export type AttendanceScreenProps = WithNavigation<TeacherCheckInStackParamList, 'Attendance'>;
 export type TeacherProfileScreenProps = { navigation: any };
 
 // Admin screen props
