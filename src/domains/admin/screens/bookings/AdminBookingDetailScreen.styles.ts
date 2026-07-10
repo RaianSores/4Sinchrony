@@ -45,4 +45,14 @@ export const mkStyles = (colors: any) =>
       borderColor: colors.warning,
     },
     noShowButtonText: { fontSize: 14, fontWeight: '700', color: colors.warning },
+    infoNote: {
+      flexDirection: 'row',
+      gap: 8,
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 12,
+    },
+    infoNoteText: { flex: 1, fontSize: 12, color: colors.textSecondary, lineHeight: 17 },
   });

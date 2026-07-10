@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { bookingAdminService, AdminBooking, BookingStatus } from '../../services/bookingAdminService';
+import { classAdminService, AdminClass } from '../../services/classAdminService';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { captureError } from '../../../../lib/sentry';
@@ -23,6 +24,20 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
   const { showAlert } = useAppAlert();
 
   const [working, setWorking] = useState(false);
+  const [classInfo, setClassInfo] = useState<AdminClass | undefined>();
+
+  useEffect(() => {
+    classAdminService.getById(booking.classId).then(setClassInfo);
+  }, [booking.classId]);
+
+  // A reserva pode ficar presa em "confirmed" mesmo depois da aula acontecer (bug de backend
+  // já documentado em docs/DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md — o check-in do professor não
+  // sincroniza de volta pro registro de reserva). Sem checar o status real da AULA, os botões
+  // de ação continuavam disponíveis pra sempre: "Cancelar Reserva" chega a devolver 1 crédito
+  // pro aluno mesmo numa aula que ele já frequentou. Mesma proteção que o app do aluno já usa
+  // (ver canCancelBooking.ts), adaptada aqui porque o objeto de reserva do admin não traz
+  // data/horário da aula, só o classId.
+  const classAlreadyOver = classInfo ? (classInfo.status === 'completed' || classInfo.status === 'cancelled') : false;
 
   const badgeCfg = STATUS_BADGE[booking.status];
   const bookedDate = new Date(booking.bookedAt);
@@ -127,7 +142,19 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
           </View>
         </View>
 
-        {booking.status === 'confirmed' && (
+        {booking.status === 'confirmed' && classAlreadyOver && (
+          <View style={styles.infoNote}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.infoNoteText}>
+              Esta aula já foi concluída ou cancelada. O status "Confirmada"/"Check-in" acima pode
+              não refletir a presença real do aluno (limitação conhecida do backend) — por isso as
+              ações de cancelar e registrar falta, que devolveriam crédito ou alterariam a
+              presença, ficam indisponíveis aqui.
+            </Text>
+          </View>
+        )}
+
+        {booking.status === 'confirmed' && !classAlreadyOver && (
           <View style={styles.actionsColumn}>
             {working ? (
               <ActivityIndicator color={colors.primary} />
