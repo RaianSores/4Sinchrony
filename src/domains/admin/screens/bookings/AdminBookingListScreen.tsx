@@ -4,7 +4,8 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
-import { bookingAdminService, AdminBooking, BookingStatus } from '../../services/bookingAdminService';
+import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus } from '../../services/bookingAdminService';
+import { checkinAdminService, AdminCheckinRecord } from '../../services/checkinAdminService';
 import SearchBar from '../../../../shared/components/SearchBar';
 import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
@@ -34,6 +35,7 @@ const AdminBookingListScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
+  const [checkins, setCheckins] = useState<AdminCheckinRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
@@ -41,12 +43,29 @@ const AdminBookingListScreen = ({ navigation }: any) => {
 
   const load = useCallback(async () => {
     try {
-      const data = await bookingAdminService.list();
-      setBookings([...data].sort((a, b) => b.bookedAt.localeCompare(a.bookedAt)));
+      const [bookingsData, checkinsData] = await Promise.all([
+        bookingAdminService.list(),
+        checkinAdminService.listAll(),
+      ]);
+      setBookings([...bookingsData].sort((a, b) => b.bookedAt.localeCompare(a.bookedAt)));
+      setCheckins(checkinsData);
     } catch (error) {
       captureError(error);
     }
   }, []);
+
+  // A reserva fica presa em "confirmed" pra sempre mesmo depois do check-in real acontecer
+  // (ver comentário em bookingAdminService.ts) — por isso cruzamos com os check-ins reais em
+  // vez de confiar só no `status` da própria reserva pro badge e pro filtro.
+  const checkinByBookingId = useMemo(
+    () => new Map<string, AdminCheckinRecord>(checkins.map(c => [c.bookingId, c])),
+    [checkins]
+  );
+  const effectiveStatusById = useMemo(() => {
+    const map = new Map<string, BookingStatus>();
+    bookings.forEach(b => map.set(b.id, resolveEffectiveBookingStatus(b, checkinByBookingId.get(b.id))));
+    return map;
+  }, [bookings, checkinByBookingId]);
 
   useEffect(() => {
     setLoading(true);
@@ -67,12 +86,12 @@ const AdminBookingListScreen = ({ navigation }: any) => {
   const filtered = bookings.filter(b => {
     const term = search.toLowerCase();
     const matchSearch = b.studentName.toLowerCase().includes(term) || b.className.toLowerCase().includes(term);
-    const matchStatus = !statusFilter || b.status === statusFilter;
+    const matchStatus = !statusFilter || effectiveStatusById.get(b.id) === statusFilter;
     return matchSearch && matchStatus;
   });
 
   const renderItem = ({ item }: { item: AdminBooking }) => {
-    const badgeCfg = STATUS_BADGE[item.status];
+    const badgeCfg = STATUS_BADGE[effectiveStatusById.get(item.id) ?? item.status];
     const bookedDate = new Date(item.bookedAt);
     const subtitle = `${item.className} · ${bookedDate.toLocaleDateString('pt-BR')} ${bookedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
     return (
@@ -81,7 +100,7 @@ const AdminBookingListScreen = ({ navigation }: any) => {
         title={item.studentName}
         subtitle={subtitle}
         badge={{ label: badgeCfg.label, variant: badgeCfg.variant }}
-        onPress={() => navigation.navigate('AdminBookingDetail', { booking: item })}
+        onPress={() => navigation.navigate('AdminBookingDetail', { booking: item, checkin: checkinByBookingId.get(item.id) })}
       />
     );
   };

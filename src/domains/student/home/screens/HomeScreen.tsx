@@ -69,17 +69,58 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
     c.status !== 'cancelled' && c.status !== 'completed';
 
   const nextClass = classes.find(isUpcoming) ?? null;
+
+  // O objeto `class` embutido em cada reserva (`b.class`, vindo de `GET /bookings`) nem
+  // sempre carrega o `status` real da aula — por isso cruzamos com a lista de aulas buscada
+  // à parte (`classes`, de `GET /classes`, já confirmada confiável) pra decidir se a aula já
+  // aconteceu. Sem isso, uma reserva pra uma aula já encerrada mais cedo (mas com horário
+  // agendado ainda no futuro, ex: aula marcada pras 22:00 encerrada às 12:10) continuava
+  // aparecendo em "Próximas Aulas" pra sempre.
+  const classesById = new Map(classes.map(c => [c.id, c]));
+  const getRealClass = (b: (typeof bookings)[number]) => classesById.get(b.class.id) ?? b.class;
+
   // "confirmed" sozinho não basta: uma reserva fica "confirmed" pra sempre se o professor
   // encerrar a aula sem marcar presença/ausência de ninguém — sem checar a data/hora da
   // aula, ela continuaria aparecendo aqui mesmo depois de já ter acontecido.
-  const activeBookings = bookings.filter(b => b.status === 'confirmed' && isUpcoming(b.class));
-  const totalAttended = progress?.classesAttended ?? 0;
+  const activeBookings = bookings.filter(b => b.status === 'confirmed' && isUpcoming(getRealClass(b)));
+
+  // `progress.classesAttended`/`streakWeeks` (GET /profile/progress) ficam travados em
+  // 0/desatualizados pela mesma causa raiz documentada em
+  // docs/DEMANDA_PROGRESSO_ALUNO_NAO_ATUALIZA_BACKEND.md — o aluno não tem acesso a um
+  // endpoint de check-in real (diferente do admin, que cruza com GET /api/checkin) pra
+  // calcular isso com precisão. Como aproximação melhor que mostrar 0, contamos reservas não
+  // canceladas de aulas cujo status real já é "completed" — não distingue um "no_show" de
+  // presença real (essa distinção também está travada no backend, ver
+  // DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md), mas é muito mais próximo da realidade do que
+  // confiar no agregado quebrado do backend.
+  const attendedBookings = bookings.filter(b => b.status !== 'cancelled' && getRealClass(b).status === 'completed');
+  const totalAttended = attendedBookings.length;
+
+  // Streak: conta semanas consecutivas (bucket de 7 dias a partir de uma âncora fixa) com
+  // pelo menos uma aula "atendida" (mesma aproximação acima), voltando a partir da semana
+  // mais recente com aula — não quebra o streak só porque a semana atual ainda não teve aula.
+  const weekKey = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const days = Math.floor((new Date(y, (m || 1) - 1, d || 1).getTime() - new Date(2020, 0, 1).getTime()) / 86400000);
+    return Math.floor(days / 7);
+  };
+  const attendedWeeks = new Set(attendedBookings.map(b => weekKey(getRealClass(b).date)));
+  const streakWeeks = (() => {
+    let week = weekKey(todayStr);
+    if (!attendedWeeks.has(week)) week -= 1;
+    let streak = 0;
+    while (attendedWeeks.has(week)) {
+      streak += 1;
+      week -= 1;
+    }
+    return streak;
+  })();
+
   // Meta dinâmica por marcos de 10 em vez de um alvo fixo (a API tem um `classesGoal`
   // fixo, mas 50 não faz sentido pra quem já fez muito mais aulas que isso no ano).
   // Sempre mostra progresso em direção ao próximo marco, nunca trava em 100%.
   const targetClasses = Math.ceil((totalAttended + 1) / 10) * 10;
   const remainingToMilestone = targetClasses - totalAttended;
-  const streakWeeks = progress?.streakWeeks ?? 0;
   const progressPct = Math.round((totalAttended / targetClasses) * 100);
 
   return (

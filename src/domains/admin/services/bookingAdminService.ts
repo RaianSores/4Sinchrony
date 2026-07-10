@@ -1,4 +1,5 @@
 import { api } from '../../../core/http/api';
+import type { AdminCheckinRecord } from './checkinAdminService';
 
 export type BookingStatus = 'confirmed' | 'cancelled' | 'attended' | 'no_show';
 
@@ -13,6 +14,23 @@ export interface AdminBooking {
   bikeNumber: number | null;
   bookedAt: string;
   checkedIn: boolean;
+}
+
+// Achado crítico (ver docs/DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md): o `status` da reserva fica
+// preso em "confirmed" pra sempre — mesmo depois do professor fazer o check-in real do aluno
+// (via `checkinAdminService`) e encerrar a aula — porque o backend não sincroniza o registro
+// de check-in de volta pra reserva. Confirmado ao vivo em 10/07/2026 com um fluxo completo
+// (reservar → check-in → iniciar aula → encerrar aula): a reserva continuou `status:"confirmed"`,
+// `checkedIn:false`, mesmo com um registro de check-in real `status:"attended"` pra ela. Só
+// `cancelled` é confiável no campo `status` da própria reserva (é a reserva que muda, não o
+// check-in). Por isso as telas de reserva nunca devem confiar em `booking.status`/`checkedIn`
+// sozinhos pra saber se o aluno compareceu — cruzam com o registro de check-in real (mesma
+// fonte de verdade já usada em `AdminCheckinScreen.tsx`, Fase 6) através desta função.
+export function resolveEffectiveBookingStatus(booking: AdminBooking, checkin?: AdminCheckinRecord): BookingStatus {
+  if (booking.status === 'cancelled') return 'cancelled';
+  if (checkin?.status === 'attended') return 'attended';
+  if (checkin?.status === 'no_show') return 'no_show';
+  return booking.status;
 }
 
 // Contratos confirmados ao vivo em 09/07/2026: list (`GET /api/bookings`) vem envolto em

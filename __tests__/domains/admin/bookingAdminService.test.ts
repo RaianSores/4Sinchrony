@@ -5,8 +5,9 @@ jest.mock('../../../src/core/http/api', () => ({
   },
 }));
 
-import { bookingAdminService } from '../../../src/domains/admin/services/bookingAdminService';
+import { bookingAdminService, resolveEffectiveBookingStatus } from '../../../src/domains/admin/services/bookingAdminService';
 import { api } from '../../../src/core/http/api';
+import type { AdminCheckinRecord } from '../../../src/domains/admin/services/checkinAdminService';
 
 const mockedApi = api as jest.Mocked<typeof api>;
 
@@ -65,5 +66,34 @@ describe('bookingAdminService', () => {
       expect(mockedApi.patch).toHaveBeenCalledWith('/api/bookings/b1/no-show');
       expect(result.status).toBe('no_show');
     });
+  });
+});
+
+describe('resolveEffectiveBookingStatus', () => {
+  const makeCheckin = (overrides: Partial<AdminCheckinRecord> = {}): AdminCheckinRecord => ({
+    id: 'chk1', bookingId: 'b1', classId: 'c1', studentId: 's1', studentName: 'Raian Soares',
+    className: 'Yoga Manha', date: '2026-07-10', time: '09:00', status: 'confirmed',
+    confirmedBy: null, confirmedAt: null,
+    ...overrides,
+  });
+
+  it('reflects a real attended check-in even though the booking itself is still "confirmed" (matches the live bug report)', () => {
+    const checkin = makeCheckin({ status: 'attended' });
+    expect(resolveEffectiveBookingStatus(BOOKING, checkin)).toBe('attended');
+  });
+
+  it('reflects a real no-show check-in', () => {
+    const checkin = makeCheckin({ status: 'no_show' });
+    expect(resolveEffectiveBookingStatus(BOOKING, checkin)).toBe('no_show');
+  });
+
+  it('falls back to the booking status when there is no matching check-in record', () => {
+    expect(resolveEffectiveBookingStatus(BOOKING, undefined)).toBe('confirmed');
+  });
+
+  it('always treats a cancelled booking as cancelled, even with a stale attended check-in', () => {
+    const cancelledBooking = { ...BOOKING, status: 'cancelled' as const };
+    const staleCheckin = makeCheckin({ status: 'attended' });
+    expect(resolveEffectiveBookingStatus(cancelledBooking, staleCheckin)).toBe('cancelled');
   });
 });

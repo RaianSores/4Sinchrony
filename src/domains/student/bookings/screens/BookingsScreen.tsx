@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import type { Booking } from '../../../../shared/types';
 import { useBookingStore } from '../store/useBookingStore';
+import { useClassStore } from '../../classes/store/useClassStore';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
@@ -46,6 +47,7 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
 
   const { user, updateUser } = useAuthStore();
   const { bookings, isLoading, fetchBookings, cancelBooking } = useBookingStore();
+  const { classes, fetchClasses, setFilters: setClassFilters } = useClassStore();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const { showAlert } = useAppAlert();
@@ -54,14 +56,18 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
   useFocusEffect(useCallback(() => {
     mountedRef.current = true;
     fetchBookings();
+    // Sem filtro de data/tipo — precisamos de todas as aulas pra cruzar com qualquer reserva,
+    // independente de filtros deixados por outra tela (Agenda) na mesma store compartilhada.
+    setClassFilters({ date: '', type: '' });
+    fetchClasses();
     return () => { mountedRef.current = false; };
-  }, [fetchBookings]));
+  }, [fetchBookings, fetchClasses, setClassFilters]));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchBookings();
+    await Promise.all([fetchBookings(), fetchClasses()]);
     if (mountedRef.current) setRefreshing(false);
-  }, [fetchBookings]);
+  }, [fetchBookings, fetchClasses]);
 
   const statusCfg: Record<string, { label: string; bg: string; color: string }> = {
     confirmed: { label: 'Confirmada',   bg: colors.success + '20', color: colors.success },
@@ -76,8 +82,18 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
   const now = new Date();
   const todayStr = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
   const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  const isUpcoming = (b: Booking) =>
-    b.class.date > todayStr || (b.class.date === todayStr && b.class.startTime > currentTimeStr);
+  // O objeto `class` embutido na reserva (`b.class`, vindo de `GET /bookings`) nem sempre
+  // carrega o `status` real da aula — por isso cruzamos com a lista de aulas buscada à parte
+  // (`classes`, de `GET /classes`, já confirmada confiável) em vez de confiar em `b.class.status`
+  // diretamente. Sem isso, uma reserva pra uma aula já encerrada mais cedo (mas com horário
+  // agendado ainda no futuro, ex: aula marcada pras 22:00 encerrada às 12:10) continuava
+  // aparecendo em "Ativas" pra sempre — a checagem de data/hora sozinha não basta.
+  const classesById = new Map(classes.map(c => [c.id, c]));
+  const isUpcoming = (b: Booking) => {
+    const realClass = classesById.get(b.class.id) ?? b.class;
+    return realClass.status !== 'completed' && realClass.status !== 'cancelled' &&
+      (realClass.date > todayStr || (realClass.date === todayStr && realClass.startTime > currentTimeStr));
+  };
 
   const activeBookings = bookings.filter(b => b.status === 'confirmed' && isUpcoming(b));
   const pastBookings = bookings.filter(b => b.status !== 'confirmed' || !isUpcoming(b));

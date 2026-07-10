@@ -3,8 +3,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { bookingAdminService, AdminBooking, BookingStatus } from '../../services/bookingAdminService';
+import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus } from '../../services/bookingAdminService';
 import { classAdminService, AdminClass } from '../../services/classAdminService';
+import { AdminCheckinRecord } from '../../services/checkinAdminService';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { captureError } from '../../../../lib/sentry';
@@ -20,7 +21,7 @@ const STATUS_BADGE: Record<BookingStatus, { label: string; color: string }> = {
 const AdminBookingDetailScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
-  const { booking } = route.params as { booking: AdminBooking };
+  const { booking, checkin } = route.params as { booking: AdminBooking; checkin?: AdminCheckinRecord };
   const { showAlert } = useAppAlert();
 
   const [working, setWorking] = useState(false);
@@ -30,16 +31,24 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
     classAdminService.getById(booking.classId).then(setClassInfo);
   }, [booking.classId]);
 
-  // A reserva pode ficar presa em "confirmed" mesmo depois da aula acontecer (bug de backend
-  // já documentado em docs/DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md — o check-in do professor não
-  // sincroniza de volta pro registro de reserva). Sem checar o status real da AULA, os botões
-  // de ação continuavam disponíveis pra sempre: "Cancelar Reserva" chega a devolver 1 crédito
-  // pro aluno mesmo numa aula que ele já frequentou. Mesma proteção que o app do aluno já usa
-  // (ver canCancelBooking.ts), adaptada aqui porque o objeto de reserva do admin não traz
-  // data/horário da aula, só o classId.
-  const classAlreadyOver = classInfo ? (classInfo.status === 'completed' || classInfo.status === 'cancelled') : false;
+  // A reserva fica presa em "confirmed" pra sempre mesmo depois do check-in real acontecer —
+  // por isso o status exibido cruza com o registro de check-in real (`checkin`, recebido da
+  // listagem, que já cruzou os dados — ver bookingAdminService.ts), não confia só em
+  // `booking.status`. Isso já resolve o caso comum (check-in aconteceu, reserva não sabe).
+  const effectiveStatus = resolveEffectiveBookingStatus(booking, checkin);
 
-  const badgeCfg = STATUS_BADGE[booking.status];
+  // Caso residual: a aula já terminou mas nenhum registro de check-in existe pra essa reserva
+  // (bug de backend já documentado em docs/DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md — reserva
+  // criada sem o registro de check-in correspondente). Nesse caso `effectiveStatus` continua
+  // "confirmed" (não tem check-in pra cruzar), mas os botões de ação também não devem ficar
+  // disponíveis: "Cancelar Reserva" devolveria crédito por uma aula que já aconteceu. Mesma
+  // proteção que o app do aluno já usa (ver canCancelBooking.ts), adaptada aqui porque o
+  // objeto de reserva do admin não traz data/horário da aula, só o classId.
+  const classAlreadyOver = classInfo ? (classInfo.status === 'completed' || classInfo.status === 'cancelled') : false;
+  const isOrphanedBooking = effectiveStatus === 'confirmed' && classAlreadyOver;
+  const canManage = effectiveStatus === 'confirmed' && !classAlreadyOver;
+
+  const badgeCfg = STATUS_BADGE[effectiveStatus];
   const bookedDate = new Date(booking.bookedAt);
 
   const handleCancel = () => {
@@ -138,23 +147,27 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
           )}
           <View style={[styles.row, styles.rowLast]}>
             <Text style={styles.rowLabel}>Check-in</Text>
-            <Text style={styles.rowValue}>{booking.checkedIn ? 'Sim' : 'Não'}</Text>
+            <Text style={styles.rowValue}>
+              {checkin?.status === 'attended'
+                ? `Sim — ${new Date(checkin.confirmedAt ?? '').toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                : 'Não'}
+            </Text>
           </View>
         </View>
 
-        {booking.status === 'confirmed' && classAlreadyOver && (
+        {isOrphanedBooking && (
           <View style={styles.infoNote}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.infoNoteText}>
-              Esta aula já foi concluída ou cancelada. O status "Confirmada"/"Check-in" acima pode
-              não refletir a presença real do aluno (limitação conhecida do backend) — por isso as
-              ações de cancelar e registrar falta, que devolveriam crédito ou alterariam a
-              presença, ficam indisponíveis aqui.
+              Esta aula já foi concluída ou cancelada, mas não existe nenhum registro de check-in
+              pra essa reserva (bug de backend conhecido — a reserva foi criada sem o registro de
+              presença correspondente). Por isso as ações de cancelar e registrar falta, que
+              devolveriam crédito ou alterariam a presença, ficam indisponíveis aqui.
             </Text>
           </View>
         )}
 
-        {booking.status === 'confirmed' && !classAlreadyOver && (
+        {canManage && (
           <View style={styles.actionsColumn}>
             {working ? (
               <ActivityIndicator color={colors.primary} />
