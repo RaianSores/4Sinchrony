@@ -38,7 +38,7 @@ const AdminProfileScreen = ({ navigation }: any) => {
   const handleAvatarPress = async () => {
     setUploadingAvatar(true);
     try {
-      const url = await pickAndUploadAvatar();
+      const url = await pickAndUploadAvatar(showAlert);
       if (!url) return;
       await api.put('/profile', buildProfilePayload(user, { avatar: url }));
       updateUser({ avatar: url });
@@ -52,6 +52,7 @@ const AdminProfileScreen = ({ navigation }: any) => {
 
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
+    { title: 'Configurações do Studio', icon: 'business-outline', screen: 'AdminSettings' },
     { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 

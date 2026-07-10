@@ -16,4 +16,14 @@ export const mkStyles = (colors: any) => StyleSheet.create({
   menuRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   badge: { backgroundColor: colors.success, borderRadius: 10, minWidth: 22, height: 22, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 },
   badgeText: { color: colors.white, fontSize: 12, fontWeight: '700' },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+    marginTop: 4,
+    marginHorizontal: 16,
+    gap: 8,
+  },
+  logoutText: { color: colors.danger, fontSize: 17, fontWeight: '600' },
 });

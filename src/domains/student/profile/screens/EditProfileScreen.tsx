@@ -52,7 +52,7 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
   const handleAvatarPress = async () => {
     setUploadingAvatar(true);
     try {
-      const url = await pickAndUploadAvatar();
+      const url = await pickAndUploadAvatar(showAlert);
       if (!url) return;
       await api.put('/profile', buildProfilePayload(user, { avatar: url }));
       updateUser({ avatar: url });

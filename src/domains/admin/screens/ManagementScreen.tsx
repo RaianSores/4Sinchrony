@@ -15,6 +15,7 @@ const managementItems = [
   { title: 'Pacotes', icon: 'albums', screen: 'PackageList', color: '#EC4899', desc: 'Gerenciar pacotes de créditos' },
   { title: 'Reservas', icon: 'ticket', screen: 'AdminBookingList', color: '#06B6D4', desc: 'Ver e cancelar reservas de alunos' },
   { title: 'Check-in', icon: 'checkmark-circle', screen: 'AdminCheckin', color: '#22C55E', desc: 'Confirmar presença de alunos' },
+  { title: 'Relatórios', icon: 'bar-chart', screen: 'AdminReports', color: '#8B5CF6', desc: 'Ocupação, frequência e resumo do período' },
 ];
 
 export const ManagementScreen = ({ navigation }: any) => {

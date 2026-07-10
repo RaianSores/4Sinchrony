@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header';
 import { Avatar } from '../../../../shared/components/Avatar';
 import { usePackageStore } from '../../purchases/store/usePackageStore';
+import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { mkStyles } from './ProfileScreen.styles';
@@ -16,8 +17,20 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
 
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { purchases } = usePackageStore();
+  const { showAlert } = useAppAlert();
+
+  const handleLogout = () => {
+    showAlert({
+      title: 'Sair da Conta',
+      message: 'Tem certeza que deseja sair?',
+      buttons: [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Sair', style: 'destructive', onPress: logout },
+      ],
+    });
+  };
 
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
@@ -25,7 +38,7 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
     { title: 'Histórico de Aulas', icon: 'time-outline', screen: 'ClassHistory' },
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
     { title: 'Planos', icon: 'pricetags-outline', screen: 'Packages' },
-    { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
+    { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
   ];
 
   return (
@@ -58,6 +71,11 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
             </TouchableOpacity>
           ))}
         </View>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={22} color={colors.danger} />
+          <Text style={styles.logoutText}>Sair da Conta</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

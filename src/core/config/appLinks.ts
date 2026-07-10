@@ -1,7 +1,7 @@
-// URLs de suporte e informações legais — atualize com os links reais do estúdio
+// URLs de suporte — atualize com os links reais do estúdio.
+// "help" (WhatsApp), "terms" e "privacy" foram removidos em 10/07/2026: apontavam pra um
+// número placeholder e páginas que dão 404 no site real (4sinchrony.com.br). Reintroduzir
+// quando existir conteúdo real pra cada um.
 export const APP_LINKS = {
-  help:    'https://wa.me/5511999999999?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20app%204Sinchrony',
   contact: 'mailto:contato@4sinchrony.com.br',
-  terms:   'https://4sinchrony.com.br/termos-de-uso',
-  privacy: 'https://4sinchrony.com.br/privacidade',
 };

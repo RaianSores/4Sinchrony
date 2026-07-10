@@ -24,6 +24,8 @@ import PackageFormScreen from '../../../domains/admin/screens/packages/PackageFo
 import AdminBookingListScreen from '../../../domains/admin/screens/bookings/AdminBookingListScreen';
 import AdminBookingDetailScreen from '../../../domains/admin/screens/bookings/AdminBookingDetailScreen';
 import AdminCheckinScreen from '../../../domains/admin/screens/checkin/AdminCheckinScreen';
+import AdminReportsScreen from '../../../domains/admin/screens/reports/AdminReportsScreen';
+import AdminSettingsScreen from '../../../domains/admin/screens/settings/AdminSettingsScreen';
 import AdminProfileScreen from '../../../domains/admin/screens/AdminProfileScreen';
 import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
@@ -38,8 +40,8 @@ const ProfileStack = createNativeStackNavigator();
 const TAB_VISIBLE_SCREENS = new Set([
   'AdminDashboard',
   'Management', 'StudentList', 'TeacherList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
-  'AdminBookingList', 'AdminCheckin',
-  'AdminProfile', 'EditProfile', 'Settings', 'ChangePassword', 'Notifications',
+  'AdminBookingList', 'AdminCheckin', 'AdminReports',
+  'AdminProfile', 'EditProfile', 'AdminSettings', 'Settings', 'ChangePassword', 'Notifications',
 ]);
 
 const DashboardStackScreen = () => (
@@ -71,6 +73,7 @@ const ManagementStackScreen = () => (
     <ManagementStack.Screen name="AdminBookingList" component={AdminBookingListScreen} />
     <ManagementStack.Screen name="AdminBookingDetail" component={AdminBookingDetailScreen} />
     <ManagementStack.Screen name="AdminCheckin" component={AdminCheckinScreen} />
+    <ManagementStack.Screen name="AdminReports" component={AdminReportsScreen} />
   </ManagementStack.Navigator>
 );
 
@@ -78,6 +81,7 @@ const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
     <ProfileStack.Screen name="AdminProfile" component={AdminProfileScreen as any} />
     <ProfileStack.Screen name="EditProfile" component={EditProfileScreen as any} />
+    <ProfileStack.Screen name="AdminSettings" component={AdminSettingsScreen as any} />
     <ProfileStack.Screen name="Settings" component={SettingsScreen as any} />
     <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
     <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen as any} />

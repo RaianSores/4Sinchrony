@@ -36,7 +36,10 @@ export const useNotificationStore = create<NotificationState>()(
       fetchPreferences: async () => {
         set({ isLoading: true });
         try {
-          const preferences = await notificationService.getPreferences();
+          // "referral" (Bring a Friend) é filtrado de propósito — a API ainda devolve essa
+          // preferência, mas o recurso de indicação nunca foi implementado no app
+          // (src/domains/student/referrals/ está vazio, sem tela nem rota).
+          const preferences = (await notificationService.getPreferences()).filter(p => p.id !== 'referral');
           // Use API preferences if populated; fall back to defaults with enabled state merged
           if (preferences.length > 0) {
             set({ preferences, isLoading: false });

@@ -62,8 +62,11 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   ].join('-');
   const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-  const isUpcoming = (c: { date: string; startTime: string }) =>
-    c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr);
+  // Uma aula cancelada com data/horário futuro passava só pela checagem de data/hora e
+  // acabava aparecendo em "Próxima Aula" — a checagem de status também é necessária.
+  const isUpcoming = (c: { date: string; startTime: string; status?: string }) =>
+    (c.date > todayStr || (c.date === todayStr && c.startTime > currentTimeStr)) &&
+    c.status !== 'cancelled' && c.status !== 'completed';
 
   const nextClass = classes.find(isUpcoming) ?? null;
   // "confirmed" sozinho não basta: uma reserva fica "confirmed" pra sempre se o professor

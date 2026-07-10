@@ -89,8 +89,8 @@ const AdminCheckinScreen = ({ navigation }: any) => {
   }, [load]);
 
   const rows = useMemo<CheckinRow[]>(() => {
-    const checkinByBookingId = new Map(checkins.map(c => [c.bookingId, c]));
-    const classesById = new Map(classes.map(c => [c.id, c]));
+    const checkinByBookingId = new Map<string, AdminCheckinRecord>(checkins.map(c => [c.bookingId, c]));
+    const classesById = new Map<string, AdminClass>(classes.map(c => [c.id, c]));
     return bookings
       .filter(b => b.status === 'confirmed')
       .map(b => {
@@ -104,7 +104,7 @@ const AdminCheckinScreen = ({ navigation }: any) => {
           className: b.className,
           date: cls?.date ?? '',
           startTime: cls?.startTime ?? '',
-          status: checkin?.status ?? 'pending',
+          status: (checkin?.status ?? 'pending') as RowStatus,
         };
       })
       .sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`));

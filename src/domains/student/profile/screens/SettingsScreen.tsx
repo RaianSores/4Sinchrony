@@ -59,10 +59,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
     {
       title: 'Suporte',
       items: [
-        { icon: 'help-circle-outline',        label: 'Ajuda',         url: APP_LINKS.help    },
         { icon: 'chatbubble-ellipses-outline', label: 'Fale Conosco', url: APP_LINKS.contact },
-        { icon: 'document-text-outline',       label: 'Termos de Uso',url: APP_LINKS.terms   },
-        { icon: 'shield-checkmark-outline',    label: 'Privacidade',  url: APP_LINKS.privacy },
       ],
     },
   ];

@@ -105,6 +105,10 @@ const ClassesScreen = ({ navigation }: ClassesScreenProps) => {
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
     const upcoming = classes.filter(c => {
+      // Aulas canceladas não devem aparecer na agenda pra reserva, independente da data —
+      // uma aula cancelada com data futura ainda passava por esse filtro (só olhava
+      // data/horário, nunca o status), aparecendo como reservável quando não deveria.
+      if (c.status === 'cancelled' || c.status === 'completed') return false;
       if (c.date > todayLocal) return true;
       if (c.date < todayLocal) return false;
       if (typeof c.startTime !== 'string' || c.startTime.length < 5) return true;

@@ -72,11 +72,36 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const occupancy = Math.round(((classItem.totalSpots - classItem.availableSpots) / classItem.totalSpots) * 100);
   const hasCredits = (user?.credits || 0) > 0;
 
+  // A lista (ClassesScreen) já filtra aulas cujo horário passou, mas essa tela pode ter sido
+  // aberta antes do horário passar e só ser usada depois (ex: app em segundo plano) — sem essa
+  // checagem, o botão "Reservar" continuava disponível e só falhava com um 409 genérico do
+  // backend na hora de enviar, sem explicar o motivo pro aluno.
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  let hasClassStarted = classItem.date < todayStr;
+  if (!hasClassStarted && classItem.date === todayStr && typeof classItem.startTime === 'string' && classItem.startTime.length >= 5) {
+    const h = parseInt(classItem.startTime.slice(0, 2), 10);
+    const min = parseInt(classItem.startTime.slice(3, 5), 10);
+    if (!isNaN(h) && !isNaN(min)) {
+      hasClassStarted = (h * 60 + min) < (now.getHours() * 60 + now.getMinutes());
+    }
+  }
+  // Uma aula cancelada com data futura passa pela checagem de horário acima sem problema
+  // (ainda não "começou"), mas continua indisponível pra reserva — precisa da própria checagem.
+  const isCancelled = classItem.status === 'cancelled';
+
   const deductCredit = () => updateUser({ credits: Math.max(0, (user?.credits || 0) - 1) });
-  const refundCredit = () => updateUser({ credits: (user?.credits || 0) + 1 });
 
   const handleBook = async () => {
     if (isAlreadyBooked) return;
+    if (isCancelled) {
+      showAlert({ title: 'Aula indisponível', message: 'Essa aula foi cancelada.' });
+      return;
+    }
+    if (hasClassStarted) {
+      showAlert({ title: 'Aula indisponível', message: 'Essa aula já começou ou já foi encerrada.' });
+      return;
+    }
     if (isBikeClass && !effectiveBike) return;
     if (!hasCredits) {
       showAlert({ title: 'Sem créditos', message: 'Você não possui créditos disponíveis.',
@@ -212,6 +237,16 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
                 <Text style={styles.bookedTitle}>Você está inscrito</Text>
                 {existingBooking.bikeNumber && <Text style={styles.bookedDetail}>Bike {existingBooking.bikeNumber}</Text>}
               </View>
+            </View>
+          ) : isCancelled ? (
+            <View style={styles.soldOut}>
+              <Ionicons name="close-circle" size={24} color={colors.danger} />
+              <Text style={styles.soldOutText}>Essa aula foi cancelada</Text>
+            </View>
+          ) : hasClassStarted ? (
+            <View style={styles.soldOut}>
+              <Ionicons name="close-circle" size={24} color={colors.danger} />
+              <Text style={styles.soldOutText}>Essa aula já ocorreu</Text>
             </View>
           ) : classItem.availableSpots > 0 ? (
             <Button title={loading ? 'Reservando...' : isBikeClass && !effectiveBike ? 'Selecione uma bike' : 'Reservar Aula'}

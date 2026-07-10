@@ -3,13 +3,13 @@ import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { mkStyles } from './AlertModal.styles';
 import { useTheme } from '../theme/useTheme';
 
-interface AlertButton {
+export interface AlertButton {
   text: string;
   style?: 'default' | 'cancel' | 'destructive';
   onPress?: () => void;
 }
 
-interface AlertConfig {
+export interface AlertConfig {
   title: string;
   message?: string;
   buttons?: AlertButton[];

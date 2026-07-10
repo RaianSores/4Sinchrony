@@ -46,6 +46,10 @@ const DashboardScreen = ({ navigation }: any) => {
     const now = new Date();
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
     return todayClasses.filter(c => {
+      // Uma aula iniciada/encerrada antes do horário previsto (ex: professor deu início
+      // manualmente mais cedo) ainda teria `startTime` no futuro pela comparação de horário
+      // sozinha — por isso o status real da aula manda, não só o relógio.
+      if (c.status === 'completed' || c.status === 'cancelled' || c.status === 'in_progress') return false;
       if (typeof c.startTime !== 'string' || c.startTime.length < 5) return true;
       const h = parseInt(c.startTime.slice(0, 2), 10);
       const min = parseInt(c.startTime.slice(3, 5), 10);

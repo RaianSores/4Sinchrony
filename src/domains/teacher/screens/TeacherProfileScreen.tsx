@@ -38,7 +38,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
   const handleAvatarPress = async () => {
     setUploadingAvatar(true);
     try {
-      const url = await pickAndUploadAvatar();
+      const url = await pickAndUploadAvatar(showAlert);
       if (!url) return;
       await api.put('/profile', buildProfilePayload(user, { avatar: url }));
       updateUser({ avatar: url });
@@ -53,7 +53,6 @@ const TeacherProfileScreen = ({ navigation }: any) => {
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
     { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
-    { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 
   return (
