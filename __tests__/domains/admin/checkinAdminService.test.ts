@@ -42,13 +42,4 @@ describe('checkinAdminService', () => {
       expect(result.status).toBe('attended');
     });
   });
-
-  describe('markNoShow', () => {
-    it('sends an empty body and reads the raw response', async () => {
-      (mockedApi.post as jest.Mock).mockResolvedValue({ data: { ...CHECKIN, status: 'no_show' } });
-      const result = await checkinAdminService.markNoShow('chk1');
-      expect(mockedApi.post).toHaveBeenCalledWith('/api/checkin/chk1/no-show', {});
-      expect(result.status).toBe('no_show');
-    });
-  });
 });

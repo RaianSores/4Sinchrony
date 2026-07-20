@@ -4,7 +4,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
-import { bookingAdminService, AdminBooking } from '../../services/bookingAdminService';
+import { bookingAdminService, AdminBooking, resolveEffectiveBookingStatus } from '../../services/bookingAdminService';
 import { checkinAdminService, AdminCheckinRecord, CheckinStatus } from '../../services/checkinAdminService';
 import { classAdminService, AdminClass } from '../../services/classAdminService';
 import SearchBar from '../../../../shared/components/SearchBar';
@@ -88,14 +88,22 @@ const AdminCheckinScreen = ({ navigation }: any) => {
     setRefreshing(false);
   }, [load]);
 
+  // Achado crítico 20/07/2026, confirmado ao vivo: marcar falta é `PATCH /api/bookings/:id/
+  // no-show` (bookingId), via `bookingAdminService.markNoShow` — não existe `POST /api/checkin/
+  // :id/no-show` (404). O backend também não sincroniza o check-in de volta (`checkin.status`
+  // continua "confirmed" mesmo com a reserva já "no_show"), por isso o status da linha usa
+  // `resolveEffectiveBookingStatus` (já existente, criado pra esse mesmo tipo de gap) e o
+  // filtro inclui bookings `no_show`, senão a reserva desaparece da lista depois de marcada.
   const rows = useMemo<CheckinRow[]>(() => {
     const checkinByBookingId = new Map<string, AdminCheckinRecord>(checkins.map(c => [c.bookingId, c]));
     const classesById = new Map<string, AdminClass>(classes.map(c => [c.id, c]));
     return bookings
-      .filter(b => b.status === 'confirmed')
+      .filter(b => b.status === 'confirmed' || b.status === 'no_show')
       .map(b => {
         const checkin = checkinByBookingId.get(b.id);
         const cls = classesById.get(b.classId);
+        const effectiveStatus = resolveEffectiveBookingStatus(b, checkin);
+        const status: RowStatus = !checkin && effectiveStatus === 'confirmed' ? 'pending' : (effectiveStatus as RowStatus);
         return {
           bookingId: b.id,
           checkinId: checkin?.id ?? null,
@@ -104,7 +112,7 @@ const AdminCheckinScreen = ({ navigation }: any) => {
           className: b.className,
           date: cls?.date ?? '',
           startTime: cls?.startTime ?? '',
-          status: (checkin?.status ?? 'pending') as RowStatus,
+          status,
         };
       })
       .sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`));
@@ -139,8 +147,7 @@ const AdminCheckinScreen = ({ navigation }: any) => {
   };
 
   const handleNoShow = (row: CheckinRow) => {
-    if (!row.checkinId) return;
-    const checkinId = row.checkinId;
+    const bookingId = row.bookingId;
     showAlert({
       title: 'Marcar falta',
       message: `Confirmar que ${row.studentName} não compareceu?`,
@@ -150,9 +157,9 @@ const AdminCheckinScreen = ({ navigation }: any) => {
           text: 'Marcar Falta',
           style: 'destructive',
           onPress: async () => {
-            setActingId(checkinId);
+            setActingId(bookingId);
             try {
-              await checkinAdminService.markNoShow(checkinId);
+              await bookingAdminService.markNoShow(bookingId);
               await load();
             } catch (error) {
               captureError(error);
@@ -169,7 +176,7 @@ const AdminCheckinScreen = ({ navigation }: any) => {
   const renderItem = ({ item }: { item: CheckinRow }) => {
     const cfg = STATUS_CONFIG[item.status];
     const dateLabel = item.date ? `${isoDateToBR(item.date)} · ${item.startTime}` : '';
-    const busy = actingId === item.checkinId;
+    const busy = actingId === item.checkinId || actingId === item.bookingId;
     return (
       <View style={styles.row}>
         <View style={styles.rowTop}>

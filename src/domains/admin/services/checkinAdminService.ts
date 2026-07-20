@@ -26,10 +26,6 @@ export interface AdminCheckinRecord {
 // quando o check-in foi confirmado (testado ao vivo: o `time` mudou pra hora atual depois de
 // chamar `confirm`). Por isso as telas usam a data/hora da própria `Class`
 // (`classAdminService`) pra exibir o horário real da aula, não os campos `date`/`time` daqui.
-// `no-show` NÃO está documentado em API_REFERENCE.md e não foi testado ao vivo (não havia
-// registro em estado seguro pra testar sem mexer em reserva real de aluno) — implementado
-// seguindo o mesmo padrão raw dos demais endpoints de escrita deste recurso, mas trate como
-// não 100% confirmado até o primeiro uso real.
 // Achado crítico (ver docs/DEMANDA_CHECKIN_ATTENDANCE_BACKEND.md): reservas confirmadas podem
 // não ter um registro de check-in correspondente ainda (bug de backend já documentado) — por
 // isso a tela de check-in do admin cruza esta lista com `bookingAdminService.list()` e mostra
@@ -46,8 +42,7 @@ export const checkinAdminService = {
     return res.data;
   },
 
-  async markNoShow(id: string): Promise<AdminCheckinRecord> {
-    const res = await api.post<AdminCheckinRecord>(`/api/checkin/${id}/no-show`, {});
-    return res.data;
-  },
+  // Não existe `POST /api/checkin/:id/no-show` (achado 20/07/2026, confirmado ao vivo: 404).
+  // Marcar falta é uma operação de RESERVA, não de check-in — ver `bookingAdminService.
+  // markNoShow` (`PATCH /api/bookings/:id/no-show`, usa bookingId).
 };
