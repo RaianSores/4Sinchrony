@@ -4,11 +4,14 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
-import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus } from '../../services/bookingAdminService';
+import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus, canManageBooking } from '../../services/bookingAdminService';
 import { checkinAdminService, AdminCheckinRecord } from '../../services/checkinAdminService';
+import { classAdminService, AdminClass } from '../../services/classAdminService';
 import SearchBar from '../../../../shared/components/SearchBar';
 import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
+import { useAppAlert } from '../../../../shared/components/AlertModal';
+import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './AdminBookingListScreen.styles';
 
@@ -36,19 +39,24 @@ const AdminBookingListScreen = ({ navigation }: any) => {
 
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [checkins, setCheckins] = useState<AdminCheckinRecord[]>([]);
+  const [classes, setClasses] = useState<AdminClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const { showAlert } = useAppAlert();
 
   const load = useCallback(async () => {
     try {
-      const [bookingsData, checkinsData] = await Promise.all([
+      const [bookingsData, checkinsData, classesData] = await Promise.all([
         bookingAdminService.list(),
         checkinAdminService.listAll(),
+        classAdminService.list(),
       ]);
       setBookings([...bookingsData].sort((a, b) => b.bookedAt.localeCompare(a.bookedAt)));
       setCheckins(checkinsData);
+      setClasses(classesData);
     } catch (error) {
       captureError(error);
     }
@@ -61,11 +69,44 @@ const AdminBookingListScreen = ({ navigation }: any) => {
     () => new Map<string, AdminCheckinRecord>(checkins.map(c => [c.bookingId, c])),
     [checkins]
   );
+  const classById = useMemo(
+    () => new Map<string, AdminClass>(classes.map(c => [c.id, c])),
+    [classes]
+  );
   const effectiveStatusById = useMemo(() => {
     const map = new Map<string, BookingStatus>();
     bookings.forEach(b => map.set(b.id, resolveEffectiveBookingStatus(b, checkinByBookingId.get(b.id))));
     return map;
   }, [bookings, checkinByBookingId]);
+
+  // Cancelar reserva direto na lista — paridade com o ERP (`/admin/bookings`, botão na linha
+  // da tabela), que até agora só existia na tela de detalhe do app (item I-10 do backlog).
+  // Mesma proteção contra reservas "órfãs" já usada no detalhe.
+  const handleQuickCancel = (item: AdminBooking) => {
+    showAlert({
+      title: 'Cancelar reserva',
+      message: `Cancelar a reserva de ${item.studentName}? O crédito será devolvido.`,
+      buttons: [
+        { text: 'Voltar', style: 'cancel' },
+        {
+          text: 'Cancelar Reserva',
+          style: 'destructive',
+          onPress: async () => {
+            setCancellingId(item.id);
+            try {
+              await bookingAdminService.cancel(item.id);
+              await load();
+            } catch (error) {
+              captureError(error);
+              showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível cancelar a reserva.') });
+            } finally {
+              setCancellingId(null);
+            }
+          },
+        },
+      ],
+    });
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -94,13 +135,31 @@ const AdminBookingListScreen = ({ navigation }: any) => {
     const badgeCfg = STATUS_BADGE[effectiveStatusById.get(item.id) ?? item.status];
     const bookedDate = new Date(item.bookedAt);
     const subtitle = `${item.className} · ${bookedDate.toLocaleDateString('pt-BR')} ${bookedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    const checkin = checkinByBookingId.get(item.id);
+    const canCancel = canManageBooking(item, checkin, classById.get(item.classId));
+    const isCancelling = cancellingId === item.id;
     return (
       <ListItemCard
         icon="ticket"
         title={item.studentName}
         subtitle={subtitle}
         badge={{ label: badgeCfg.label, variant: badgeCfg.variant }}
-        onPress={() => navigation.navigate('AdminBookingDetail', { booking: item, checkin: checkinByBookingId.get(item.id) })}
+        onPress={() => navigation.navigate('AdminBookingDetail', { booking: item, checkin })}
+        rightElement={
+          canCancel ? (
+            isCancelling ? (
+              <ActivityIndicator color={colors.primary} size="small" />
+            ) : (
+              <TouchableOpacity
+                onPress={() => handleQuickCancel(item)}
+                style={{ padding: 6, borderRadius: 50 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Ionicons name="close-circle-outline" size={22} color={colors.danger} />
+              </TouchableOpacity>
+            )
+          ) : undefined
+        }
       />
     );
   };

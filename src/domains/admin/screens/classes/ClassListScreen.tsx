@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Modal } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { classAdminService, AdminClass, ClassStatus } from '../../services/classAdminService';
+import { classTypeAdminService, AdminClassType } from '../../services/classTypeAdminService';
 import SearchBar from '../../../../shared/components/SearchBar';
 import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
@@ -33,16 +35,24 @@ const ClassListScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   const [classes, setClasses] = useState<AdminClass[]>([]);
+  const [classTypes, setClassTypes] = useState<AdminClassType[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ClassStatus | ''>('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const data = await classAdminService.list();
+      const [data, types] = await Promise.all([
+        classAdminService.list(),
+        classTypeAdminService.list(),
+      ]);
       const sorted = [...data].sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`));
       setClasses(sorted);
+      setClassTypes(types.filter(t => t.active));
     } catch (error) {
       captureError(error);
     }
@@ -67,7 +77,9 @@ const ClassListScreen = ({ navigation }: any) => {
   const filtered = classes.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
     const matchStatus = !statusFilter || c.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchType = !typeFilter || c.classTypeId === typeFilter;
+    const matchDate = !dateFilter || c.date === dateFilter;
+    return matchSearch && matchStatus && matchType && matchDate;
   });
 
   const renderItem = ({ item }: { item: AdminClass }) => {
@@ -115,6 +127,47 @@ const ClassListScreen = ({ navigation }: any) => {
         ))}
       </View>
 
+      {/* Filtro por tipo de aula e por data — paridade com o ERP (`/admin/classes`, que já
+          filtra por tipo em chips e por data), item I-11 do backlog. */}
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[styles.filterChip, !typeFilter && styles.filterChipActive]}
+          onPress={() => setTypeFilter('')}
+        >
+          <Text style={[styles.filterChipText, !typeFilter && styles.filterChipTextActive]}>Todos os tipos</Text>
+        </TouchableOpacity>
+        {classTypes.map(t => (
+          <TouchableOpacity
+            key={t.id}
+            style={[styles.filterChip, typeFilter === t.id && styles.filterChipActive]}
+            onPress={() => setTypeFilter(t.id)}
+          >
+            <Text style={[styles.filterChipText, typeFilter === t.id && styles.filterChipTextActive]}>{t.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.filterRow}>
+        <TouchableOpacity
+          style={[styles.filterChip, !dateFilter && styles.filterChipActive]}
+          onPress={() => setDateFilter('')}
+        >
+          <Text style={[styles.filterChipText, !dateFilter && styles.filterChipTextActive]}>Todas as datas</Text>
+        </TouchableOpacity>
+        {dateFilter ? (
+          <TouchableOpacity
+            style={[styles.filterChip, styles.filterChipActive]}
+            onPress={() => setShowCalendar(true)}
+          >
+            <Text style={[styles.filterChipText, styles.filterChipTextActive]}>{isoDateToBR(dateFilter)}</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.filterChip, styles.filterChipCalendar]} onPress={() => setShowCalendar(true)}>
+            <Ionicons name="calendar-outline" size={16} color={colors.text} />
+          </TouchableOpacity>
+        )}
+      </View>
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={colors.primary} />
@@ -139,12 +192,41 @@ const ClassListScreen = ({ navigation }: any) => {
           ListEmptyComponent={
             <EmptyState
               icon="calendar-outline"
-              title={search || statusFilter ? 'Nenhuma aula encontrada' : 'Nenhuma aula cadastrada'}
-              subtitle={search || statusFilter ? 'Tente ajustar a busca ou o filtro' : 'Toque em + para cadastrar a primeira'}
+              title={search || statusFilter || typeFilter || dateFilter ? 'Nenhuma aula encontrada' : 'Nenhuma aula cadastrada'}
+              subtitle={search || statusFilter || typeFilter || dateFilter ? 'Tente ajustar a busca ou os filtros' : 'Toque em + para cadastrar a primeira'}
             />
           }
         />
       )}
+
+      <Modal visible={showCalendar} transparent animationType="slide" onRequestClose={() => setShowCalendar(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecione a data</Text>
+              <TouchableOpacity onPress={() => setShowCalendar(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            <Calendar
+              current={dateFilter || new Date().toISOString().split('T')[0]}
+              onDayPress={(day: any) => { setDateFilter(day.dateString); setShowCalendar(false); }}
+              markedDates={dateFilter ? { [dateFilter]: { selected: true, selectedColor: colors.primary } } : {}}
+              theme={{
+                calendarBackground: colors.card,
+                dayTextColor: colors.text,
+                monthTextColor: colors.text,
+                selectedDayBackgroundColor: colors.primary,
+                todayTextColor: colors.primary,
+                arrowColor: colors.primary,
+              }}
+            />
+            <TouchableOpacity style={styles.modalButton} onPress={() => setShowCalendar(false)}>
+              <Text style={styles.modalButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

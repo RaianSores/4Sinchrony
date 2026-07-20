@@ -1,5 +1,6 @@
 import { api } from '../../../core/http/api';
 import type { AdminCheckinRecord } from './checkinAdminService';
+import type { AdminClass } from './classAdminService';
 
 export type BookingStatus = 'confirmed' | 'cancelled' | 'attended' | 'no_show';
 
@@ -31,6 +32,39 @@ export function resolveEffectiveBookingStatus(booking: AdminBooking, checkin?: A
   if (checkin?.status === 'attended') return 'attended';
   if (checkin?.status === 'no_show') return 'no_show';
   return booking.status;
+}
+
+// `Class.status` NÃO muda sozinho quando a data/horário passa — só muda se alguém chamar o
+// fluxo de sessão do professor (iniciar/encerrar). Confirmado ao vivo 20/07/2026: uma aula de
+// 4 dias atrás, cuja sessão nunca foi encerrada por ninguém, continuava com `status:"scheduled"`
+// — e o backend aceitou cancelar a reserva dela normalmente, com estorno de crédito. Por isso
+// "a aula já acabou" não pode depender só do `status`: também comparamos `date`+`endTime`
+// diretamente contra o horário atual, mesma lógica que `canCancelBooking.ts` (app do aluno) já
+// usa corretamente. Sem isso, `canManageBooking`/`isOrphanedBooking` erravam silenciosamente em
+// todo caso "aula já aconteceu, mas ninguém clicou pra encerrar a sessão" — que é o caso comum
+// no dia a dia, não uma exceção.
+function isClassOver(classInfo: AdminClass): boolean {
+  if (classInfo.status === 'completed' || classInfo.status === 'cancelled') return true;
+  const endMoment = new Date(`${classInfo.date}T${classInfo.endTime}:00`);
+  return !isNaN(endMoment.getTime()) && endMoment.getTime() < Date.now();
+}
+
+// Caso residual: a aula já terminou mas nenhum registro de check-in existe pra essa reserva
+// (mesmo bug de backend documentado acima em `resolveEffectiveBookingStatus`). Cancelar
+// devolveria crédito por uma aula que já aconteceu, e "registrar falta" não faz sentido pra uma
+// aula encerrada — por isso ações da UI checam esta função, não só o status. Extraído de
+// `AdminBookingDetailScreen.tsx` pra ser reutilizável também na listagem (cancelar rápido
+// direto na linha, item I-10 do backlog).
+export function canManageBooking(booking: AdminBooking, checkin: AdminCheckinRecord | undefined, classInfo: AdminClass | undefined): boolean {
+  const effectiveStatus = resolveEffectiveBookingStatus(booking, checkin);
+  const classAlreadyOver = classInfo ? isClassOver(classInfo) : false;
+  return effectiveStatus === 'confirmed' && !classAlreadyOver;
+}
+
+export function isOrphanedBooking(booking: AdminBooking, checkin: AdminCheckinRecord | undefined, classInfo: AdminClass | undefined): boolean {
+  const effectiveStatus = resolveEffectiveBookingStatus(booking, checkin);
+  const classAlreadyOver = classInfo ? isClassOver(classInfo) : false;
+  return effectiveStatus === 'confirmed' && classAlreadyOver;
 }
 
 // Contratos confirmados ao vivo em 09/07/2026: list (`GET /api/bookings`) vem envolto em

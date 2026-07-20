@@ -3,6 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useClassStore } from '../store/useClassStore';
+import { classService } from '../services/classService';
+import type { Class } from '../../../../shared/types';
 import { useBookingStore } from '../../bookings/store/useBookingStore';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import { bookingService } from '../../bookings/services/bookingService';
@@ -32,11 +34,27 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const { bookings, bookClass, cancelBooking, fetchBookings } = useBookingStore();
   const { user, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
-  const classItem = classes.find(c => c.id === classId);
+  const classFromStore = classes.find(c => c.id === classId);
+  // O store de classes é compartilhado com a Agenda e pode estar filtrado por uma data
+  // diferente da aula navegada aqui (ex: veio de "Próximas Aulas" na Home enquanto a Agenda
+  // deixou um filtro de outra data no store) — nesse caso buscamos a aula diretamente pelo
+  // id em vez de mostrar "Aula não encontrada" sem tentar.
+  const [fallbackClass, setFallbackClass] = useState<Class | null>(null);
+  const [fallbackNotFound, setFallbackNotFound] = useState(false);
+  const classItem = classFromStore ?? fallbackClass ?? undefined;
   const [selectedBike, setSelectedBike] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [bikeStatuses, setBikeStatuses] = useState<{ number: number; status: string }[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (!classFromStore && !fallbackClass && !fallbackNotFound) {
+      classService.getClassById(classId).then((c) => {
+        if (c) setFallbackClass(c);
+        else setFallbackNotFound(true);
+      });
+    }
+  }, [classId, classFromStore, fallbackClass, fallbackNotFound]);
 
   useEffect(() => {
     if (resolveIsBikeClass(classItem)) {
@@ -57,6 +75,14 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   }, [classId, classItem]);
 
   if (!classItem) {
+    if (!fallbackNotFound) {
+      return (
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+          <Header title="Detalhes" showBack onBackPress={() => navigation.goBack()} />
+          <View style={styles.emptyState}><Text style={styles.emptyText}>Carregando...</Text></View>
+        </SafeAreaView>
+      );
+    }
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <Header title="Detalhes" showBack onBackPress={() => navigation.goBack()} />

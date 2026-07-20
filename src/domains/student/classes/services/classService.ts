@@ -42,10 +42,13 @@ export const classService = {
     return (res.data.data ?? []).map(adaptClass);
   },
 
+  // `GET /classes/:id` retorna o objeto no nível raiz (sem wrapper `data`), diferente de
+  // `GET /classes` (lista). Mesmo padrão já confirmado ao vivo em
+  // `teacherClassService.getClassById` (2026-07-02) — aqui reconfirmado ao vivo 14/07/2026.
   async getClassById(id: string): Promise<Class | undefined> {
     try {
-      const res = await api.get<{ data: any }>(`/classes/${id}`);
-      return adaptClass(res.data.data);
+      const res = await api.get<any>(`/classes/${id}`);
+      return adaptClass(res.data);
     } catch (error) {
       captureError(error);
       return undefined;

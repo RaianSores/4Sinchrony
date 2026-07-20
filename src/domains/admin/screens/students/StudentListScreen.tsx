@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Switch } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -40,6 +40,7 @@ const StudentListScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StudentStatus | ''>('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const loadFirstPage = useCallback(async () => {
     const result = await studentAdminService.list(1, PAGE_SIZE);
@@ -87,6 +88,24 @@ const StudentListScreen = ({ navigation }: any) => {
     return matchSearch && matchStatus;
   });
 
+  // Toggle rápido ativar/desativar direto na lista — paridade com o ERP
+  // (`studio-wellness-erp/src/app/admin/students/page.tsx`), que já trata isso como
+  // `checked: status === 'active'`, ligar chama reactivate, desligar chama deactivate — mesmo
+  // comportamento replicado aqui, inclusive pra alunos "bloqueados" (o ERP também não trata
+  // esse caso à parte: ligar o toggle de um bloqueado reativa, igual a um inativo comum).
+  const handleToggleActive = async (item: AdminStudent, value: boolean) => {
+    setTogglingId(item.id);
+    try {
+      if (value) await studentAdminService.reactivate(item.id);
+      else await studentAdminService.deactivate(item.id);
+      setStudents(prev => prev.map(s => (s.id === item.id ? { ...s, status: value ? 'active' : 'inactive' } : s)));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const renderItem = ({ item }: { item: AdminStudent }) => {
     const badgeCfg = STATUS_BADGE[item.status];
     const detail = [item.plan, item.email].filter(Boolean).join(' · ');
@@ -97,6 +116,14 @@ const StudentListScreen = ({ navigation }: any) => {
         subtitle={detail}
         badge={{ label: badgeCfg.label, variant: badgeCfg.variant }}
         onPress={() => navigation.navigate('StudentForm', { studentId: item.id })}
+        rightElement={
+          <Switch
+            value={item.status === 'active'}
+            onValueChange={(value) => handleToggleActive(item, value)}
+            disabled={togglingId === item.id}
+            trackColor={{ true: colors.primary }}
+          />
+        }
       />
     );
   };

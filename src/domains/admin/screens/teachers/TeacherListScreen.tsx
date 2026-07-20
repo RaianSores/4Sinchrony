@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Switch } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -20,6 +20,7 @@ const TeacherListScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -53,6 +54,22 @@ const TeacherListScreen = ({ navigation }: any) => {
     t.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Toggle rápido ativar/desativar direto na lista — paridade com o ERP
+  // (`studio-wellness-erp/src/app/admin/teachers/page.tsx`), que já tem essa ação na linha da
+  // tabela em vez de exigir abrir o formulário. Sem confirmação, mesmo comportamento do ERP.
+  const handleToggleActive = async (item: AdminTeacher, value: boolean) => {
+    setTogglingId(item.id);
+    try {
+      if (value) await teacherAdminService.activate(item.id);
+      else await teacherAdminService.deactivate(item.id);
+      setTeachers(prev => prev.map(t => (t.id === item.id ? { ...t, active: value } : t)));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const renderItem = ({ item }: { item: AdminTeacher }) => {
     const specialtiesLabel = item.specialties.length > 0
       ? ` · ${item.specialties.length} especialidade${item.specialties.length !== 1 ? 's' : ''}`
@@ -62,8 +79,15 @@ const TeacherListScreen = ({ navigation }: any) => {
         icon="school"
         title={item.name}
         subtitle={`${item.email}${specialtiesLabel}`}
-        badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
         onPress={() => navigation.navigate('TeacherForm', { teacherId: item.id })}
+        rightElement={
+          <Switch
+            value={item.active}
+            onValueChange={(value) => handleToggleActive(item, value)}
+            disabled={togglingId === item.id}
+            trackColor={{ true: colors.primary }}
+          />
+        }
       />
     );
   };

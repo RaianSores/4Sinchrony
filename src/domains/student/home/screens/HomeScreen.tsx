@@ -30,7 +30,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const tabPadding = useTabBarBottomPadding();
 
   const { user } = useAuthStore();
-  const { classes, fetchClasses, isLoading: classesLoading } = useClassStore();
+  const { classes, fetchClasses, setFilters, isLoading: classesLoading } = useClassStore();
   const { bookings, fetchBookings, isLoading: bookingsLoading } = useBookingStore();
   const { progress, fetchProgress, isLoading: progressLoading } = useProgressStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -40,19 +40,29 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   const firstName = user?.name?.split(' ')[0] || 'Aluno';
 
+  // `useClassStore` é compartilhado com a Agenda (ClassesScreen), que filtra `classes` por
+  // data ao usar o calendário. Se o aluno filtra a Agenda e navega pra Home sem a Agenda
+  // recuperar foco de novo, esse filtro fica "grudado" no store — Home passa a enxergar só
+  // as aulas daquela data, então reservas confirmadas em outras datas somem da lista local,
+  // aparecem com "0 vagas" (fallback pro `class` embutido na reserva, que não traz
+  // `availableSpots`) e o card leva pra "Aula não encontrada" no detalhe. Resetar o filtro
+  // aqui garante que Home sempre trabalha com a lista completa, independente do que a Agenda
+  // deixou configurado por último.
   useFocusEffect(useCallback(() => {
     mountedRef.current = true;
+    setFilters({ date: '', type: '' });
     fetchClasses();
     fetchBookings();
     fetchProgress();
     return () => { mountedRef.current = false; };
-  }, [fetchClasses, fetchBookings, fetchProgress]));
+  }, [fetchClasses, fetchBookings, fetchProgress, setFilters]));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setFilters({ date: '', type: '' });
     await Promise.all([fetchClasses(), fetchBookings(), fetchProgress()]);
     if (mountedRef.current) setRefreshing(false);
-  }, [fetchClasses, fetchBookings, fetchProgress]);
+  }, [fetchClasses, fetchBookings, fetchProgress, setFilters]);
 
   const now = new Date();
   const todayStr = [

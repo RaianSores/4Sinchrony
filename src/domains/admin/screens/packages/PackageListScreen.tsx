@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Switch } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -20,6 +20,7 @@ const PackageListScreen = ({ navigation }: any) => {
   const [packages, setPackages] = useState<AdminPackage[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -46,6 +47,23 @@ const PackageListScreen = ({ navigation }: any) => {
     setRefreshing(false);
   }, [load]);
 
+  // Toggle rápido ativar/desativar direto na lista — paridade com o ERP
+  // (`studio-wellness-erp/src/app/admin/packages/page.tsx`), que já tem essa ação no card da
+  // lista. `PATCH /api/packages/:id/toggle` inverte o estado atual no servidor e devolve o
+  // objeto atualizado — usamos a resposta em vez de assumir `value` pra evitar dessincronia
+  // se o toggle for chamado duas vezes rápido.
+  const handleToggleActive = async (item: AdminPackage) => {
+    setTogglingId(item.id);
+    try {
+      const updated = await packageAdminService.toggle(item.id);
+      setPackages(prev => prev.map(p => (p.id === item.id ? updated : p)));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const renderItem = ({ item }: { item: AdminPackage }) => {
     const subtitle = `R$ ${item.price.toFixed(2)} · ${item.credits} aula${item.credits !== 1 ? 's' : ''} · ${item.validityDays} dias${item.popular ? ' · Popular' : ''}`;
     return (
@@ -53,8 +71,15 @@ const PackageListScreen = ({ navigation }: any) => {
         icon={item.popular ? 'star' : 'albums'}
         title={item.name}
         subtitle={subtitle}
-        badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
         onPress={() => navigation.navigate('PackageForm', { packageId: item.id })}
+        rightElement={
+          <Switch
+            value={item.active}
+            onValueChange={() => handleToggleActive(item)}
+            disabled={togglingId === item.id}
+            trackColor={{ true: colors.primary }}
+          />
+        }
       />
     );
   };

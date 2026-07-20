@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus } from '../../services/bookingAdminService';
+import { bookingAdminService, AdminBooking, BookingStatus, resolveEffectiveBookingStatus, canManageBooking, isOrphanedBooking } from '../../services/bookingAdminService';
 import { classAdminService, AdminClass } from '../../services/classAdminService';
 import { AdminCheckinRecord } from '../../services/checkinAdminService';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -42,11 +42,9 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
   // criada sem o registro de check-in correspondente). Nesse caso `effectiveStatus` continua
   // "confirmed" (não tem check-in pra cruzar), mas os botões de ação também não devem ficar
   // disponíveis: "Cancelar Reserva" devolveria crédito por uma aula que já aconteceu. Mesma
-  // proteção que o app do aluno já usa (ver canCancelBooking.ts), adaptada aqui porque o
-  // objeto de reserva do admin não traz data/horário da aula, só o classId.
-  const classAlreadyOver = classInfo ? (classInfo.status === 'completed' || classInfo.status === 'cancelled') : false;
-  const isOrphanedBooking = effectiveStatus === 'confirmed' && classAlreadyOver;
-  const canManage = effectiveStatus === 'confirmed' && !classAlreadyOver;
+  // proteção usada na listagem (`canManageBooking`/`isOrphanedBooking`, extraídas pro service).
+  const isOrphaned = isOrphanedBooking(booking, checkin, classInfo);
+  const canManage = canManageBooking(booking, checkin, classInfo);
 
   const badgeCfg = STATUS_BADGE[effectiveStatus];
   const bookedDate = new Date(booking.bookedAt);
@@ -155,7 +153,7 @@ const AdminBookingDetailScreen = ({ route, navigation }: any) => {
           </View>
         </View>
 
-        {isOrphanedBooking && (
+        {isOrphaned && (
           <View style={styles.infoNote}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.infoNoteText}>
