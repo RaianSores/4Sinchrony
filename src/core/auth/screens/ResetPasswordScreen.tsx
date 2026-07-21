@@ -40,6 +40,10 @@ const ResetPasswordScreen = ({ navigation, route }: Props) => {
   const ms = (size: number, factor = 0.3) => size + (scale - 1) * size * factor;
 
   const handleReset = async () => {
+    if (!token) {
+      showAlert({ title: 'Erro', message: 'Link inválido — token não encontrado. Solicite um novo link.' });
+      return;
+    }
     if (!newPassword || newPassword.length < 6) {
       showAlert({ title: 'Erro', message: 'A senha deve ter ao menos 6 caracteres' });
       return;
@@ -50,7 +54,7 @@ const ResetPasswordScreen = ({ navigation, route }: Props) => {
     }
     setLoading(true);
     try {
-      await authService.changePassword(newPassword, newPassword);
+      await authService.resetPassword(token, newPassword);
       setDone(true);
     } catch (error) {
       captureError(error);

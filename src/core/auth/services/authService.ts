@@ -78,6 +78,18 @@ export const authService = {
     return res.data;
   },
 
+  // Achado crítico 21/07/2026: ResetPasswordScreen chamava `changePassword(newPassword,
+  // newPassword)` — o endpoint AUTENTICADO (`PUT /auth/change-password`), nunca usando o
+  // `token` do link de email. Quem chega nessa tela não tem sessão válida, então essa
+  // chamada sempre dava 401, mascarado por uma mensagem plausível mas errada ("token
+  // inválido/expirado" — o token nunca era sequer enviado). Confirmado ao vivo: `POST
+  // /auth/reset-password` com token é o endpoint correto (resposta distinta, 422 "Token
+  // inválido" para token inexistente, diferente do 401 do endpoint autenticado).
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean }> {
+    const res = await api.post('/auth/reset-password', { token, newPassword });
+    return res.data;
+  },
+
   async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
     const res = await api.put('/auth/change-password', { currentPassword, newPassword });
     return res.data;
