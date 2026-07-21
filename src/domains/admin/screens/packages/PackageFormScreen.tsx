@@ -4,8 +4,11 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
-import { packageAdminService, AdminPackage, PackageFormData } from '../../services/packageAdminService';
+import { packageAdminService, AdminPackage, PackageFormData, PurchaseStrategy } from '../../services/packageAdminService';
+import { packageTypeAdminService, AdminPackageType } from '../../services/packageTypeAdminService';
+import { benefitAdminService, AdminBenefit } from '../../services/benefitAdminService';
 import FormInput from '../../../../shared/components/FormInput';
+import FormSelect from '../../../../shared/components/FormSelect';
 import FormToggle from '../../../../shared/components/FormToggle';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
@@ -19,6 +22,14 @@ interface FormErrors {
   price?: string;
   validityDays?: string;
 }
+
+const STRATEGY_OPTIONS: { label: string; value: PurchaseStrategy }[] = [
+  { label: 'Bloquear (não deixa comprar com pacote ativo)', value: 'block' },
+  { label: 'Enfileirar (ativa quando o atual expirar)', value: 'queue' },
+  { label: 'Somar créditos ao pacote atual', value: 'sum_credits' },
+  { label: 'Somar validade ao pacote atual', value: 'sum_validity' },
+  { label: 'Substituir o pacote atual na hora', value: 'activate_immediately' },
+];
 
 const PackageFormScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
@@ -41,6 +52,21 @@ const PackageFormScreen = ({ route, navigation }: any) => {
   const [popular, setPopular] = useState(false);
   const [active, setActive] = useState(true);
 
+  // Campos dos planos dinâmicos
+  const [packageTypes, setPackageTypes] = useState<AdminPackageType[]>([]);
+  const [benefits, setBenefits] = useState<AdminBenefit[]>([]);
+  const [packageTypeId, setPackageTypeId] = useState('');
+  const [purchaseStrategy, setPurchaseStrategy] = useState<PurchaseStrategy | ''>('');
+  const [maxDependents, setMaxDependents] = useState('');
+  const [creditsPerMember, setCreditsPerMember] = useState('');
+  const [benefitIds, setBenefitIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Listas ficam vazias enquanto o backend não tiver os endpoints — não bloqueia o form.
+    packageTypeAdminService.list().then(setPackageTypes).catch(() => {});
+    benefitAdminService.list().then(setBenefits).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (!isEdit) return;
     let cancelled = false;
@@ -54,9 +80,18 @@ const PackageFormScreen = ({ route, navigation }: any) => {
       setDisplayOrder(String(pkg.displayOrder));
       setPopular(pkg.popular);
       setActive(pkg.active);
+      setPackageTypeId(pkg.packageTypeId || '');
+      setPurchaseStrategy(pkg.purchaseStrategy || '');
+      setMaxDependents(pkg.maxDependents != null ? String(pkg.maxDependents) : '');
+      setCreditsPerMember(pkg.creditsPerMember != null ? String(pkg.creditsPerMember) : '');
+      setBenefitIds(pkg.benefitIds || []);
     }).catch(error => captureError(error)).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [isEdit, packageId]);
+
+  const selectedType = packageTypes.find(t => t.id === packageTypeId);
+  const toggleBenefit = (id: string) =>
+    setBenefitIds(prev => (prev.includes(id) ? prev.filter(b => b !== id) : [...prev, id]));
 
   const validate = (): FormErrors => {
     const errs: FormErrors = {};
@@ -86,6 +121,11 @@ const PackageFormScreen = ({ route, navigation }: any) => {
         popular,
         active: isEdit ? active : true,
         displayOrder: displayOrder ? Number(displayOrder) : 99,
+        packageTypeId: packageTypeId || undefined,
+        purchaseStrategy: purchaseStrategy || undefined,
+        maxDependents: maxDependents.trim() === '' ? undefined : Number(maxDependents),
+        creditsPerMember: creditsPerMember.trim() === '' ? null : Number(creditsPerMember),
+        benefitIds,
       };
       if (isEdit) {
         await packageAdminService.update(packageId, payload);
@@ -190,6 +230,55 @@ const PackageFormScreen = ({ route, navigation }: any) => {
         </View>
 
         <FormToggle label="Popular" description="Mostra um destaque de 'mais popular' na loja de pacotes" value={popular} onValueChange={setPopular} />
+
+        {packageTypes.length > 0 && (
+          <FormSelect
+            label="Tipo de pacote"
+            value={packageTypeId}
+            options={[{ label: 'Selecione…', value: '' }, ...packageTypes.filter(t => t.active).map(t => ({ label: t.name, value: t.id }))]}
+            onSelect={setPackageTypeId}
+          />
+        )}
+
+        <FormSelect
+          label="Ao comprar com pacote ativo"
+          value={purchaseStrategy}
+          options={[{ label: 'Padrão (bloquear)', value: '' }, ...STRATEGY_OPTIONS]}
+          onSelect={(v) => setPurchaseStrategy(v as PurchaseStrategy | '')}
+        />
+
+        {selectedType?.isFamily && (
+          <View style={styles.row}>
+            <View style={styles.rowItem}>
+              <FormInput label="Máx. dependentes" value={maxDependents} onChangeText={setMaxDependents} placeholder="0" keyboardType="numeric" />
+            </View>
+            <View style={styles.rowItem}>
+              <FormInput label="Créditos por pessoa" value={creditsPerMember} onChangeText={setCreditsPerMember} placeholder="Dividir igual" keyboardType="numeric" />
+            </View>
+          </View>
+        )}
+
+        {benefits.length > 0 && (
+          <View style={styles.benefitsSection}>
+            <Text style={styles.benefitsLabel}>Benefícios inclusos</Text>
+            <View style={styles.benefitsWrap}>
+              {benefits.filter(b => b.active).map(b => {
+                const on = benefitIds.includes(b.id);
+                return (
+                  <TouchableOpacity
+                    key={b.id}
+                    onPress={() => toggleBenefit(b.id)}
+                    style={[styles.benefitChip, on ? styles.benefitChipOn : styles.benefitChipOff]}
+                  >
+                    <Text style={[styles.benefitChipText, on && styles.benefitChipTextOn]}>
+                      {b.icon ? `${b.icon} ` : ''}{b.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         <Button title={isEdit ? 'Salvar Alterações' : 'Cadastrar Pacote'} onPress={handleSubmit} loading={saving} />
       </KeyboardAwareScrollView>

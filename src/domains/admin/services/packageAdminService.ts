@@ -1,6 +1,19 @@
 import { api } from '../../../core/http/api';
 
-export interface AdminPackage {
+export type PurchaseStrategy = 'block' | 'queue' | 'sum_credits' | 'sum_validity' | 'activate_immediately';
+
+// Campos novos dos planos dinâmicos (opcionais até o backend implementar) — ver
+// docs/pacotes/ESPECIFICACAO_API_PLANOS_DINAMICOS.md. As regras granulares por-pacote
+// (limites, janelas, etc.) são editadas só no ERP; o App admin cobre os campos principais.
+export interface PackageDynamicFields {
+  packageTypeId?: string;
+  purchaseStrategy?: PurchaseStrategy;
+  maxDependents?: number;
+  creditsPerMember?: number | null;
+  benefitIds?: string[];
+}
+
+export interface AdminPackage extends PackageDynamicFields {
   id: string;
   name: string;
   description?: string;
@@ -13,7 +26,7 @@ export interface AdminPackage {
   displayOrder: number;
 }
 
-export interface PackageFormData {
+export interface PackageFormData extends PackageDynamicFields {
   name: string;
   description?: string;
   credits: number;
