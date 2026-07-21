@@ -38,4 +38,6 @@ export const mkStyles = (colors: any) =>
       marginBottom: 16,
     },
     secondaryButtonText: { fontSize: 13, fontWeight: '600', color: colors.text },
+    sectionTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginTop: 8, marginBottom: 2 },
+    sectionHint: { fontSize: 12, color: colors.textSecondary, marginBottom: 8 },
   });

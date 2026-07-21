@@ -2,7 +2,19 @@ import { api } from '../../../core/http/api';
 
 export type StudentStatus = 'active' | 'inactive' | 'blocked';
 
-export interface AdminStudent {
+// Campos de endereço (opcionais) — necessários pro pagamento por cartão (Asaas exige CEP+
+// número do portador). Ver docs/DEMANDA_CADASTRO_ENDERECO_CLIENTE_BACKEND.md.
+export interface AddressFields {
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+}
+
+export interface AdminStudent extends AddressFields {
   id: string;
   name: string;
   email: string;
@@ -17,7 +29,7 @@ export interface AdminStudent {
   totalClasses: number;
 }
 
-export interface StudentFormData {
+export interface StudentFormData extends AddressFields {
   name: string;
   email: string;
   phone: string;

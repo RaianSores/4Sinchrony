@@ -12,6 +12,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { validateCPF, formatCPF, cleanCPF } from '../../../../shared/utils/validateCPF';
 import { formatPhone, cleanPhone } from '../../../../shared/utils/formatPhone';
+import { fetchAddressByCep, formatCep, cleanCep, UF_OPTIONS } from '../../../../shared/utils/viaCep';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './StudentFormScreen.styles';
 
@@ -34,6 +35,8 @@ const STATUS_OPTIONS: { label: string; value: StudentStatus }[] = [
   { label: 'Bloqueado', value: 'blocked' },
 ];
 
+const UF_SELECT_OPTIONS = [{ label: '—', value: '' }, ...UF_OPTIONS.map(uf => ({ label: uf, value: uf }))];
+
 const StudentFormScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
@@ -53,6 +56,15 @@ const StudentFormScreen = ({ route, navigation }: any) => {
   const [plan, setPlan] = useState('Básico');
   const [status, setStatus] = useState<StudentStatus>('active');
 
+  const [cep, setCep] = useState('');
+  const [logradouro, setLogradouro] = useState('');
+  const [numero, setNumero] = useState('');
+  const [complemento, setComplemento] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cepLoading, setCepLoading] = useState(false);
+
   useEffect(() => {
     if (!isEdit) return;
     let cancelled = false;
@@ -64,9 +76,37 @@ const StudentFormScreen = ({ route, navigation }: any) => {
       setPhone(cleanPhone(student.phone || ''));
       setPlan(student.plan || 'Básico');
       setStatus(student.status);
+      setCep(student.cep || '');
+      setLogradouro(student.logradouro || '');
+      setNumero(student.numero || '');
+      setComplemento(student.complemento || '');
+      setBairro(student.bairro || '');
+      setCidade(student.cidade || '');
+      setEstado(student.estado || '');
     }).catch(error => captureError(error)).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [isEdit, studentId]);
+
+  // Ao completar 8 dígitos de CEP, busca no ViaCEP e preenche os demais campos (editáveis).
+  // `numero`/`complemento` nunca vêm do ViaCEP — o usuário digita.
+  const handleCepChange = async (raw: string) => {
+    const digits = cleanCep(raw);
+    setCep(digits);
+    if (digits.length === 8) {
+      setCepLoading(true);
+      const addr = await fetchAddressByCep(digits);
+      setCepLoading(false);
+      if (addr) {
+        setLogradouro(addr.logradouro);
+        setBairro(addr.bairro);
+        setCidade(addr.cidade);
+        setEstado(addr.estado);
+        if (addr.complemento) setComplemento(addr.complemento);
+      } else {
+        showAlert({ title: 'CEP não encontrado', message: 'Preencha o endereço manualmente.' });
+      }
+    }
+  };
 
   const validate = (): FormErrors => {
     const errs: FormErrors = {};
@@ -84,7 +124,11 @@ const StudentFormScreen = ({ route, navigation }: any) => {
 
     setSaving(true);
     try {
-      const payload = { name: name.trim(), email: email.trim(), phone, cpf: cleanCPF(cpf), plan, status };
+      const payload = {
+        name: name.trim(), email: email.trim(), phone, cpf: cleanCPF(cpf), plan, status,
+        cep, logradouro: logradouro.trim(), numero: numero.trim(), complemento: complemento.trim(),
+        bairro: bairro.trim(), cidade: cidade.trim(), estado,
+      };
       if (isEdit) {
         await studentAdminService.update(studentId, payload);
       } else {
@@ -191,6 +235,24 @@ const StudentFormScreen = ({ route, navigation }: any) => {
         />
         <FormSelect label="Plano" value={plan} options={PLAN_OPTIONS} onSelect={(v) => setPlan(v)} />
         <FormSelect label="Status" value={status} options={STATUS_OPTIONS} onSelect={(v) => setStatus(v as StudentStatus)} />
+
+        <Text style={styles.sectionTitle}>Endereço</Text>
+        <Text style={styles.sectionHint}>Necessário para pagamento por cartão. Digite o CEP para preencher automaticamente.</Text>
+        <FormInput
+          label="CEP"
+          value={formatCep(cep)}
+          onChangeText={handleCepChange}
+          placeholder="00000-000"
+          keyboardType="numeric"
+          maxLength={9}
+        />
+        {cepLoading && <Text style={styles.sectionHint}>Buscando endereço…</Text>}
+        <FormInput label="Endereço" value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" />
+        <FormInput label="Número" value={numero} onChangeText={setNumero} placeholder="123" keyboardType="numeric" />
+        <FormInput label="Complemento" value={complemento} onChangeText={setComplemento} placeholder="Apto, bloco…" />
+        <FormInput label="Bairro" value={bairro} onChangeText={setBairro} />
+        <FormInput label="Cidade" value={cidade} onChangeText={setCidade} />
+        <FormSelect label="Estado" value={estado} options={UF_SELECT_OPTIONS} onSelect={setEstado} />
 
         {isEdit && (
           <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('StudentHistory', { studentId, studentName: name })}>

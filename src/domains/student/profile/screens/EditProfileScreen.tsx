@@ -15,6 +15,7 @@ import { captureError } from '../../../../lib/sentry';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { formatCPF, validateCPF, cleanCPF } from '../../../../shared/utils/validateCPF';
 import { buildProfilePayload } from '../../../../shared/utils/buildProfilePayload';
+import { fetchAddressByCep, formatCep, cleanCep } from '../../../../shared/utils/viaCep';
 
 interface EditProfileErrors {
   name?: string;
@@ -37,6 +38,34 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [errors, setErrors] = useState<EditProfileErrors>({});
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const [cep, setCep] = useState(user?.cep || '');
+  const [logradouro, setLogradouro] = useState(user?.logradouro || '');
+  const [numero, setNumero] = useState(user?.numero || '');
+  const [complemento, setComplemento] = useState(user?.complemento || '');
+  const [bairro, setBairro] = useState(user?.bairro || '');
+  const [cidade, setCidade] = useState(user?.cidade || '');
+  const [estado, setEstado] = useState(user?.estado || '');
+  const [cepLoading, setCepLoading] = useState(false);
+
+  const handleCepChange = async (raw: string) => {
+    const digits = cleanCep(raw);
+    setCep(digits);
+    if (digits.length === 8) {
+      setCepLoading(true);
+      const addr = await fetchAddressByCep(digits);
+      setCepLoading(false);
+      if (addr) {
+        setLogradouro(addr.logradouro);
+        setBairro(addr.bairro);
+        setCidade(addr.cidade);
+        setEstado(addr.estado);
+        if (addr.complemento) setComplemento(addr.complemento);
+      } else {
+        showAlert({ title: 'CEP não encontrado', message: 'Preencha o endereço manualmente.' });
+      }
+    }
+  };
 
   const clearError = (field: keyof EditProfileErrors) => {
     setErrors(prev => (prev[field] ? { ...prev, [field]: undefined } : prev));
@@ -74,9 +103,19 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
+    const addressPatch = {
+      cep: cleanCep(cep) || undefined,
+      logradouro: logradouro.trim() || undefined,
+      numero: numero.trim() || undefined,
+      complemento: complemento.trim() || undefined,
+      bairro: bairro.trim() || undefined,
+      cidade: cidade.trim() || undefined,
+      estado: estado.trim() || undefined,
+    };
+
     try {
-      await api.put('/profile', buildProfilePayload(user, { name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim() }));
-      updateUser({ name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim() });
+      await api.put('/profile', buildProfilePayload(user, { name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim(), ...addressPatch }));
+      updateUser({ name: name.trim(), cpf: cpfClean || undefined, phone: phone.trim(), ...addressPatch });
       showAlert({ title: 'Pronto!', message: 'Dados atualizados com sucesso', buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
     } catch (error) {
       captureError(error);
@@ -141,6 +180,37 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
               onFocus={scrollToEnd}
             />
             {errors.cpf && <Text style={styles.errorText}>{errors.cpf}</Text>}
+
+            <Text style={[styles.label, { marginTop: 8 }]}>CEP</Text>
+            <TextInput
+              style={styles.input}
+              value={formatCep(cep)}
+              onChangeText={handleCepChange}
+              placeholder="00000-000"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="number-pad"
+              maxLength={9}
+              onFocus={scrollToEnd}
+            />
+            {cepLoading && <Text style={[styles.label, { color: colors.textSecondary }]}>Buscando endereço…</Text>}
+
+            <Text style={styles.label}>Endereço</Text>
+            <TextInput style={styles.input} value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" placeholderTextColor={colors.textSecondary} onFocus={scrollToEnd} />
+
+            <Text style={styles.label}>Número</Text>
+            <TextInput style={styles.input} value={numero} onChangeText={setNumero} placeholder="123" placeholderTextColor={colors.textSecondary} keyboardType="number-pad" onFocus={scrollToEnd} />
+
+            <Text style={styles.label}>Complemento</Text>
+            <TextInput style={styles.input} value={complemento} onChangeText={setComplemento} placeholder="Apto, bloco…" placeholderTextColor={colors.textSecondary} onFocus={scrollToEnd} />
+
+            <Text style={styles.label}>Bairro</Text>
+            <TextInput style={styles.input} value={bairro} onChangeText={setBairro} placeholderTextColor={colors.textSecondary} onFocus={scrollToEnd} />
+
+            <Text style={styles.label}>Cidade</Text>
+            <TextInput style={styles.input} value={cidade} onChangeText={setCidade} placeholderTextColor={colors.textSecondary} onFocus={scrollToEnd} />
+
+            <Text style={styles.label}>Estado (UF)</Text>
+            <TextInput style={styles.input} value={estado} onChangeText={(t) => setEstado(t.toUpperCase().slice(0, 2))} placeholder="TO" placeholderTextColor={colors.textSecondary} autoCapitalize="characters" maxLength={2} onFocus={scrollToEnd} />
 
             <Button title="Salvar Alterações" onPress={handleSave} />
           </View>
