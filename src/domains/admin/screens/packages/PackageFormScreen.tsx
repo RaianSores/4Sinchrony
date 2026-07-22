@@ -23,12 +23,12 @@ interface FormErrors {
   validityDays?: string;
 }
 
-const STRATEGY_OPTIONS: { label: string; value: PurchaseStrategy }[] = [
-  { label: 'Bloquear (não deixa comprar com pacote ativo)', value: 'block' },
-  { label: 'Enfileirar (ativa quando o atual expirar)', value: 'queue' },
-  { label: 'Somar créditos ao pacote atual', value: 'sum_credits' },
-  { label: 'Somar validade ao pacote atual', value: 'sum_validity' },
-  { label: 'Substituir o pacote atual na hora', value: 'activate_immediately' },
+const STRATEGY_OPTIONS: { label: string; value: PurchaseStrategy; hint: string }[] = [
+  { label: 'Bloquear (não deixa comprar com pacote ativo)', value: 'block', hint: 'O aluno precisa esperar o pacote atual acabar pra comprar de novo.' },
+  { label: 'Enfileirar (ativa quando o atual expirar)', value: 'queue', hint: 'A compra fica em espera e vira o pacote ativo quando o atual expirar.' },
+  { label: 'Somar créditos ao pacote atual', value: 'sum_credits', hint: 'Adiciona os créditos ao saldo atual. Não muda a validade.' },
+  { label: 'Somar validade ao pacote atual', value: 'sum_validity', hint: 'Estende a validade do pacote atual. Não muda os créditos.' },
+  { label: 'Substituir o pacote atual na hora', value: 'activate_immediately', hint: 'Cancela o pacote atual e ativa o novo imediatamente.' },
 ];
 
 const PackageFormScreen = ({ route, navigation }: any) => {
@@ -232,12 +232,15 @@ const PackageFormScreen = ({ route, navigation }: any) => {
         <FormToggle label="Popular" description="Mostra um destaque de 'mais popular' na loja de pacotes" value={popular} onValueChange={setPopular} />
 
         {packageTypes.length > 0 && (
-          <FormSelect
-            label="Tipo de pacote"
-            value={packageTypeId}
-            options={[{ label: 'Selecione…', value: '' }, ...packageTypes.filter(t => t.active).map(t => ({ label: t.name, value: t.id }))]}
-            onSelect={setPackageTypeId}
-          />
+          <>
+            <FormSelect
+              label="Tipo de pacote"
+              value={packageTypeId}
+              options={[{ label: 'Selecione…', value: '' }, ...packageTypes.filter(t => t.active).map(t => ({ label: t.name, value: t.id }))]}
+              onSelect={setPackageTypeId}
+            />
+            <Text style={styles.fieldHint}>A categoria do plano (Básico, Premium, Família…). Define as regras padrão que este pacote herda.</Text>
+          </>
         )}
 
         <FormSelect
@@ -246,21 +249,29 @@ const PackageFormScreen = ({ route, navigation }: any) => {
           options={[{ label: 'Padrão (bloquear)', value: '' }, ...STRATEGY_OPTIONS]}
           onSelect={(v) => setPurchaseStrategy(v as PurchaseStrategy | '')}
         />
+        <Text style={styles.fieldHint}>
+          {STRATEGY_OPTIONS.find(s => s.value === purchaseStrategy)?.hint
+            ?? 'O que acontece quando o aluno compra este pacote já tendo um pacote ativo.'}
+        </Text>
 
         {selectedType?.isFamily && (
-          <View style={styles.row}>
-            <View style={styles.rowItem}>
-              <FormInput label="Máx. dependentes" value={maxDependents} onChangeText={setMaxDependents} placeholder="0" keyboardType="numeric" />
+          <>
+            <View style={styles.row}>
+              <View style={styles.rowItem}>
+                <FormInput label="Máx. dependentes" value={maxDependents} onChangeText={setMaxDependents} placeholder="0" keyboardType="numeric" />
+              </View>
+              <View style={styles.rowItem}>
+                <FormInput label="Créditos por pessoa" value={creditsPerMember} onChangeText={setCreditsPerMember} placeholder="Dividir igual" keyboardType="numeric" />
+              </View>
             </View>
-            <View style={styles.rowItem}>
-              <FormInput label="Créditos por pessoa" value={creditsPerMember} onChangeText={setCreditsPerMember} placeholder="Dividir igual" keyboardType="numeric" />
-            </View>
-          </View>
+            <Text style={styles.fieldHint}>Máx. dependentes = quantos familiares o titular pode adicionar. Créditos por pessoa em branco = divide o total igualmente entre todos.</Text>
+          </>
         )}
 
         {benefits.length > 0 && (
           <View style={styles.benefitsSection}>
             <Text style={styles.benefitsLabel}>Benefícios inclusos</Text>
+            <Text style={styles.fieldHint}>Vantagens exibidas no pacote (sauna, estacionamento…). Toque para incluir ou remover.</Text>
             <View style={styles.benefitsWrap}>
               {benefits.filter(b => b.active).map(b => {
                 const on = benefitIds.includes(b.id);

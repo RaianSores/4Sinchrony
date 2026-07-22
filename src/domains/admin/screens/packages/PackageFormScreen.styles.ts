@@ -28,6 +28,7 @@ export const mkStyles = (colors: any) =>
     row: { flexDirection: 'row', gap: 12 },
     rowItem: { flex: 1 },
     helperText: { fontSize: 12, color: colors.textSecondary, marginTop: -10, marginBottom: 16 },
+    fieldHint: { fontSize: 12, color: colors.textSecondary, marginTop: -8, marginBottom: 16, lineHeight: 16 },
     benefitsSection: { marginBottom: 16 },
     benefitsLabel: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8 },
     benefitsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
