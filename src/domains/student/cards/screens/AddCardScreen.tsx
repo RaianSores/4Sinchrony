@@ -22,6 +22,8 @@ import { detectBrand } from '../utils/cardUtils';
 import { isValidCardNumber, isValidExpiry, isValidCVV, isValidHolderName } from '../validators/cardValidator';
 import type { AddCardScreenProps } from '../../../../core/navigation/types/screenProps';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
+import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
+import { captureError } from '../../../../lib/sentry';
 
 
 interface FormData {
@@ -113,30 +115,44 @@ const AddCardScreen = ({ navigation }: AddCardScreenProps) => {
 
     setSaving(true);
 
-    const result = await addCard({
-      number: formData.number.replace(/\s/g, ''),
-      holderName: formData.holderName.trim(),
-      expiryDate: formData.expiryDate,
-      cvv: formData.cvv,
-      nickname: formData.nickname || undefined,
-    });
+    // O cadastro de cartão pode falhar de verdade no backend (ex: 422 quando o Asaas rejeita
+    // o holderInfo — falta de CEP/endereço do titular, ver DEMANDA_CARTAO_POST_500_BACKEND.md).
+    // Sem try/catch, a promise rejeitada virava "Uncaught (in promise): AxiosError 422", o botão
+    // ficava travado em "salvando" e o aluno não via mensagem nenhuma. Agora tratamos e exibimos
+    // o erro real da API.
+    try {
+      const result = await addCard({
+        number: formData.number.replace(/\s/g, ''),
+        holderName: formData.holderName.trim(),
+        expiryDate: formData.expiryDate,
+        cvv: formData.cvv,
+        nickname: formData.nickname || undefined,
+      });
 
-    setSaving(false);
+      if ('duplicate' in result) {
+        showAlert({
+          title: 'Cartão já cadastrado',
+          message: `Este cartão ${result.existing.brand} final ${result.existing.lastDigits} já está na sua conta.`,
+          buttons: [{ text: 'OK' }],
+        });
+        return;
+      }
 
-    if ('duplicate' in result) {
       showAlert({
-        title: 'Cartão já cadastrado',
-        message: `Este cartão ${result.existing.brand} final ${result.existing.lastDigits} já está na sua conta.`,
+        title: 'Cartão salvo',
+        message: `${result.brand} final ${result.lastDigits} adicionado com sucesso.`,
+        buttons: [{ text: 'OK', onPress: () => navigation.goBack() }],
+      });
+    } catch (error) {
+      captureError(error);
+      showAlert({
+        title: 'Não foi possível salvar o cartão',
+        message: getApiErrorMessage(error, 'Verifique os dados do cartão e se seu endereço está completo no perfil, depois tente novamente.'),
         buttons: [{ text: 'OK' }],
       });
-      return;
+    } finally {
+      setSaving(false);
     }
-
-    showAlert({
-      title: 'Cartão salvo',
-      message: `${result.brand} final ${result.lastDigits} adicionado com sucesso.`,
-      buttons: [{ text: 'OK', onPress: () => navigation.goBack() }],
-    });
   };
 
   const isFormEmpty = !formData.number && !formData.holderName && !formData.expiryDate && !formData.cvv;

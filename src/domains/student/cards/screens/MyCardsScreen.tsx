@@ -19,7 +19,10 @@ const MyCardsScreen = ({ navigation }: MyCardsScreenProps) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
-  const { cards, isLoading, fetchCards, removeCard, confirmRemoveCard, setDefaultCard } = useCardStore();
+  const { cards: rawCards, isLoading, fetchCards, removeCard, confirmRemoveCard, setDefaultCard } = useCardStore();
+  // Filtra entradas inválidas — um bug anterior (addCard lendo o wrapper errado) podia gravar
+  // `undefined` na lista persistida em AsyncStorage; sem isso, `card.id` no map derrubava a tela.
+  const cards = rawCards.filter(Boolean);
   const { showAlert } = useAppAlert();
   const [refreshing, setRefreshing] = useState(false);
 

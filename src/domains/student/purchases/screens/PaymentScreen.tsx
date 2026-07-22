@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
@@ -9,6 +9,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { paymentService } from '../services/paymentService';
 import { usePackageStore } from '../store/usePackageStore';
+import { useCardStore } from '../../cards/store/useCardStore';
 import type { PaymentScreenProps } from '../../../../core/navigation/types/screenProps';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import Header from '../../../../shared/components/Header';
@@ -17,6 +18,7 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './PaymentScreen.styles';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { captureError } from '../../../../lib/sentry';
+import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 
 
 
@@ -27,15 +29,43 @@ const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
   const tabPadding = useTabBarBottomPadding();
   const { amount } = route.params;
   const { cart, clearCart, addPurchase } = usePackageStore();
+  const { cards: rawCards, fetchCards } = useCardStore();
   const { showAlert } = useAppAlert();
-  const [method, setMethod] = useState<'pix'>('pix');
+  const [method, setMethod] = useState<'pix' | 'card'>('pix');
   const [processing, setProcessing] = useState(false);
 
+  const cards = rawCards.filter(Boolean);
+  // Cartão pra cobrança: o marcado como padrão, ou o primeiro salvo.
+  const selectedCard = cards.find(c => c.isDefault) ?? cards[0];
+
+  useEffect(() => { fetchCards(); }, [fetchCards]);
+
+  const handleSelectCard = () => {
+    if (cards.length === 0) {
+      showAlert({
+        title: 'Nenhum cartão salvo',
+        message: 'Adicione um cartão de crédito no seu perfil para pagar por cartão.',
+        buttons: [
+          { text: 'Cancelar' },
+          { text: 'Adicionar cartão', onPress: () => navigation.navigate('ProfileTab', { screen: 'AddCard' }) },
+        ],
+      });
+      return;
+    }
+    setMethod('card');
+  };
+
   const handlePayment = async () => {
+    if (method === 'card' && !selectedCard) {
+      showAlert({ title: 'Nenhum cartão', message: 'Adicione um cartão antes de pagar por cartão.' });
+      return;
+    }
     setProcessing(true);
     try {
       const packageIds = cart.map(item => item.id);
-      const result = await paymentService.processPixPayment(amount, packageIds);
+      const result = method === 'card'
+        ? await paymentService.processCardPayment(amount, selectedCard!.token, packageIds)
+        : await paymentService.processPixPayment(amount, packageIds);
 
       const purchase = {
         id: 'pur_' + Date.now(),
@@ -52,7 +82,10 @@ const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
       navigation.replace('PaymentConfirmation', { result, purchase, method, amount });
     } catch (error) {
       captureError(error);
-      showAlert({ title: 'Erro', message: 'Pagamento não foi processado. Tente novamente.' });
+      showAlert({
+        title: 'Pagamento não processado',
+        message: getApiErrorMessage(error, 'Não foi possível concluir o pagamento. Tente novamente.'),
+      });
     } finally {
       setProcessing(false);
     }
@@ -71,11 +104,11 @@ const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
         <Text style={styles.sectionTitle}>Forma de Pagamento</Text>
 
         <TouchableOpacity
-          style={[styles.methodCard, styles.methodCardActive]}
-          onPress={() => {}}
+          style={[styles.methodCard, method === 'pix' && styles.methodCardActive]}
+          onPress={() => setMethod('pix')}
         >
           <View style={styles.methodLeft}>
-            <Ionicons name="radio-button-on" size={24} color={colors.primary} />
+            <Ionicons name={method === 'pix' ? 'radio-button-on' : 'radio-button-off'} size={24} color={method === 'pix' ? colors.primary : colors.border} />
             <Ionicons name="qr-code-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.methodName}>PIX</Text>
@@ -84,26 +117,23 @@ const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
           </View>
         </TouchableOpacity>
 
-        <View style={[styles.methodCard, { opacity: 0.45 }]}>
+        <TouchableOpacity
+          style={[styles.methodCard, method === 'card' && styles.methodCardActive]}
+          onPress={handleSelectCard}
+        >
           <View style={styles.methodLeft}>
-            <Ionicons name="radio-button-off" size={24} color={colors.border} />
+            <Ionicons name={method === 'card' ? 'radio-button-on' : 'radio-button-off'} size={24} color={method === 'card' ? colors.primary : colors.border} />
             <Ionicons name="card-outline" size={32} color={colors.text} style={{ marginLeft: 12 }} />
             <View style={{ marginLeft: 12, flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={styles.methodName}>Cartão de Crédito</Text>
-                <View style={{
-                  backgroundColor: colors.primary + '22',
-                  borderRadius: 4,
-                  paddingHorizontal: 6,
-                  paddingVertical: 2,
-                }}>
-                  <Text style={{ fontSize: 10, color: colors.primary, fontWeight: '600' }}>EM BREVE</Text>
-                </View>
-              </View>
-              <Text style={styles.methodDesc}>Pagamento em até 12x</Text>
+              <Text style={styles.methodName}>Cartão de Crédito</Text>
+              <Text style={styles.methodDesc}>
+                {selectedCard
+                  ? `${selectedCard.brand} final ${selectedCard.lastDigits}`
+                  : 'Adicione um cartão no perfil'}
+              </Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>Resumo</Text>
@@ -131,7 +161,7 @@ const PaymentScreen = ({ navigation, route }: PaymentScreenProps) => {
 
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <Button
-            title={processing ? 'Processando...' : `Pagar R$ ${amount.toFixed(2)} via PIX`}
+            title={processing ? 'Processando...' : `Pagar R$ ${amount.toFixed(2)} ${method === 'card' ? 'no Cartão' : 'via PIX'}`}
             onPress={handlePayment}
             disabled={processing}
           />

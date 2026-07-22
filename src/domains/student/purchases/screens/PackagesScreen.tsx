@@ -108,12 +108,12 @@ const PackagesScreen = ({ navigation }: PackagesScreenProps) => {
               )}
               <View style={styles.pkgHeader}>
                 <Text style={styles.pkgName}>{pkg.name}</Text>
-                <Text style={styles.pkgPrice}>R$ {pkg.price.toFixed(2)}</Text>
+                <Text style={styles.pkgPrice}>R$ {(pkg.price ?? 0).toFixed(2)}</Text>
               </View>
               <View style={styles.pkgDetails}>
                 <Text style={styles.pkgCredits}>{pkg.credits} aulas</Text>
                 <Text style={styles.pkgPerCredit}>
-                  R$ {pkg.pricePerCredit.toFixed(2)} por aula
+                  R$ {(pkg.pricePerCredit ?? 0).toFixed(2)} por aula
                 </Text>
               </View>
               <View style={styles.pkgFooter}>
