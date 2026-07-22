@@ -21,6 +21,8 @@ import ClassListScreen from '../../../domains/admin/screens/classes/ClassListScr
 import ClassFormScreen from '../../../domains/admin/screens/classes/ClassFormScreen';
 import PackageListScreen from '../../../domains/admin/screens/packages/PackageListScreen';
 import PackageFormScreen from '../../../domains/admin/screens/packages/PackageFormScreen';
+import PackageTypeListScreen from '../../../domains/admin/screens/packageTypes/PackageTypeListScreen';
+import BenefitListScreen from '../../../domains/admin/screens/benefits/BenefitListScreen';
 import AdminBookingListScreen from '../../../domains/admin/screens/bookings/AdminBookingListScreen';
 import AdminBookingDetailScreen from '../../../domains/admin/screens/bookings/AdminBookingDetailScreen';
 import AdminCheckinScreen from '../../../domains/admin/screens/checkin/AdminCheckinScreen';
@@ -40,6 +42,7 @@ const ProfileStack = createNativeStackNavigator();
 const TAB_VISIBLE_SCREENS = new Set([
   'AdminDashboard',
   'Management', 'StudentList', 'TeacherList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
+  'PackageTypeList', 'BenefitList',
   'AdminBookingList', 'AdminCheckin', 'AdminReports',
   'AdminProfile', 'EditProfile', 'AdminSettings', 'Settings', 'ChangePassword', 'Notifications',
 ]);
@@ -70,6 +73,8 @@ const ManagementStackScreen = () => (
     <ManagementStack.Screen name="ClassForm" component={ClassFormScreen} />
     <ManagementStack.Screen name="PackageList" component={PackageListScreen} />
     <ManagementStack.Screen name="PackageForm" component={PackageFormScreen} />
+    <ManagementStack.Screen name="PackageTypeList" component={PackageTypeListScreen} />
+    <ManagementStack.Screen name="BenefitList" component={BenefitListScreen} />
     <ManagementStack.Screen name="AdminBookingList" component={AdminBookingListScreen} />
     <ManagementStack.Screen name="AdminBookingDetail" component={AdminBookingDetailScreen} />
     <ManagementStack.Screen name="AdminCheckin" component={AdminCheckinScreen} />

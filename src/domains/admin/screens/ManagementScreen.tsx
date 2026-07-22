@@ -13,6 +13,8 @@ const managementItems = [
   { title: 'Tipos de Aula', icon: 'pricetag', screen: 'ClassTypeList', color: '#F59E0B', desc: 'Gerenciar categorias de aula' },
   { title: 'Aulas', icon: 'calendar', screen: 'ClassList', color: '#ED7921', desc: 'Agendar e gerenciar aulas' },
   { title: 'Pacotes', icon: 'albums', screen: 'PackageList', color: '#EC4899', desc: 'Gerenciar pacotes de créditos' },
+  { title: 'Tipos de Pacote', icon: 'layers', screen: 'PackageTypeList', color: '#14B8A6', desc: 'Categorias de plano (Básico, Premium, Família)' },
+  { title: 'Benefícios', icon: 'gift', screen: 'BenefitList', color: '#F97316', desc: 'Vantagens associáveis aos pacotes' },
   { title: 'Reservas', icon: 'ticket', screen: 'AdminBookingList', color: '#06B6D4', desc: 'Ver e cancelar reservas de alunos' },
   { title: 'Check-in', icon: 'checkmark-circle', screen: 'AdminCheckin', color: '#22C55E', desc: 'Confirmar presença de alunos' },
   { title: 'Relatórios', icon: 'bar-chart', screen: 'AdminReports', color: '#8B5CF6', desc: 'Ocupação, frequência e resumo do período' },
