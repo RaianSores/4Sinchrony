@@ -221,9 +221,8 @@ const MyDependentsScreen = ({ navigation }: any) => {
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
             <TouchableOpacity activeOpacity={1} style={styles.modalSheet}>
-              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                <Text style={styles.modalTitle}>{editing ? 'Editar Dependente' : 'Novo Dependente'}</Text>
-
+              <Text style={styles.modalTitle}>{editing ? 'Editar Dependente' : 'Novo Dependente'}</Text>
+              <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <FormInput label="Nome" required value={name} onChangeText={setName} error={nameError} placeholder="Nome do dependente" />
                 <FormInput label="Email" required value={email} onChangeText={setEmail} error={emailError} placeholder="email@exemplo.com" keyboardType="email-address" autoCapitalize="none" />
                 <FormInput
@@ -245,9 +244,10 @@ const MyDependentsScreen = ({ navigation }: any) => {
                 <FormToggle label="Reservar aulas por ele(a)" value={canBook} onValueChange={setCanBook} />
                 <FormToggle label="Cancelar reservas dele(a)" value={canCancel} onValueChange={setCanCancel} />
                 <FormToggle label="Ver o histórico dele(a)" value={canViewHistory} onValueChange={setCanViewHistory} />
+              </ScrollView>
 
+              <View style={styles.modalFooter}>
                 <Button title={editing ? 'Salvar' : 'Adicionar'} onPress={handleSave} loading={saving} />
-
                 <View style={styles.modalActions}>
                   {editing && (
                     <TouchableOpacity style={styles.removeButton} onPress={handleRemove} disabled={removing}>
@@ -258,7 +258,7 @@ const MyDependentsScreen = ({ navigation }: any) => {
                     <Text style={styles.modalCancelText}>Cancelar</Text>
                   </TouchableOpacity>
                 </View>
-              </ScrollView>
+              </View>
             </TouchableOpacity>
           </TouchableOpacity>
         </KeyboardAvoidingView>

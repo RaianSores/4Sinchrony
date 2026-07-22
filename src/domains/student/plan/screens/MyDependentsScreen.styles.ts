@@ -28,6 +28,10 @@ export const mkStyles = (colors: any) =>
       maxHeight: '88%',
     },
     modalTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 16 },
+    // A ScrollView encolhe (flexShrink) pra sempre deixar espaço pro rodapé com os botões,
+    // em vez de empurrá-los pra fora da folha do modal.
+    modalScroll: { flexShrink: 1 },
+    modalFooter: { paddingTop: 12 },
     loginHint: { fontSize: 12, lineHeight: 17, color: colors.textSecondary, marginTop: -4, marginBottom: 12 },
     permsLabel: { fontSize: 13, fontWeight: '600', color: colors.text, marginTop: 4, marginBottom: 6 },
     modalActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
