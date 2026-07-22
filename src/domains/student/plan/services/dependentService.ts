@@ -10,6 +10,7 @@ export interface Dependent {
   id: string; // studentId do dependente
   responsibleStudentId?: string;
   name: string;
+  email?: string; // login somente-leitura do dependente
   birthDate?: string | null;
   cpf?: string | null;
   canBook: boolean;
@@ -20,8 +21,12 @@ export interface Dependent {
   createdAt: string;
 }
 
+// O dependente tem login SOMENTE-LEITURA (visualiza aulas/agenda/histórico, não reserva) —
+// por isso email/senha no cadastro. `password` só é enviado na criação (ou reset).
 export interface DependentFormData {
   name: string;
+  email: string;
+  password?: string;
   birthDate?: string;
   cpf?: string;
   canBook: boolean;

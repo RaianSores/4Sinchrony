@@ -32,11 +32,15 @@ const MyDependentsScreen = ({ navigation }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<Dependent | null>(null);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [cpf, setCpf] = useState('');
   const [canBook, setCanBook] = useState(true);
   const [canCancel, setCanCancel] = useState(true);
   const [canViewHistory, setCanViewHistory] = useState(true);
   const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -58,20 +62,41 @@ const MyDependentsScreen = ({ navigation }: any) => {
     setRefreshing(false);
   }, [load]);
 
+  const resetForm = () => {
+    setName(''); setEmail(''); setPassword(''); setCpf('');
+    setCanBook(true); setCanCancel(true); setCanViewHistory(true);
+    setNameError(''); setEmailError(''); setPasswordError('');
+  };
+
   const openAddModal = () => {
-    setEditing(null); setName(''); setCpf(''); setCanBook(true); setCanCancel(true); setCanViewHistory(true); setNameError(''); setModalVisible(true);
+    setEditing(null); resetForm(); setModalVisible(true);
   };
 
   const openEditModal = (d: Dependent) => {
-    setEditing(d); setName(d.name); setCpf(d.cpf ?? ''); setCanBook(d.canBook); setCanCancel(d.canCancel); setCanViewHistory(d.canViewHistory); setNameError(''); setModalVisible(true);
+    setEditing(d); resetForm();
+    setName(d.name); setEmail(d.email ?? ''); setCpf(d.cpf ?? '');
+    setCanBook(d.canBook); setCanCancel(d.canCancel); setCanViewHistory(d.canViewHistory);
+    setModalVisible(true);
   };
 
   const handleSave = async () => {
-    if (!name.trim()) { setNameError('Nome é obrigatório'); return; }
+    let hasError = false;
+    if (!name.trim()) { setNameError('Nome é obrigatório'); hasError = true; } else setNameError('');
+    if (!email.trim()) { setEmailError('Email é obrigatório'); hasError = true; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setEmailError('Email inválido'); hasError = true; }
+    else setEmailError('');
+    // Senha obrigatória só na criação (o dependente loga somente-leitura). Na edição fica opcional
+    // — só troca a senha se algo for digitado.
+    if (!editing && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
+    else if (editing && password.length > 0 && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
+    else setPasswordError('');
+    if (hasError) return;
     setSaving(true);
     try {
       const payload = {
         name: name.trim(),
+        email: email.trim(),
+        password: password || undefined,
         cpf: cleanCPF(cpf) || undefined,
         canBook, canCancel, canViewHistory,
         active: editing?.active ?? true,
@@ -182,11 +207,24 @@ const MyDependentsScreen = ({ navigation }: any) => {
                 <Text style={styles.modalTitle}>{editing ? 'Editar Dependente' : 'Novo Dependente'}</Text>
 
                 <FormInput label="Nome" required value={name} onChangeText={setName} error={nameError} placeholder="Nome do dependente" />
+                <FormInput label="Email" required value={email} onChangeText={setEmail} error={emailError} placeholder="email@exemplo.com" keyboardType="email-address" autoCapitalize="none" />
+                <FormInput
+                  label={editing ? 'Nova senha (opcional)' : 'Senha'}
+                  required={!editing}
+                  value={password}
+                  onChangeText={setPassword}
+                  error={passwordError}
+                  placeholder={editing ? 'Deixe em branco para manter' : 'Mínimo de 6 caracteres'}
+                  secureTextEntry
+                  autoCapitalize="none"
+                />
+                <Text style={styles.loginHint}>O dependente usa esse login apenas para visualizar aulas e histórico. Quem reserva é você.</Text>
                 <FormInput label="CPF" value={formatCPF(cpf)} onChangeText={(v) => setCpf(cleanCPF(v).slice(0, 11))} placeholder="000.000.000-00 (opcional)" keyboardType="numeric" maxLength={14} />
 
-                <FormToggle label="Pode reservar aulas" value={canBook} onValueChange={setCanBook} />
-                <FormToggle label="Pode cancelar reservas" value={canCancel} onValueChange={setCanCancel} />
-                <FormToggle label="Pode ver histórico" value={canViewHistory} onValueChange={setCanViewHistory} />
+                <Text style={styles.permsLabel}>O que você pode fazer por ele(a):</Text>
+                <FormToggle label="Reservar aulas por ele(a)" value={canBook} onValueChange={setCanBook} />
+                <FormToggle label="Cancelar reservas dele(a)" value={canCancel} onValueChange={setCanCancel} />
+                <FormToggle label="Ver o histórico dele(a)" value={canViewHistory} onValueChange={setCanViewHistory} />
 
                 <Button title={editing ? 'Salvar' : 'Adicionar'} onPress={handleSave} loading={saving} />
 
