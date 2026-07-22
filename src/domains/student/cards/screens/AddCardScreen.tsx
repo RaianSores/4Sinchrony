@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback, useMemo } from 'react';
+﻿import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
@@ -16,6 +16,7 @@ import Button from '../../../../shared/components/Button';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { mkStyles } from './AddCardScreen.styles';
 import { useCardStore } from '../store/useCardStore';
+import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import CardForm from '../components/CardForm';
 import CardFlagIcon from '../components/CardFlagIcon';
 import { detectBrand } from '../utils/cardUtils';
@@ -46,7 +47,22 @@ const AddCardScreen = ({ navigation }: AddCardScreenProps) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
   const { addCard } = useCardStore();
+  const { user } = useAuthStore();
   const { showAlert } = useAppAlert();
+
+  // O cartão exige o endereço do titular (a operadora/Asaas rejeita sem CEP). Se o aluno chega
+  // aqui sem CEP, não deixamos ele preencher o cartão à toa — mandamos completar o endereço no
+  // perfil com o campo de CEP já focado, e ele volta pra cá depois.
+  useEffect(() => {
+    if (!user?.cep) {
+      showAlert({
+        title: 'Complete seu endereço',
+        message: 'Para adicionar um cartão precisamos do seu endereço. Vamos preencher seu CEP no perfil — é rápido e o restante é preenchido automaticamente.',
+        buttons: [{ text: 'Preencher CEP', onPress: () => (navigation as any).navigate('EditProfile', { focusCep: true }) }],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [brand, setBrand] = useState<CardBrand>('Unknown');
   const [formData, setFormData] = useState<FormData>({
     number: '',
@@ -108,6 +124,14 @@ const AddCardScreen = ({ navigation }: AddCardScreenProps) => {
   }, [formData, brand]);
 
   const handleSave = async () => {
+    if (!user?.cep) {
+      showAlert({
+        title: 'Complete seu endereço',
+        message: 'Para adicionar um cartão precisamos do seu endereço. Vamos preencher seu CEP no perfil.',
+        buttons: [{ text: 'Preencher CEP', onPress: () => (navigation as any).navigate('EditProfile', { focusCep: true }) }],
+      });
+      return;
+    }
     const validationErrors = validateAll();
     setErrors(validationErrors);
 

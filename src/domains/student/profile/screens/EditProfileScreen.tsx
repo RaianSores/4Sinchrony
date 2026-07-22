@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
@@ -25,10 +25,12 @@ interface EditProfileErrors {
 
 const PHONE_REGEX = /^\d{10,11}$/;
 
-const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
+const EditProfileScreen = ({ navigation, route }: EditProfileScreenProps & { route?: { params?: { focusCep?: boolean } } }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
+  // Vindo do fluxo "Adicionar cartão" sem CEP: rola até o campo de CEP e foca nele.
+  const focusCep = route?.params?.focusCep;
 
   const { user, updateUser } = useAuthStore();
   const { showAlert } = useAppAlert();
@@ -38,6 +40,9 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [errors, setErrors] = useState<EditProfileErrors>({});
   const scrollViewRef = useRef<ScrollView>(null);
+  const cepInputRef = useRef<TextInput>(null);
+  const [formY, setFormY] = useState(0);
+  const [cepY, setCepY] = useState(0);
 
   const [cep, setCep] = useState(user?.cep || '');
   const [logradouro, setLogradouro] = useState(user?.logradouro || '');
@@ -77,6 +82,23 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
   const scrollToEnd = () => {
     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
   };
+
+  // Rola até o campo de CEP (posição do form + posição do label dentro do form).
+  const scrollToCep = () => {
+    scrollViewRef.current?.scrollTo({ y: Math.max(0, formY + cepY - 24), animated: true });
+  };
+
+  // Quando aberto pelo fluxo do cartão (focusCep), rola até o CEP e foca nele assim que as
+  // medidas de layout estiverem prontas.
+  useEffect(() => {
+    if (!focusCep || formY === 0) return;
+    const t = setTimeout(() => {
+      scrollToCep();
+      cepInputRef.current?.focus();
+    }, 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusCep, formY, cepY]);
 
   const handleAvatarPress = async () => {
     setUploadingAvatar(true);
@@ -143,7 +165,7 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
               uploading={uploadingAvatar}
             />
           </View>
-          <View style={styles.form}>
+          <View style={styles.form} onLayout={e => setFormY(e.nativeEvent.layout.y)}>
             <Text style={styles.label}>Nome completo</Text>
             <TextInput
               style={[styles.input, errors.name && styles.inputError]}
@@ -181,8 +203,9 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
             />
             {errors.cpf && <Text style={styles.errorText}>{errors.cpf}</Text>}
 
-            <Text style={[styles.label, { marginTop: 8 }]}>CEP</Text>
+            <Text style={[styles.label, { marginTop: 8 }]} onLayout={e => setCepY(e.nativeEvent.layout.y)}>CEP</Text>
             <TextInput
+              ref={cepInputRef}
               style={styles.input}
               value={formatCep(cep)}
               onChangeText={handleCepChange}
@@ -190,7 +213,7 @@ const EditProfileScreen = ({ navigation }: EditProfileScreenProps) => {
               placeholderTextColor={colors.textSecondary}
               keyboardType="number-pad"
               maxLength={9}
-              onFocus={scrollToEnd}
+              onFocus={scrollToCep}
             />
             {cepLoading && <Text style={[styles.label, { color: colors.textSecondary }]}>Buscando endereço…</Text>}
 
