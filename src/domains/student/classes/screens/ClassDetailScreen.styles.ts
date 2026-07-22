@@ -36,4 +36,12 @@ export const mkStyles = (colors: any) => StyleSheet.create({
   bookedDetail: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
   soldOut: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 20 },
   soldOutText: { color: colors.danger, fontSize: 18, fontWeight: '600', marginLeft: 8 },
+
+  // Seletor "reservar para" (titular + dependentes do pacote família)
+  bookForRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  bookForChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: borderRadius.full, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  bookForChipActive: { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
+  bookForChipText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+  bookForChipTextActive: { color: colors.primary },
+  bookForHint: { fontSize: 12, color: colors.textSecondary, marginTop: 8 },
 });

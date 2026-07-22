@@ -92,8 +92,12 @@ export const bookingService = {
     return null;
   },
 
-  async createBooking(classId: string, bikeNumber?: number): Promise<Booking> {
-    const res = await api.post<any>('/bookings', { classId, bikeNumber });
+  // `studentId` opcional: quando presente, reserva EM NOME de outra pessoa da família (um
+  // dependente — que é um Student com responsibleStudentId = titular). Omitido = reserva do
+  // próprio aluno logado. O backend valida `canBook` e debita da alocação do studentId.
+  // Ver docs/pacotes/ESPECIFICACAO_API_PLANOS_DINAMICOS.md (fluxo 5.1) e Gap 7 da demanda.
+  async createBooking(classId: string, bikeNumber?: number, studentId?: string): Promise<Booking> {
+    const res = await api.post<any>('/bookings', { classId, bikeNumber, studentId });
     const raw = res.data?.data ?? res.data;
     return adaptBooking(raw);
   },

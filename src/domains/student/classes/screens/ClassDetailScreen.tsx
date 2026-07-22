@@ -17,6 +17,7 @@ import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottom
 import type { ClassDetailScreenProps } from '../../../../core/navigation/types/screenProps';
 import { captureError } from '../../../../lib/sentry';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
+import { dependentService, Dependent } from '../../plan/services/dependentService';
 
 // `usesBikes` (vindo do ClassType via backend) é a fonte de verdade quando presente.
 // Fallback para o nome do tipo só existe pra manter compatibilidade até o backend
@@ -46,6 +47,10 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   const [loading, setLoading] = useState(false);
   const [bikeStatuses, setBikeStatuses] = useState<{ number: number; status: string }[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  // Pacote família: o titular pode reservar em nome de um dependente (que é um Student com
+  // canBook). `bookingFor` = studentId do dependente escolhido, ou null = o próprio titular.
+  const [dependents, setDependents] = useState<Dependent[]>([]);
+  const [bookingFor, setBookingFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (!classFromStore && !fallbackClass && !fallbackNotFound) {
@@ -65,6 +70,14 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
+
+  // Carrega os dependentes que o titular pode reservar (ativos + canBook). Silencioso: se o
+  // aluno não tem pacote família, a API responde lista vazia e o seletor simplesmente não aparece.
+  useEffect(() => {
+    dependentService.list()
+      .then(list => setDependents(list.filter(d => d.active && d.canBook)))
+      .catch(() => { /* sem dependentes/família — segue como reserva normal do titular */ });
+  }, []);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -129,6 +142,22 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
       return;
     }
     if (isBikeClass && !effectiveBike) return;
+    // Reserva em nome de um dependente: o backend valida `canBook` e debita da alocação dele
+    // dentro do pacote do responsável. As checagens abaixo (créditos/limite/conflito) são do
+    // titular, então não se aplicam — deixamos o backend validar a alocação do dependente.
+    if (bookingFor) {
+      const dep = dependents.find(d => d.id === bookingFor);
+      setLoading(true);
+      try {
+        await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined, bookingFor);
+        showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada para ${dep?.name ?? 'o dependente'}.`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
+      } catch (error) {
+        captureError(error);
+        await Promise.all([fetchClasses(), fetchBookings()]);
+        showAlert({ title: 'Erro', message: getApiErrorMessage(error, 'Não foi possível reservar para o dependente') });
+      } finally { setLoading(false); }
+      return;
+    }
     if (!hasCredits) {
       showAlert({ title: 'Sem créditos', message: 'Você não possui créditos disponíveis.',
         buttons: [{ text: 'Fechar', style: 'cancel' }, { text: 'Ver Planos', onPress: () => navigation.navigate('ProfileTab', { screen: 'Packages' }) }] });
@@ -225,6 +254,30 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
           </View>
         </View>
 
+        {dependents.length > 0 && !isAlreadyBooked && !isCancelled && !hasClassStarted && classItem.availableSpots > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reservar para</Text>
+            <View style={styles.bookForRow}>
+              <TouchableOpacity style={[styles.bookForChip, !bookingFor && styles.bookForChipActive]} onPress={() => setBookingFor(null)}>
+                <Ionicons name="person" size={16} color={!bookingFor ? colors.primary : colors.textSecondary} />
+                <Text style={[styles.bookForChipText, !bookingFor && styles.bookForChipTextActive]}>Você</Text>
+              </TouchableOpacity>
+              {dependents.map(dep => {
+                const active = bookingFor === dep.id;
+                return (
+                  <TouchableOpacity key={dep.id} style={[styles.bookForChip, active && styles.bookForChipActive]} onPress={() => setBookingFor(dep.id)}>
+                    <Ionicons name="people" size={16} color={active ? colors.primary : colors.textSecondary} />
+                    <Text style={[styles.bookForChipText, active && styles.bookForChipTextActive]}>{dep.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {bookingFor ? (
+              <Text style={styles.bookForHint}>Usa os créditos do pacote família e aparece na frequência do dependente.</Text>
+            ) : null}
+          </View>
+        )}
+
         {isBikeClass && (classItem.availableSpots > 0 || isAlreadyBooked) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{isAlreadyBooked ? 'Sua Bike' : 'Escolha sua Bike'}</Text>
@@ -250,7 +303,7 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
         )}
 
         <View style={styles.buttonContainer}>
-          {!isAlreadyBooked && (
+          {!isAlreadyBooked && !bookingFor && (
             <View style={styles.creditsBar}>
               <Ionicons name="flash" size={18} color={colors.primary} />
               <Text style={styles.creditsText}>{hasCredits ? `${user?.credits} crédito${user?.credits !== 1 ? 's' : ''} disponível(is)` : 'Sem créditos disponíveis'}</Text>
