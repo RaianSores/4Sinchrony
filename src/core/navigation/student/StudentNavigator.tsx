@@ -25,6 +25,8 @@ import PackagesScreen from '../../../domains/student/purchases/screens/PackagesS
 import CartScreen from '../../../domains/student/purchases/screens/CartScreen';
 import PaymentScreen from '../../../domains/student/purchases/screens/PaymentScreen';
 import PaymentConfirmationScreen from '../../../domains/student/purchases/screens/PaymentConfirmationScreen';
+import MyPackageScreen from '../../../domains/student/plan/screens/MyPackageScreen';
+import MyDependentsScreen from '../../../domains/student/plan/screens/MyDependentsScreen';
 
 
 const Tab = createBottomTabNavigator();
@@ -40,6 +42,7 @@ const TAB_VISIBLE_SCREENS = new Set([
   'EditProfile', 'MyPurchases', 'ClassHistory', 'MyCards', 'AddCard',
   'Settings', 'ChangePassword', 'Notifications',
   'Packages', 'Cart', 'Payment', 'PaymentConfirmation',
+  'MyPackage', 'MyDependents',
 ]);
 
 const HomeStackScreen = () => (
@@ -68,6 +71,8 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="Profile" component={ProfileScreen as any} />
     <ProfileStack.Screen name="EditProfile" component={EditProfileScreen as any} />
     <ProfileStack.Screen name="MyPurchases" component={MyPurchasesScreen as any} />
+    <ProfileStack.Screen name="MyPackage" component={MyPackageScreen as any} />
+    <ProfileStack.Screen name="MyDependents" component={MyDependentsScreen as any} />
     <ProfileStack.Screen name="ClassHistory" component={ClassHistoryScreen as any} />
     <ProfileStack.Screen name="MyCards" component={MyCardsScreen as any} />
     <ProfileStack.Screen name="AddCard" component={AddCardScreen as any} />

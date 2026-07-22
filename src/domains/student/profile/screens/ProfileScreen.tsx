@@ -34,6 +34,8 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
 
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
+    { title: 'Meu Pacote', icon: 'ribbon-outline', screen: 'MyPackage' },
+    { title: 'Meus Dependentes', icon: 'people-outline', screen: 'MyDependents' },
     { title: 'Minhas Compras', icon: 'cart-outline', screen: 'MyPurchases', badge: purchases.length },
     { title: 'Histórico de Aulas', icon: 'time-outline', screen: 'ClassHistory' },
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
