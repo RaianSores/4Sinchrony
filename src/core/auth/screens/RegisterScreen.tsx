@@ -1,9 +1,8 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
   TextInput,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -12,6 +11,7 @@ import {
   Keyboard,
   useWindowDimensions,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
@@ -69,37 +69,6 @@ const RegisterScreen = ({ navigation }: any) => {
   const phoneRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmPasswordRef = useRef<TextInput>(null);
-  const scrollViewRef = useRef<ScrollView>(null);
-  const focusedInputKey = useRef<string | null>(null);
-
-  const fieldOffsets: Record<string, number> = {
-    name: 0, email: 1, cpf: 2, phone: 3, password: 4, confirmPassword: 5,
-  };
-
-  const getFieldY = (key: string) => {
-    const idx = fieldOffsets[key];
-    if (idx === undefined) return 0;
-    const inputH = ms(isSmallScreen ? 44 : 48);
-    const inputM = 10;
-    const header = 10 + 4 + 12 + ms(isSmallScreen ? 18 : 20) + 2 + ms(isSmallScreen ? 13 : 14) + 14;
-    return header + idx * (inputH + inputM);
-  };
-
-  const scrollToInput = (key: string) => {
-    const y = getFieldY(key);
-    scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 60), animated: false });
-  };
-
-  useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const sub = Keyboard.addListener(showEvent, () => {
-      if (focusedInputKey.current) {
-        scrollToInput(focusedInputKey.current);
-      }
-    });
-    return () => sub.remove();
-  }, []);
-
   const login = useAuthStore(state => state.login);
   const isGoogleConfigured = googleSignInService.isConfigured();
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -213,11 +182,12 @@ const RegisterScreen = ({ navigation }: any) => {
           <View style={styles.bottomSheet}>
             <View style={styles.handleBar} />
 
-            <ScrollView
-              ref={scrollViewRef}
+            <KeyboardAwareScrollView
               bounces={false}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              enableOnAndroid
+              extraScrollHeight={20}
             >
               <Text style={[styles.formTitle, { fontSize: ms(isSmallScreen ? 18 : 20) }]}>Vamos comecar</Text>
               <Text style={[styles.formSubtitle, { fontSize: ms(isSmallScreen ? 13 : 14) }]}>Preencha seus dados abaixo</Text>
@@ -234,7 +204,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   returnKeyType="next"
                   onSubmitEditing={() => emailRef.current?.focus()}
                   blurOnSubmit={false}
-                  onFocus={() => { focusedInputKey.current = 'name'; scrollToInput('name'); }}
                 />
               </View>
               {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
@@ -253,7 +222,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   returnKeyType="next"
                   onSubmitEditing={() => cpfRef.current?.focus()}
                   blurOnSubmit={false}
-                  onFocus={() => { focusedInputKey.current = 'email'; scrollToInput('email'); }}
                 />
               </View>
               {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
@@ -271,7 +239,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   returnKeyType="next"
                   onSubmitEditing={() => phoneRef.current?.focus()}
                   blurOnSubmit={false}
-                  onFocus={() => { focusedInputKey.current = 'cpf'; scrollToInput('cpf'); }}
                 />
               </View>
               {errors.cpf && <Text style={styles.errorText}>{errors.cpf}</Text>}
@@ -289,7 +256,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   returnKeyType="next"
                   onSubmitEditing={() => passwordRef.current?.focus()}
                   blurOnSubmit={false}
-                  onFocus={() => { focusedInputKey.current = 'phone'; scrollToInput('phone'); }}
                 />
               </View>
               {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
@@ -307,7 +273,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   returnKeyType="next"
                   onSubmitEditing={() => confirmPasswordRef.current?.focus()}
                   blurOnSubmit={false}
-                  onFocus={() => { focusedInputKey.current = 'password'; scrollToInput('password'); }}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                   <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
@@ -327,7 +292,6 @@ const RegisterScreen = ({ navigation }: any) => {
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="done"
                   onSubmitEditing={handleRegister}
-                  onFocus={() => { focusedInputKey.current = 'confirmPassword'; scrollToInput('confirmPassword'); }}
                 />
               </View>
               {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
@@ -361,7 +325,7 @@ const RegisterScreen = ({ navigation }: any) => {
               </TouchableOpacity>
 
               <View style={styles.spacer} />
-            </ScrollView>
+            </KeyboardAwareScrollView>
           </View>
         </Animated.View>
       </TouchableWithoutFeedback>
