@@ -96,11 +96,15 @@ const MyDependentsScreen = ({ navigation }: any) => {
     if (!editing && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
     else if (editing && password.length > 0 && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
     else setPasswordError('');
-    // CPF e telefone são opcionais, mas se preenchidos precisam ser válidos (como no cadastro do admin).
+    // CPF e telefone são obrigatórios no dependente (mesmo padrão do cadastro do aluno).
     const cpfClean = cleanCPF(cpf);
-    if (cpfClean && !validateCPF(cpfClean)) { setCpfError('CPF inválido'); hasError = true; } else setCpfError('');
+    if (!cpfClean) { setCpfError('CPF é obrigatório'); hasError = true; }
+    else if (!validateCPF(cpfClean)) { setCpfError('CPF inválido'); hasError = true; }
+    else setCpfError('');
     const phoneClean = cleanPhone(phone);
-    if (phoneClean && !PHONE_REGEX.test(phoneClean)) { setPhoneError('Telefone inválido (DDD + número)'); hasError = true; } else setPhoneError('');
+    if (!phoneClean) { setPhoneError('Telefone é obrigatório'); hasError = true; }
+    else if (!PHONE_REGEX.test(phoneClean)) { setPhoneError('Telefone inválido (DDD + número)'); hasError = true; }
+    else setPhoneError('');
     if (hasError) return;
     setSaving(true);
     try {
@@ -233,8 +237,9 @@ const MyDependentsScreen = ({ navigation }: any) => {
                   autoCapitalize="none"
                 />
                 <Text style={styles.loginHint}>O dependente usa esse login apenas para visualizar aulas e histórico. Quem reserva é você.</Text>
-                <FormInput label="CPF" value={formatCPF(cpf)} onChangeText={(v) => setCpf(cleanCPF(v).slice(0, 11))} error={cpfError} placeholder="000.000.000-00 (opcional)" keyboardType="numeric" maxLength={14} />
-                <FormInput label="Telefone" value={formatPhone(phone)} onChangeText={(v) => setPhone(cleanPhone(v).slice(0, 11))} error={phoneError} placeholder="(63) 99999-9999 (opcional)" keyboardType="phone-pad" maxLength={15} />
+                <FormInput label="CPF" required value={formatCPF(cpf)} onChangeText={(v) => setCpf(cleanCPF(v).slice(0, 11))} error={cpfError} placeholder="000.000.000-00" keyboardType="numeric" maxLength={14} />
+                <FormInput label="Telefone" required value={formatPhone(phone)} onChangeText={(v) => setPhone(cleanPhone(v).slice(0, 11))} error={phoneError} placeholder="(63) 99999-9999" keyboardType="phone-pad" maxLength={15} />
+                <Text style={styles.loginHint}>O endereço do dependente é herdado do seu cadastro (responsável) automaticamente.</Text>
 
                 <Text style={styles.permsLabel}>O que você pode fazer por ele(a):</Text>
                 <FormToggle label="Reservar aulas por ele(a)" value={canBook} onValueChange={setCanBook} />
