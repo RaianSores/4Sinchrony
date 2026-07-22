@@ -218,7 +218,7 @@ const MyDependentsScreen = ({ navigation }: any) => {
       )}
 
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
             <TouchableOpacity activeOpacity={1} style={styles.modalSheet}>
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
