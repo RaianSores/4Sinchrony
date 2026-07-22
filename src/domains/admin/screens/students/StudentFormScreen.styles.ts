@@ -40,4 +40,20 @@ export const mkStyles = (colors: any) =>
     secondaryButtonText: { fontSize: 13, fontWeight: '600', color: colors.text },
     sectionTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginTop: 8, marginBottom: 2 },
     sectionHint: { fontSize: 12, color: colors.textSecondary, marginBottom: 8 },
+
+    // Indicador "Tipo de aluno" (Aluno × Dependente)
+    typeCard: {
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 12,
+      marginBottom: 16,
+    },
+    typeCardDependent: { borderColor: 'rgba(18,135,175,0.35)' },
+    typeLabel: { fontSize: 11, fontWeight: '600', color: colors.textSecondary, marginBottom: 6 },
+    typeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+    typeValue: { fontSize: 15, fontWeight: '700', color: colors.text },
+    typeValueDependent: { color: colors.primary },
+    typeHint: { fontSize: 12, lineHeight: 17, color: colors.textSecondary },
   });

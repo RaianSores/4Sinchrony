@@ -27,6 +27,10 @@ export interface AdminStudent extends AddressFields {
   registeredAt: string;
   lastVisit: string | null;
   totalClasses: number;
+  // Pacote família: dependente é um Student com responsibleStudentId = titular (não entidade
+  // separada). Vazio = aluno normal. Ver docs/pacotes/ESPECIFICACAO_API_PLANOS_DINAMICOS.md.
+  responsibleStudentId?: string | null;
+  responsibleName?: string | null;
 }
 
 export interface StudentFormData extends AddressFields {

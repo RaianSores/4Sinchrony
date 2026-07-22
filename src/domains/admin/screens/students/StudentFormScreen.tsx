@@ -64,12 +64,16 @@ const StudentFormScreen = ({ route, navigation }: any) => {
   const [cidade, setCidade] = useState('');
   const [estado, setEstado] = useState('');
   const [cepLoading, setCepLoading] = useState(false);
+  const [isDependent, setIsDependent] = useState(false);
+  const [responsibleName, setResponsibleName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isEdit) return;
     let cancelled = false;
     studentAdminService.getById(studentId).then((student?: AdminStudent) => {
       if (cancelled || !student) return;
+      setIsDependent(!!student.responsibleStudentId);
+      setResponsibleName(student.responsibleName ?? null);
       setName(student.name);
       setEmail(student.email);
       setCpf(student.cpf || '');
@@ -211,6 +215,26 @@ const StudentFormScreen = ({ route, navigation }: any) => {
         extraScrollHeight={20}
         keyboardShouldPersistTaps="handled"
       >
+        {isEdit && (
+          <View style={[styles.typeCard, isDependent && styles.typeCardDependent]}>
+            <Text style={styles.typeLabel}>Tipo de aluno</Text>
+            <View style={styles.typeRow}>
+              <Ionicons
+                name={isDependent ? 'people' : 'person'}
+                size={16}
+                color={isDependent ? colors.primary : colors.textSecondary}
+              />
+              <Text style={[styles.typeValue, isDependent && styles.typeValueDependent]}>
+                {isDependent ? 'Dependente' : 'Aluno'}
+              </Text>
+            </View>
+            <Text style={styles.typeHint}>
+              {isDependent
+                ? `${responsibleName ? `Dependente de ${responsibleName}` : 'Dependente de outro aluno'} — usa os créditos do pacote do responsável; login somente-leitura.`
+                : 'Aluno titular — compra o próprio pacote. Dependentes são cadastrados pelo responsável em "Meus Dependentes".'}
+            </Text>
+          </View>
+        )}
         <FormInput label="Nome completo" required value={name} onChangeText={setName} error={errors.name} placeholder="Nome do aluno" />
         <FormInput label="Email" required value={email} onChangeText={setEmail} error={errors.email} placeholder="email@exemplo.com" keyboardType="email-address" autoCapitalize="none" />
         <FormInput
