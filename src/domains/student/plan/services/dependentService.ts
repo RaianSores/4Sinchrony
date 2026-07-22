@@ -11,6 +11,7 @@ export interface Dependent {
   responsibleStudentId?: string;
   name: string;
   email?: string; // login somente-leitura do dependente
+  phone?: string | null;
   birthDate?: string | null;
   cpf?: string | null;
   canBook: boolean;
@@ -27,6 +28,7 @@ export interface DependentFormData {
   name: string;
   email: string;
   password?: string;
+  phone?: string;
   birthDate?: string;
   cpf?: string;
   canBook: boolean;

@@ -14,8 +14,11 @@ import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { captureError } from '../../../../lib/sentry';
-import { formatCPF, cleanCPF } from '../../../../shared/utils/validateCPF';
+import { formatCPF, cleanCPF, validateCPF } from '../../../../shared/utils/validateCPF';
+import { formatPhone, cleanPhone } from '../../../../shared/utils/formatPhone';
 import { mkStyles } from './MyDependentsScreen.styles';
+
+const PHONE_REGEX = /^\d{10,11}$/;
 
 const MyDependentsScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -35,12 +38,15 @@ const MyDependentsScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [cpf, setCpf] = useState('');
+  const [phone, setPhone] = useState('');
   const [canBook, setCanBook] = useState(true);
   const [canCancel, setCanCancel] = useState(true);
   const [canViewHistory, setCanViewHistory] = useState(true);
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [cpfError, setCpfError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -63,9 +69,9 @@ const MyDependentsScreen = ({ navigation }: any) => {
   }, [load]);
 
   const resetForm = () => {
-    setName(''); setEmail(''); setPassword(''); setCpf('');
+    setName(''); setEmail(''); setPassword(''); setCpf(''); setPhone('');
     setCanBook(true); setCanCancel(true); setCanViewHistory(true);
-    setNameError(''); setEmailError(''); setPasswordError('');
+    setNameError(''); setEmailError(''); setPasswordError(''); setCpfError(''); setPhoneError('');
   };
 
   const openAddModal = () => {
@@ -74,7 +80,7 @@ const MyDependentsScreen = ({ navigation }: any) => {
 
   const openEditModal = (d: Dependent) => {
     setEditing(d); resetForm();
-    setName(d.name); setEmail(d.email ?? ''); setCpf(d.cpf ?? '');
+    setName(d.name); setEmail(d.email ?? ''); setCpf(d.cpf ?? ''); setPhone(cleanPhone(d.phone ?? ''));
     setCanBook(d.canBook); setCanCancel(d.canCancel); setCanViewHistory(d.canViewHistory);
     setModalVisible(true);
   };
@@ -90,6 +96,11 @@ const MyDependentsScreen = ({ navigation }: any) => {
     if (!editing && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
     else if (editing && password.length > 0 && password.length < 6) { setPasswordError('Mínimo de 6 caracteres'); hasError = true; }
     else setPasswordError('');
+    // CPF e telefone são opcionais, mas se preenchidos precisam ser válidos (como no cadastro do admin).
+    const cpfClean = cleanCPF(cpf);
+    if (cpfClean && !validateCPF(cpfClean)) { setCpfError('CPF inválido'); hasError = true; } else setCpfError('');
+    const phoneClean = cleanPhone(phone);
+    if (phoneClean && !PHONE_REGEX.test(phoneClean)) { setPhoneError('Telefone inválido (DDD + número)'); hasError = true; } else setPhoneError('');
     if (hasError) return;
     setSaving(true);
     try {
@@ -97,7 +108,8 @@ const MyDependentsScreen = ({ navigation }: any) => {
         name: name.trim(),
         email: email.trim(),
         password: password || undefined,
-        cpf: cleanCPF(cpf) || undefined,
+        cpf: cpfClean || undefined,
+        phone: phoneClean || undefined,
         canBook, canCancel, canViewHistory,
         active: editing?.active ?? true,
       };
@@ -153,7 +165,7 @@ const MyDependentsScreen = ({ navigation }: any) => {
     <ListItemCard
       icon="person"
       title={item.name}
-      subtitle={permsSummary(item)}
+      subtitle={item.email || permsSummary(item)}
       badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
       onPress={() => openEditModal(item)}
     />
@@ -186,7 +198,9 @@ const MyDependentsScreen = ({ navigation }: any) => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
           ListHeaderComponent={
             <Text style={styles.intro}>
-              Dependentes são pessoas do seu pacote família. Cada um tem o próprio saldo de créditos e permissões.
+              Dependentes são pessoas do seu pacote família (ex: filhos). Eles usam os créditos do{' '}
+              <Text style={styles.introStrong}>seu</Text> pacote — quem reserva é você. Cada dependente pode entrar
+              no app com o próprio login, mas apenas para visualizar as aulas.
             </Text>
           }
           ListEmptyComponent={
@@ -219,7 +233,8 @@ const MyDependentsScreen = ({ navigation }: any) => {
                   autoCapitalize="none"
                 />
                 <Text style={styles.loginHint}>O dependente usa esse login apenas para visualizar aulas e histórico. Quem reserva é você.</Text>
-                <FormInput label="CPF" value={formatCPF(cpf)} onChangeText={(v) => setCpf(cleanCPF(v).slice(0, 11))} placeholder="000.000.000-00 (opcional)" keyboardType="numeric" maxLength={14} />
+                <FormInput label="CPF" value={formatCPF(cpf)} onChangeText={(v) => setCpf(cleanCPF(v).slice(0, 11))} error={cpfError} placeholder="000.000.000-00 (opcional)" keyboardType="numeric" maxLength={14} />
+                <FormInput label="Telefone" value={formatPhone(phone)} onChangeText={(v) => setPhone(cleanPhone(v).slice(0, 11))} error={phoneError} placeholder="(63) 99999-9999 (opcional)" keyboardType="phone-pad" maxLength={15} />
 
                 <Text style={styles.permsLabel}>O que você pode fazer por ele(a):</Text>
                 <FormToggle label="Reservar aulas por ele(a)" value={canBook} onValueChange={setCanBook} />

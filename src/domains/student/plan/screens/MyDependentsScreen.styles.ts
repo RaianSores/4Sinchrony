@@ -7,7 +7,8 @@ export const mkStyles = (colors: any) =>
     flex: { flex: 1 },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     listContent: { paddingHorizontal: 16, paddingTop: 8, flexGrow: 1 },
-    intro: { fontSize: 13, lineHeight: 18, color: colors.textSecondary, marginBottom: 12 },
+    intro: { fontSize: 13, lineHeight: 19, color: colors.textSecondary, marginBottom: 12 },
+    introStrong: { fontWeight: '700', color: colors.text },
     addButton: {
       width: 36,
       height: 36,
