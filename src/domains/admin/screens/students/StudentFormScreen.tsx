@@ -230,7 +230,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
             </View>
             <Text style={styles.typeHint}>
               {isDependent
-                ? `${responsibleName ? `Dependente de ${responsibleName}` : 'Dependente de outro aluno'} — usa os créditos do pacote do responsável; login somente-leitura.`
+                ? `${responsibleName ? `Dependente de ${responsibleName}` : 'Dependente de outro aluno'} — tem cota própria de créditos no pacote família do responsável; login somente-leitura.`
                 : 'Aluno titular — compra o próprio pacote. Dependentes são cadastrados pelo responsável em "Meus Dependentes".'}
             </Text>
           </View>

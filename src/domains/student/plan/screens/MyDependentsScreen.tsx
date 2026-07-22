@@ -198,9 +198,9 @@ const MyDependentsScreen = ({ navigation }: any) => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />}
           ListHeaderComponent={
             <Text style={styles.intro}>
-              Dependentes são pessoas do seu pacote família (ex: filhos). Eles usam os créditos do{' '}
-              <Text style={styles.introStrong}>seu</Text> pacote — quem reserva é você. Cada dependente pode entrar
-              no app com o próprio login, mas apenas para visualizar as aulas.
+              Dependentes são pessoas do seu pacote família (ex: filhos). Cada um tem a{' '}
+              <Text style={styles.introStrong}>própria cota</Text> de créditos dentro do seu pacote — quem reserva é
+              você. O dependente entra no app com o próprio login, mas apenas para visualizar as aulas.
             </Text>
           }
           ListEmptyComponent={
