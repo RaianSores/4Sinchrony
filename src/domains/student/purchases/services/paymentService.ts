@@ -15,7 +15,6 @@ export const paymentService = {
 
   async getPurchases(): Promise<Purchase[]> {
     const res = await api.get<{ data: any[] }>('/purchases');
-    console.log('getPurchases response:', JSON.stringify(res.data.data, null, 2)); // Log the response for debugging
     return res.data.data ?? [];
   },
 };

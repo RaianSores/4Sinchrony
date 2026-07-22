@@ -36,7 +36,7 @@
 
 - cd app/build/outputs/apk/release
 - adb install app-release.apk
-- adb -s 192.168.0.146:43833 install app-release.apk
+- adb -s 192.168.0.135:34325 install app-release.apk
 
 ---
 # 📊 Logs (ADB Logcat)
