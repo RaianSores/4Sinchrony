@@ -55,8 +55,15 @@ export const reportAdminService = {
     return res.data.data ?? [];
   },
 
+  // O backend passou a retornar `/api/reports/frequency` como
+  // `{byDayOfWeek:[{day,dayIndex,count}], byClassType, topStudents}` em vez de `{data:[...]}`
+  // (confirmado ao vivo 22/07/2026). O AdminReportsScreen não usa mais este método (calcula a
+  // frequência no cliente — ver comentário acima), mas mantemos ele correto pro shape novo, com
+  // fallback pro antigo, pra não voltar `[]` silenciosamente se alguém religar. De quebra: a
+  // frequência já vem com dados reais (o "sempre zerado" foi corrigido no backend).
   async getFrequencyByDay(): Promise<FrequencyItem[]> {
-    const res = await api.get<{ data: FrequencyItem[] }>('/api/reports/frequency');
-    return res.data.data ?? [];
+    const res = await api.get<{ byDayOfWeek?: FrequencyItem[]; data?: FrequencyItem[] }>('/api/reports/frequency');
+    const list = res.data?.byDayOfWeek ?? res.data?.data ?? [];
+    return list.map(d => ({ day: d.day, count: d.count ?? 0 }));
   },
 };

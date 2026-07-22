@@ -31,6 +31,14 @@ export const adminService = {
       .get<{ occupancyRate: number }>('/api/reports/summary')
       .then(r => r.data.occupancyRate)
       .catch(() => res.data.occupancyRate);
-    return { ...res.data, occupancyRate };
+    // O backend passou a retornar `monthlyRevenue` com o campo `revenue` (não `value`) —
+    // confirmado ao vivo 22/07/2026: `[{"month":"Apr/2026","revenue":0}]`. Sem normalizar,
+    // `item.value` fica `undefined` e o gráfico de barras calcula `height: NaN`. Lê os dois
+    // nomes defensivamente. (Idêntico ao fix do ERP em dashboardService.ts.)
+    const monthlyRevenue = (res.data.monthlyRevenue ?? []).map((m) => {
+      const raw = m as { month: string; value?: number; revenue?: number };
+      return { month: raw.month, value: raw.value ?? raw.revenue ?? 0 };
+    });
+    return { ...res.data, occupancyRate, monthlyRevenue };
   },
 };

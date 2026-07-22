@@ -99,8 +99,8 @@ const AdminDashboardScreen = ({ navigation }: any) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Atividades Recentes</Text>
-          {data?.recentActivities.map(act => (
-            <View key={act.id} style={styles.activity}>
+          {(data?.recentActivities ?? []).map((act, i) => (
+            <View key={act.id ?? `${act.timestamp}-${i}`} style={styles.activity}>
               <View style={[styles.activityDot, { backgroundColor: getActivityColor(act.type) }]} />
               <Text style={styles.activityText}>{act.description}</Text>
             </View>
@@ -110,9 +110,9 @@ const AdminDashboardScreen = ({ navigation }: any) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Receita Mensal</Text>
           <View style={styles.chart}>
-            {data?.monthlyRevenue.map(item => (
+            {(data?.monthlyRevenue ?? []).map(item => (
               <View key={item.month} style={styles.barContainer}>
-                <View style={[styles.bar, { height: (item.value / 50000) * 120 }]} />
+                <View style={[styles.bar, { height: ((item.value ?? 0) / 50000) * 120 }]} />
                 <Text style={styles.barLabel}>{item.month}</Text>
               </View>
             ))}
