@@ -1,3 +1,4 @@
+import { Platform, PermissionsAndroid } from 'react-native';
 import { launchImageLibrary, launchCamera, ImagePickerResponse } from 'react-native-image-picker';
 import { tokenStorage } from '../../core/storage';
 import { captureError } from '../../lib/sentry';
@@ -35,10 +36,46 @@ const MODAL_CLOSE_DELAY_MS = 350;
 // react-native — esse serviço não é um componente/hook, então não pode chamar `useAppAlert()`
 // ele mesmo; o modal de escolha (Câmera/Galeria/Cancelar) e o de erro usam o modal
 // personalizado do app, igual ao resto da interface.
+// O AndroidManifest declara android.permission.CAMERA. Pela regra do react-native-image-picker,
+// quando o app DECLARA essa permissão ela precisa ser concedida em runtime — senão launchCamera
+// falha (e o erro era engolido, dando a impressão de que "a câmera não abre"). No iOS não há
+// pedido programático: basta a NSCameraUsageDescription no Info.plist, que o próprio SO exibe.
+async function ensureCameraPermission(): Promise<boolean> {
+  if (Platform.OS !== 'android') return true;
+  try {
+    const already = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
+    if (already) return true;
+    const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+      title: 'Permissão de câmera',
+      message: 'Precisamos da câmera para você tirar a foto do perfil.',
+      buttonPositive: 'Permitir',
+      buttonNegative: 'Agora não',
+    });
+    return result === PermissionsAndroid.RESULTS.GRANTED;
+  } catch (error) {
+    captureError(error);
+    return false;
+  }
+}
+
+const PICKER_ERROR_MESSAGES: Record<string, string> = {
+  camera_unavailable: 'Câmera indisponível neste dispositivo.',
+  permission: 'Permissão negada. Autorize o acesso à câmera nas configurações do aparelho.',
+};
+
 export function pickAndUploadAvatar(showAlert: (config: AlertConfig) => void): Promise<string | null> {
   return new Promise((resolve) => {
     const handlePicked = async (res: ImagePickerResponse) => {
-      if (res.didCancel || res.errorCode) { resolve(null); return; }
+      if (res.didCancel) { resolve(null); return; }
+      if (res.errorCode) {
+        // Antes isso era silencioso — o usuário tocava em "Câmera" e nada acontecia.
+        showAlert({
+          title: 'Não foi possível abrir',
+          message: PICKER_ERROR_MESSAGES[res.errorCode] ?? res.errorMessage ?? 'Tente novamente.',
+        });
+        resolve(null);
+        return;
+      }
       const asset = res.assets?.[0];
       if (!asset?.uri) { resolve(null); return; }
       try {
@@ -62,8 +99,17 @@ export function pickAndUploadAvatar(showAlert: (config: AlertConfig) => void): P
         {
           text: 'Câmera',
           onPress: () => {
-            setTimeout(() => {
-              launchCamera({ mediaType: 'photo', quality: 0.8, maxWidth: 800, maxHeight: 800 }, handlePicked);
+            setTimeout(async () => {
+              const allowed = await ensureCameraPermission();
+              if (!allowed) {
+                showAlert({
+                  title: 'Permissão necessária',
+                  message: 'Autorize o acesso à câmera para tirar a foto do perfil.',
+                });
+                resolve(null);
+                return;
+              }
+              launchCamera({ mediaType: 'photo', quality: 0.8, maxWidth: 800, maxHeight: 800, saveToPhotos: false }, handlePicked);
             }, MODAL_CLOSE_DELAY_MS);
           },
         },
