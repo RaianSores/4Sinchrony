@@ -296,6 +296,15 @@ const StudentFormScreen = ({ route, navigation }: any) => {
           onValueChange={(v) => setStatus(v ? 'active' : 'inactive')}
           disabled={togglingStatus}
         />
+        {isEdit && (
+          <FormToggle
+            label="Aluno bloqueado"
+            description="Bloqueia o acesso do aluno ao aplicativo"
+            value={status === 'blocked'}
+            onValueChange={(v) => setStatus(v ? 'blocked' : 'active')}
+            disabled={togglingStatus}
+          />
+        )}
 
         <Button title={isEdit ? 'Salvar Alterações' : 'Cadastrar Aluno'} onPress={handleSubmit} loading={saving} />
       </KeyboardAwareScrollView>

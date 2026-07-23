@@ -79,7 +79,8 @@ const PackageListScreen = ({ navigation }: any) => {
             value={item.active}
             onValueChange={() => handleToggleActive(item)}
             disabled={togglingId === item.id}
-            trackColor={{ true: colors.primary }}
+            trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.white}
           />
         }
       />

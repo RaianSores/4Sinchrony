@@ -80,7 +80,8 @@ const StudioListScreen = ({ navigation }: any) => {
           value={item.active}
           onValueChange={(value) => handleToggleActive(item, value)}
           disabled={togglingId === item.id}
-          trackColor={{ true: colors.primary }}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.white}
         />
       }
     />
