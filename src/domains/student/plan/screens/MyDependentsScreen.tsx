@@ -168,6 +168,8 @@ const MyDependentsScreen = ({ navigation }: any) => {
   const renderItem = ({ item }: { item: Dependent }) => (
     <ListItemCard
       icon="person"
+      avatarUri={item.avatar}
+      avatarName={item.name}
       title={item.name}
       subtitle={item.email || permsSummary(item)}
       badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}

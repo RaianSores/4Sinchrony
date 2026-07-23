@@ -114,6 +114,8 @@ const StudentListScreen = ({ navigation }: any) => {
     return (
       <ListItemCard
         icon="person"
+        avatarUri={item.avatar}
+        avatarName={item.name}
         title={item.name}
         subtitle={detail}
         badge={item.status === 'blocked' ? { label: badgeCfg.label, variant: badgeCfg.variant } : undefined}

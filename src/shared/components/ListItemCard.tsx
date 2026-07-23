@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Avatar } from './Avatar';
 import { useTheme } from '../theme/useTheme';
 import { borderRadius, spacing } from '../theme';
 
@@ -10,7 +11,14 @@ interface ListItemBadge {
 }
 
 interface ListItemCardProps {
+  /** Ícone genérico. Ignorado quando `avatarName` é informado. */
   icon: string;
+  /**
+   * Quando a linha representa uma PESSOA, passe estes dois: o card mostra a foto
+   * (com as iniciais como fallback) em vez do ícone genérico.
+   */
+  avatarUri?: string | null;
+  avatarName?: string;
   title: string;
   subtitle?: string;
   badge?: ListItemBadge;
@@ -25,7 +33,7 @@ const BADGE_COLORS: Record<ListItemBadge['variant'], string> = {
   info: '#1287AF',
 };
 
-const ListItemCard: React.FC<ListItemCardProps> = ({ icon, title, subtitle, badge, onPress, rightElement }) => {
+const ListItemCard: React.FC<ListItemCardProps> = ({ icon, avatarUri, avatarName, title, subtitle, badge, onPress, rightElement }) => {
   const { colors } = useTheme();
   const Wrapper = onPress ? TouchableOpacity : View;
 
@@ -44,13 +52,17 @@ const ListItemCard: React.FC<ListItemCardProps> = ({ icon, title, subtitle, badg
         gap: spacing.sm,
       }}
     >
-      <View style={{
-        width: 40, height: 40, borderRadius: 20,
-        backgroundColor: colors.background,
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Ionicons name={icon} size={20} color={colors.primary} />
-      </View>
+      {avatarName ? (
+        <Avatar uri={avatarUri} name={avatarName} size="sm" />
+      ) : (
+        <View style={{
+          width: 40, height: 40, borderRadius: 20,
+          backgroundColor: colors.background,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Ionicons name={icon} size={20} color={colors.primary} />
+        </View>
+      )}
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }} numberOfLines={1}>{title}</Text>
         {subtitle ? (

@@ -79,6 +79,8 @@ const TeacherListScreen = ({ navigation }: any) => {
     return (
       <ListItemCard
         icon="school"
+        avatarUri={item.avatar}
+        avatarName={item.name}
         title={item.name}
         subtitle={`${item.email}${specialtiesLabel}`}
         onPress={() => navigation.navigate('TeacherForm', { teacherId: item.id })}
