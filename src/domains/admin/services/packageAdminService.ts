@@ -6,6 +6,7 @@ export type PurchaseStrategy = 'block' | 'queue' | 'sum_credits' | 'sum_validity
 // docs/pacotes/ESPECIFICACAO_API_PLANOS_DINAMICOS.md. As regras granulares por-pacote
 // (limites, janelas, etc.) são editadas só no ERP; o App admin cobre os campos principais.
 export interface PackageDynamicFields {
+  unitId?: string | null;
   packageTypeId?: string;
   purchaseStrategy?: PurchaseStrategy;
   maxDependents?: number;

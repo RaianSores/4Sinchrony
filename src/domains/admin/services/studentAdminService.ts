@@ -22,6 +22,8 @@ export interface AdminStudent extends AddressFields {
   phone: string;
   status: StudentStatus;
   plan: string | null;
+  unitId?: string | null;
+  unitName?: string | null;
   credits: number;
   avatar: string | null;
   registeredAt: string;

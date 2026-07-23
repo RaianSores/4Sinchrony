@@ -10,6 +10,7 @@ import { benefitAdminService, AdminBenefit } from '../../services/benefitAdminSe
 import FormInput from '../../../../shared/components/FormInput';
 import FormSelect from '../../../../shared/components/FormSelect';
 import FormToggle from '../../../../shared/components/FormToggle';
+import { UnitSelect } from '../../components/UnitPicker';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -51,6 +52,7 @@ const PackageFormScreen = ({ route, navigation }: any) => {
   const [displayOrder, setDisplayOrder] = useState('');
   const [popular, setPopular] = useState(false);
   const [active, setActive] = useState(true);
+  const [unitId, setUnitId] = useState('');
 
   // Campos dos planos dinâmicos
   const [packageTypes, setPackageTypes] = useState<AdminPackageType[]>([]);
@@ -80,6 +82,7 @@ const PackageFormScreen = ({ route, navigation }: any) => {
       setDisplayOrder(String(pkg.displayOrder));
       setPopular(pkg.popular);
       setActive(pkg.active);
+      setUnitId(pkg.unitId || '');
       setPackageTypeId(pkg.packageTypeId || '');
       setPurchaseStrategy(pkg.purchaseStrategy || '');
       setMaxDependents(pkg.maxDependents != null ? String(pkg.maxDependents) : '');
@@ -119,6 +122,7 @@ const PackageFormScreen = ({ route, navigation }: any) => {
         price: Number(price),
         validityDays: Number(validityDays),
         popular,
+        unitId: unitId || undefined,
         active: isEdit ? active : true,
         displayOrder: displayOrder ? Number(displayOrder) : 99,
         packageTypeId: packageTypeId || undefined,
@@ -220,6 +224,7 @@ const PackageFormScreen = ({ route, navigation }: any) => {
           </View>
         </View>
 
+        <UnitSelect value={unitId} onChange={setUnitId} label="Unidade (filial)" />
         <FormToggle label="Popular" description="Mostra um destaque de 'mais popular' na loja de pacotes" value={popular} onValueChange={setPopular} />
 
         {packageTypes.length > 0 && (

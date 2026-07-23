@@ -7,6 +7,7 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { studioAdminService, AdminStudio } from '../../services/studioAdminService';
 import FormInput from '../../../../shared/components/FormInput';
 import FormToggle from '../../../../shared/components/FormToggle';
+import { UnitSelect } from '../../components/UnitPicker';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -44,6 +45,7 @@ const StudioFormScreen = ({ route, navigation }: any) => {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [capacity, setCapacity] = useState('');
+  const [unitId, setUnitId] = useState('');
   const [openingTime, setOpeningTime] = useState('06:00');
   const [closingTime, setClosingTime] = useState('22:00');
   const [active, setActive] = useState(true);
@@ -58,6 +60,7 @@ const StudioFormScreen = ({ route, navigation }: any) => {
       setPhone(cleanPhone(studio.phone));
       setAddress(studio.address);
       setCapacity(String(studio.capacity));
+      setUnitId(studio.unitId || '');
       setOpeningTime(studio.openingTime);
       setClosingTime(studio.closingTime);
       setActive(studio.active);
@@ -88,7 +91,7 @@ const StudioFormScreen = ({ route, navigation }: any) => {
 
     setSaving(true);
     try {
-      const payload = { name: name.trim(), email: email.trim(), phone, address, capacity: Number(capacity), openingTime, closingTime };
+      const payload = { name: name.trim(), email: email.trim(), phone, address, capacity: Number(capacity), openingTime, closingTime, unitId: unitId || undefined };
       if (isEdit) {
         await studioAdminService.update(studioId, payload);
       } else {
@@ -169,6 +172,7 @@ const StudioFormScreen = ({ route, navigation }: any) => {
         />
         <FormInput label="Endereço" required value={address} onChangeText={setAddress} error={errors.address} placeholder="Rua, número, bairro" />
         <FormInput label="Capacidade" required value={capacity} onChangeText={setCapacity} error={errors.capacity} placeholder="20" keyboardType="numeric" />
+        <UnitSelect value={unitId} onChange={setUnitId} label="Unidade (prédio)" />
 
         <View style={styles.row}>
           <View style={styles.rowItem}>

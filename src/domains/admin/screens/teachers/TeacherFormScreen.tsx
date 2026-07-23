@@ -8,6 +8,7 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import { teacherAdminService, AdminTeacher } from '../../services/teacherAdminService';
 import FormInput from '../../../../shared/components/FormInput';
 import FormToggle from '../../../../shared/components/FormToggle';
+import { UnitMultiSelect } from '../../components/UnitPicker';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -42,6 +43,7 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
   const [password, setPassword] = useState('');
   const [active, setActive] = useState(true);
   const [specialties, setSpecialties] = useState<string[]>([]);
+  const [unitIds, setUnitIds] = useState<string[]>([]);
   const [specialtyInput, setSpecialtyInput] = useState('');
 
   const [togglingActive, setTogglingActive] = useState(false);
@@ -60,6 +62,7 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
       setPhone(cleanPhone(teacher.phone));
       setActive(teacher.active);
       setSpecialties(teacher.specialties || []);
+      setUnitIds(teacher.unitIds || (teacher.units?.map(u => u.id) ?? []));
     }).catch(error => captureError(error)).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [isEdit, teacherId]);
@@ -91,7 +94,7 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
 
     setSaving(true);
     try {
-      const payload = { name: name.trim(), email: email.trim(), phone, cpf: cpf ? cleanCPF(cpf) : undefined, specialties };
+      const payload = { name: name.trim(), email: email.trim(), phone, cpf: cpf ? cleanCPF(cpf) : undefined, specialties, unitIds };
       if (isEdit) {
         await teacherAdminService.update(teacherId, payload);
       } else {
@@ -229,6 +232,8 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
         {!isEdit && (
           <FormInput label="Senha" required value={password} onChangeText={setPassword} error={errors.password} placeholder="Mínimo 6 caracteres" secureTextEntry />
         )}
+
+        <UnitMultiSelect value={unitIds} onChange={setUnitIds} label="Unidades (filiais)" />
 
         <Text style={styles.sectionLabel}>Especialidades</Text>
         <View style={styles.specialtiesRow}>

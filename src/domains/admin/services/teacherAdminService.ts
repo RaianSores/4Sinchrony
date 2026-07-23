@@ -7,6 +7,8 @@ export interface AdminTeacher {
   cpf: string | null;
   phone: string;
   active: boolean;
+  unitIds?: string[];
+  units?: { id: string; name: string }[];
   avatar: string | null;
   specialties: string[];
 }

@@ -16,6 +16,7 @@ import { validateCPF, formatCPF, cleanCPF } from '../../../../shared/utils/valid
 import { formatPhone, cleanPhone } from '../../../../shared/utils/formatPhone';
 import { fetchAddressByCep, formatCep, cleanCep, UF_OPTIONS } from '../../../../shared/utils/viaCep';
 import { captureError } from '../../../../lib/sentry';
+import { UnitSelect } from '../../components/UnitPicker';
 import { mkStyles } from './StudentFormScreen.styles';
 
 interface FormErrors {
@@ -54,6 +55,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
   const [phone, setPhone] = useState('');
   const [plan, setPlan] = useState('');
   const [status, setStatus] = useState<StudentStatus>('active');
+  const [unitId, setUnitId] = useState('');
 
   const [cep, setCep] = useState('');
   const [logradouro, setLogradouro] = useState('');
@@ -94,6 +96,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
       setPhone(cleanPhone(student.phone || ''));
       setPlan(student.plan || '');
       setStatus(student.status);
+      setUnitId(student.unitId || '');
       setCep(student.cep || '');
       setLogradouro(student.logradouro || '');
       setNumero(student.numero || '');
@@ -144,6 +147,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
     try {
       const payload = {
         name: name.trim(), email: email.trim(), phone, cpf: cleanCPF(cpf), plan, status,
+        unitId: unitId || undefined,
         cep, logradouro: logradouro.trim(), numero: numero.trim(), complemento: complemento.trim(),
         bairro: bairro.trim(), cidade: cidade.trim(), estado,
       };
@@ -263,6 +267,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
           maxLength={15}
         />
         <FormSelect label="Plano" value={plan} options={planOptions} onSelect={(v) => setPlan(v)} />
+        <UnitSelect value={unitId} onChange={setUnitId} label="Unidade (filial)" />
 
         <Text style={styles.sectionTitle}>Endereço</Text>
         <Text style={styles.sectionHint}>Necessário para pagamento por cartão. Digite o CEP para preencher automaticamente.</Text>

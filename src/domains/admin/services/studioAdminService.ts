@@ -3,6 +3,8 @@ import { api } from '../../../core/http/api';
 export interface AdminStudio {
   id: string;
   name: string;
+  unitId?: string | null;
+  unitName?: string | null;
   address: string;
   phone: string;
   email: string;
