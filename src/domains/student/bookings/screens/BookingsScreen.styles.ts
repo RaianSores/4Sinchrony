@@ -18,7 +18,8 @@ export const mkStyles = (colors: any) => StyleSheet.create({
   statusText: { color: colors.success, fontSize: 12, fontWeight: '600' },
   cardDetails: { marginTop: 14, gap: 6 },
   detailItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  detailText: { color: colors.textSecondary, fontSize: 14 },
+  // flex:1 — nome de estúdio longo quebra em linha em vez de estourar a largura do card.
+  detailText: { flex: 1, color: colors.textSecondary, fontSize: 14 },
   cancelButton: { marginTop: 14, paddingVertical: 10, alignItems: 'center', borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.danger },
   cancelText: { color: colors.danger, fontSize: 15, fontWeight: '600' },
   emptyState: { alignItems: 'center', marginTop: 80 },
