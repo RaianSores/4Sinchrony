@@ -187,9 +187,9 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
             <View style={[styles.bookingCard, { opacity: 0.7 }]}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardLeft}>
-                  <View>
-                    <Text style={[styles.className, { color: colors.textSecondary }]}>{b.class.name}</Text>
-                    <Text style={[styles.instructor, { color: colors.textSecondary }]}>{b.class.instructor}</Text>
+                  <View style={styles.cardTexts}>
+                    <Text style={[styles.className, { color: colors.textSecondary }]} numberOfLines={2}>{b.class.name}</Text>
+                    <Text style={[styles.instructor, { color: colors.textSecondary }]} numberOfLines={1}>{b.class.instructor}</Text>
                   </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: (statusCfg[b.status] || statusCfg.cancelled).bg }]}>
