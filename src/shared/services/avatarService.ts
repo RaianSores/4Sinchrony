@@ -40,17 +40,32 @@ const MODAL_CLOSE_DELAY_MS = 350;
 // quando o app DECLARA essa permissão ela precisa ser concedida em runtime — senão launchCamera
 // falha (e o erro era engolido, dando a impressão de que "a câmera não abre"). No iOS não há
 // pedido programático: basta a NSCameraUsageDescription no Info.plist, que o próprio SO exibe.
-async function ensureCameraPermission(): Promise<boolean> {
+async function ensureCameraPermission(showAlert: (config: AlertConfig) => void): Promise<boolean> {
   if (Platform.OS !== 'android') return true;
   try {
     const already = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA);
     if (already) return true;
-    const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-      title: 'Permissão de câmera',
-      message: 'Precisamos da câmera para você tirar a foto do perfil.',
-      buttonPositive: 'Permitir',
-      buttonNegative: 'Agora não',
+
+    // A explicação ("rationale") vai no modal do app, e não no diálogo nativo que o
+    // PermissionsAndroid.request desenha quando recebe o segundo argumento.
+    // O prompt final de permissão em si é do sistema operacional e não é customizável.
+    const wantsToAllow = await new Promise<boolean>((resolveChoice) => {
+      showAlert({
+        title: 'Permissão de câmera',
+        message: 'Precisamos da câmera para você tirar a foto do perfil.',
+        buttons: [
+          { text: 'Agora não', style: 'cancel', onPress: () => resolveChoice(false) },
+          { text: 'Permitir', onPress: () => resolveChoice(true) },
+        ],
+      });
     });
+    if (!wantsToAllow) return false;
+
+    // Mesmo motivo do MODAL_CLOSE_DELAY_MS: deixa o modal terminar de sumir antes de o
+    // sistema abrir o prompt por cima.
+    await new Promise((done) => setTimeout(done, MODAL_CLOSE_DELAY_MS));
+
+    const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
     return result === PermissionsAndroid.RESULTS.GRANTED;
   } catch (error) {
     captureError(error);
@@ -100,7 +115,7 @@ export function pickAndUploadAvatar(showAlert: (config: AlertConfig) => void): P
           text: 'Câmera',
           onPress: () => {
             setTimeout(async () => {
-              const allowed = await ensureCameraPermission();
+              const allowed = await ensureCameraPermission(showAlert);
               if (!allowed) {
                 showAlert({
                   title: 'Permissão necessária',
