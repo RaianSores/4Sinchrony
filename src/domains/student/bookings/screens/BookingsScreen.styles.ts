@@ -14,7 +14,7 @@ export const mkStyles = (colors: any) => StyleSheet.create({
   avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.border, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   className: { fontSize: 17, fontWeight: '600', color: colors.text },
   instructor: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
-  statusBadge: { flexShrink: 0, backgroundColor: colors.success + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.sm },
+  statusBadge: { flexShrink: 0, maxWidth: '45%', alignSelf: 'flex-start', backgroundColor: colors.success + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.sm },
   statusText: { color: colors.success, fontSize: 12, fontWeight: '600' },
   cardDetails: { marginTop: 14, gap: 6 },
   detailItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
