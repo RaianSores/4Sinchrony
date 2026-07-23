@@ -282,6 +282,14 @@ const PackageFormScreen = ({ route, navigation }: any) => {
           </View>
         )}
 
+        <FormToggle
+          label={active ? 'Pacote ativo' : 'Pacote inativo'}
+          description="Pacotes inativos não aparecem na loja para os alunos"
+          value={active}
+          onValueChange={setActive}
+          disabled={togglingActive}
+        />
+
         <Button title={isEdit ? 'Salvar Alterações' : 'Cadastrar Pacote'} onPress={handleSubmit} loading={saving} />
       </KeyboardAwareScrollView>
     </SafeAreaView>
