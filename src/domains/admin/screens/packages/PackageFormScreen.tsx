@@ -186,15 +186,6 @@ const PackageFormScreen = ({ route, navigation }: any) => {
             <Text style={styles.subtitle}>{isEdit ? name : 'Cadastrar pacote no sistema'}</Text>
           </View>
         </View>
-        {isEdit && (
-          <TouchableOpacity style={styles.statusButton} onPress={handleToggleActive} disabled={togglingActive}>
-            {togglingActive ? (
-              <ActivityIndicator size="small" color={colors.text} />
-            ) : (
-              <Text style={styles.statusButtonText}>{active ? 'Desativar' : 'Ativar'}</Text>
-            )}
-          </TouchableOpacity>
-        )}
       </View>
 
       <KeyboardAwareScrollView

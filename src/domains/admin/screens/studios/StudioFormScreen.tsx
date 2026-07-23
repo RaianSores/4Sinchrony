@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { studioAdminService, AdminStudio } from '../../services/studioAdminService';
 import FormInput from '../../../../shared/components/FormInput';
+import FormToggle from '../../../../shared/components/FormToggle';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -144,15 +145,6 @@ const StudioFormScreen = ({ route, navigation }: any) => {
             <Text style={styles.subtitle}>{isEdit ? name : 'Cadastrar unidade no sistema'}</Text>
           </View>
         </View>
-        {isEdit && (
-          <TouchableOpacity style={styles.statusButton} onPress={handleToggleActive} disabled={togglingActive}>
-            {togglingActive ? (
-              <ActivityIndicator size="small" color={colors.text} />
-            ) : (
-              <Text style={styles.statusButtonText}>{active ? 'Desativar' : 'Ativar'}</Text>
-            )}
-          </TouchableOpacity>
-        )}
       </View>
 
       <KeyboardAwareScrollView
@@ -177,6 +169,7 @@ const StudioFormScreen = ({ route, navigation }: any) => {
         />
         <FormInput label="Endereço" required value={address} onChangeText={setAddress} error={errors.address} placeholder="Rua, número, bairro" />
         <FormInput label="Capacidade" required value={capacity} onChangeText={setCapacity} error={errors.capacity} placeholder="20" keyboardType="numeric" />
+
         <View style={styles.row}>
           <View style={styles.rowItem}>
             <FormInput label="Abertura" required value={openingTime} onChangeText={(v) => setOpeningTime(formatTime(v))} error={errors.openingTime} placeholder="06:00" keyboardType="numeric" maxLength={5} />
@@ -192,6 +185,14 @@ const StudioFormScreen = ({ route, navigation }: any) => {
             <Text style={styles.secondaryButtonText}>Gerenciar Bicicletas</Text>
           </TouchableOpacity>
         )}
+
+        <FormToggle
+          label={active ? 'Studio ativo' : 'Studio inativo'}
+          description="Studios inativos não aparecem para agendamento de novas aulas"
+          value={active}
+          onValueChange={setActive}
+          disabled={togglingActive}
+        />
 
         <Button title={isEdit ? 'Salvar Alterações' : 'Cadastrar Estúdio'} onPress={handleSubmit} loading={saving} />
       </KeyboardAwareScrollView>

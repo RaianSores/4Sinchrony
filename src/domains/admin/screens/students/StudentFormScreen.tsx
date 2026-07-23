@@ -8,6 +8,7 @@ import { studentAdminService, AdminStudent, StudentStatus } from '../../services
 import { packageTypeAdminService } from '../../services/packageTypeAdminService';
 import FormInput from '../../../../shared/components/FormInput';
 import FormSelect from '../../../../shared/components/FormSelect';
+import FormToggle from '../../../../shared/components/FormToggle';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -209,15 +210,6 @@ const StudentFormScreen = ({ route, navigation }: any) => {
             <Text style={styles.subtitle}>{isEdit ? name : 'Cadastrar aluno no sistema'}</Text>
           </View>
         </View>
-        {isEdit && (
-          <TouchableOpacity style={styles.statusButton} onPress={handleToggleStatus} disabled={togglingStatus}>
-            {togglingStatus ? (
-              <ActivityIndicator size="small" color={colors.text} />
-            ) : (
-              <Text style={styles.statusButtonText}>{status === 'active' ? 'Desativar' : 'Reativar'}</Text>
-            )}
-          </TouchableOpacity>
-        )}
       </View>
 
       <KeyboardAwareScrollView
@@ -271,7 +263,6 @@ const StudentFormScreen = ({ route, navigation }: any) => {
           maxLength={15}
         />
         <FormSelect label="Plano" value={plan} options={planOptions} onSelect={(v) => setPlan(v)} />
-        <FormSelect label="Status" value={status} options={STATUS_OPTIONS} onSelect={(v) => setStatus(v as StudentStatus)} />
 
         <Text style={styles.sectionTitle}>Endereço</Text>
         <Text style={styles.sectionHint}>Necessário para pagamento por cartão. Digite o CEP para preencher automaticamente.</Text>
@@ -297,6 +288,14 @@ const StudentFormScreen = ({ route, navigation }: any) => {
             <Text style={styles.secondaryButtonText}>Ver histórico de aulas</Text>
           </TouchableOpacity>
         )}
+
+        <FormToggle
+          label={status === 'active' ? 'Aluno ativo' : 'Aluno inativo'}
+          description="Alunos inativos não conseguem reservar novas aulas"
+          value={status === 'active'}
+          onValueChange={(v) => setStatus(v ? 'active' : 'inactive')}
+          disabled={togglingStatus}
+        />
 
         <Button title={isEdit ? 'Salvar Alterações' : 'Cadastrar Aluno'} onPress={handleSubmit} loading={saving} />
       </KeyboardAwareScrollView>
