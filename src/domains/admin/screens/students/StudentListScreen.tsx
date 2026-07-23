@@ -39,7 +39,7 @@ const StudentListScreen = ({ navigation }: any) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StudentStatus | ''>('');
+  const [statusFilter, setStatusFilter] = useState<StudentStatus | ''>('active');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const loadFirstPage = useCallback(async () => {

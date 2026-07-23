@@ -10,6 +10,7 @@ import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './StudioListScreen.styles';
+import StatusFilter, { DEFAULT_STATUS_FILTER, matchesStatus, type StatusFilterValue } from '../../../../shared/components/StatusFilter';
 
 const StudioListScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -17,6 +18,7 @@ const StudioListScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   const [studios, setStudios] = useState<AdminStudio[]>([]);
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(DEFAULT_STATUS_FILTER);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
@@ -80,13 +82,16 @@ const StudioListScreen = ({ navigation }: any) => {
         <SearchBar value={search} onChangeText={setSearch} placeholder="Buscar por nome ou endereço..." />
       </View>
 
+      <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
-          data={filtered}
+          data={filtered.filter(i => matchesStatus(statusFilter, i.active))}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}

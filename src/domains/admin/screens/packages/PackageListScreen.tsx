@@ -9,6 +9,7 @@ import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from './PackageListScreen.styles';
+import StatusFilter, { DEFAULT_STATUS_FILTER, matchesStatus, type StatusFilterValue } from '../../../../shared/components/StatusFilter';
 
 // Sem busca/filtro de propósito — o ERP também não tem (a lista de pacotes é curada e
 // tipicamente pequena, diferente de listagens de alunos/aulas que crescem sem limite).
@@ -18,6 +19,7 @@ const PackageListScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
 
   const [packages, setPackages] = useState<AdminPackage[]>([]);
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(DEFAULT_STATUS_FILTER);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -99,13 +101,16 @@ const PackageListScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
+      <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
-          data={packages}
+          data={packages.filter(i => matchesStatus(statusFilter, i.active))}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}

@@ -15,6 +15,7 @@ import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { captureError } from '../../../../lib/sentry';
 import { mkStyles } from '../classTypes/ClassTypeListScreen.styles';
+import StatusFilter, { DEFAULT_STATUS_FILTER, matchesStatus, type StatusFilterValue } from '../../../../shared/components/StatusFilter';
 
 const BenefitListScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
@@ -23,6 +24,7 @@ const BenefitListScreen = ({ navigation }: any) => {
   const { showAlert } = useAppAlert();
 
   const [benefits, setBenefits] = useState<AdminBenefit[]>([]);
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>(DEFAULT_STATUS_FILTER);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
@@ -117,13 +119,16 @@ const BenefitListScreen = ({ navigation }: any) => {
         <SearchBar value={search} onChangeText={setSearch} placeholder="Buscar por nome..." />
       </View>
 
+      <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
-          data={filtered}
+          data={filtered.filter(i => matchesStatus(statusFilter, i.active))}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: tabPadding }]}
