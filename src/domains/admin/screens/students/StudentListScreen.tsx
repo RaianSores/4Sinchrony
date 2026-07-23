@@ -109,12 +109,14 @@ const StudentListScreen = ({ navigation }: any) => {
   const renderItem = ({ item }: { item: AdminStudent }) => {
     const badgeCfg = STATUS_BADGE[item.status];
     const detail = [item.plan, item.email].filter(Boolean).join(' · ');
+    // O Switch já comunica ativo/inativo — o badge só aparece no estado excepcional "Bloqueado",
+    // que o Switch não expressa. Assim todas as linhas ficam visualmente iguais.
     return (
       <ListItemCard
         icon="person"
         title={item.name}
         subtitle={detail}
-        badge={{ label: badgeCfg.label, variant: badgeCfg.variant }}
+        badge={item.status === 'blocked' ? { label: badgeCfg.label, variant: badgeCfg.variant } : undefined}
         onPress={() => navigation.navigate('StudentForm', { studentId: item.id })}
         rightElement={
           <Switch
