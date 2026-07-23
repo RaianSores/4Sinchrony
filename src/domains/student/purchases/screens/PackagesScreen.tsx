@@ -107,7 +107,7 @@ const PackagesScreen = ({ navigation }: PackagesScreenProps) => {
                 </View>
               )}
               <View style={styles.pkgHeader}>
-                <Text style={styles.pkgName}>{pkg.name}</Text>
+                <Text style={styles.pkgName} numberOfLines={2}>{pkg.name}</Text>
                 <Text style={styles.pkgPrice}>R$ {(pkg.price ?? 0).toFixed(2)}</Text>
               </View>
               <View style={styles.pkgDetails}>

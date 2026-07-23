@@ -166,9 +166,9 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
                   <View style={styles.avatar}>
                     <Ionicons name="calendar-outline" size={24} color={colors.primary} />
                   </View>
-                  <View>
-                    <Text style={styles.className}>{b.class.name}</Text>
-                    <Text style={styles.instructor}>{b.class.instructor}</Text>
+                  <View style={styles.cardTexts}>
+                    <Text style={styles.className} numberOfLines={2}>{b.class.name}</Text>
+                    <Text style={styles.instructor} numberOfLines={1}>{b.class.instructor}</Text>
                   </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: statusCfg[b.status]?.bg || colors.success + '20' }]}><Text style={[styles.statusText, { color: statusCfg[b.status]?.color || colors.success }]}>{statusCfg[b.status]?.label || 'Confirmada'}</Text></View>

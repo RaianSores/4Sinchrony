@@ -52,10 +52,12 @@ export const mkStyles = (colors: any) => StyleSheet.create({
     marginBottom: 12,
   },
   popularText: { color: colors.black, fontSize: 11, fontWeight: '700' },
-  pkgHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  pkgName: { fontSize: 18, fontWeight: '700', color: colors.text },
-  pkgPrice: { fontSize: 22, fontWeight: '700', color: colors.primary },
-  pkgDetails: { marginTop: 8, flexDirection: 'row', gap: 16 },
+  pkgHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  // flex:1 + marginRight: nome longo ocupa o espaço livre em vez de espremer o preço.
+  pkgName: { flex: 1, marginRight: 12, fontSize: 18, fontWeight: '700', color: colors.text },
+  // flexShrink:0: o preço nunca é comprimido nem quebrado no meio.
+  pkgPrice: { flexShrink: 0, fontSize: 22, fontWeight: '700', color: colors.primary },
+  pkgDetails: { marginTop: 8, flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
   pkgCredits: { fontSize: 14, color: colors.textSecondary },
   pkgPerCredit: { fontSize: 14, color: colors.success },
   pkgFooter: {
@@ -67,5 +69,5 @@ export const mkStyles = (colors: any) => StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  pkgValidity: { fontSize: 13, color: colors.textSecondary },
+  pkgValidity: { flex: 1, marginRight: 8, fontSize: 13, color: colors.textSecondary },
 });
