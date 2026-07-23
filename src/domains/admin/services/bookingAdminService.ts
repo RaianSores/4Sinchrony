@@ -10,6 +10,8 @@ export interface AdminBooking {
   className: string;
   studentId: string;
   studentName: string;
+  /** Ainda não retornado pela API — ver DEMANDA_AVATAR_NAS_LISTAS_BACKEND.md. */
+  studentAvatar?: string | null;
   studentEmail: string;
   status: BookingStatus;
   bikeNumber: number | null;

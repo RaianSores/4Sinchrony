@@ -141,6 +141,8 @@ const AdminBookingListScreen = ({ navigation }: any) => {
     return (
       <ListItemCard
         icon="ticket"
+        avatarUri={item.studentAvatar}
+        avatarName={item.studentName}
         title={item.studentName}
         subtitle={subtitle}
         badge={{ label: badgeCfg.label, variant: badgeCfg.variant }}
