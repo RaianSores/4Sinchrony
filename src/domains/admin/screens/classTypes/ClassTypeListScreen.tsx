@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Modal, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -28,6 +28,21 @@ const ClassTypeListScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  // Toggle de status inline (padrão de todas as listas). O PUT não é partial, então mandamos
+  // o objeto completo com o active invertido.
+  const handleToggleActive = async (item: AdminClassType, value: boolean) => {
+    setTogglingId(item.id);
+    try {
+      await classTypeAdminService.update(item.id, { ...item, active: value } as any);
+      setClassTypes(prev => prev.map(x => (x.id === item.id ? { ...x, active: value } : x)));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setTogglingId(null);
+    }
+  };
   const [saving, setSaving] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -105,8 +120,15 @@ const ClassTypeListScreen = ({ navigation }: any) => {
       icon="pricetag"
       title={item.name}
       subtitle={item.usesBikes ? 'Usa bicicletas' : undefined}
-      badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
       onPress={() => openEditModal(item)}
+      rightElement={
+        <Switch
+          value={item.active}
+          onValueChange={(value) => handleToggleActive(item, value)}
+          disabled={togglingId === item.id}
+          trackColor={{ true: colors.primary }}
+        />
+      }
     />
   );
 
