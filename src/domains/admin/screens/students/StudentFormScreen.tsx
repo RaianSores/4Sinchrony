@@ -5,6 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { studentAdminService, AdminStudent, StudentStatus } from '../../services/studentAdminService';
+import { packageTypeAdminService } from '../../services/packageTypeAdminService';
 import FormInput from '../../../../shared/components/FormInput';
 import FormSelect from '../../../../shared/components/FormSelect';
 import Button from '../../../../shared/components/Button';
@@ -23,11 +24,8 @@ interface FormErrors {
   cpf?: string;
 }
 
-const PLAN_OPTIONS = [
-  { label: 'Básico', value: 'Básico' },
-  { label: 'Premium', value: 'Premium' },
-  { label: 'VIP', value: 'VIP' },
-];
+// As opções de "Plano" vêm dos Tipos de Pacote cadastrados (não mais uma lista fixa
+// Básico/Premium/VIP) — ver packageTypeAdminService.
 
 const STATUS_OPTIONS: { label: string; value: StudentStatus }[] = [
   { label: 'Ativo', value: 'active' },
@@ -53,7 +51,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
   const [email, setEmail] = useState('');
   const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
-  const [plan, setPlan] = useState('Básico');
+  const [plan, setPlan] = useState('');
   const [status, setStatus] = useState<StudentStatus>('active');
 
   const [cep, setCep] = useState('');
@@ -66,6 +64,21 @@ const StudentFormScreen = ({ route, navigation }: any) => {
   const [cepLoading, setCepLoading] = useState(false);
   const [isDependent, setIsDependent] = useState(false);
   const [responsibleName, setResponsibleName] = useState<string | null>(null);
+  const [planTypes, setPlanTypes] = useState<string[]>([]);
+
+  // Opções de "Plano" = Tipos de Pacote cadastrados (ativos). Mantém o valor atual do aluno na
+  // lista mesmo se o tipo tiver sido desativado/renomeado, pra não apagar o dado ao salvar.
+  useEffect(() => {
+    packageTypeAdminService.list()
+      .then(types => setPlanTypes(types.filter(t => t.active).map(t => t.name)))
+      .catch(error => captureError(error));
+  }, []);
+
+  const planOptions = useMemo(() => {
+    const names = [...planTypes];
+    if (plan && !names.includes(plan)) names.unshift(plan);
+    return names.map(n => ({ label: n, value: n }));
+  }, [planTypes, plan]);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -78,7 +91,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
       setEmail(student.email);
       setCpf(student.cpf || '');
       setPhone(cleanPhone(student.phone || ''));
-      setPlan(student.plan || 'Básico');
+      setPlan(student.plan || '');
       setStatus(student.status);
       setCep(student.cep || '');
       setLogradouro(student.logradouro || '');
@@ -257,7 +270,7 @@ const StudentFormScreen = ({ route, navigation }: any) => {
           keyboardType="phone-pad"
           maxLength={15}
         />
-        <FormSelect label="Plano" value={plan} options={PLAN_OPTIONS} onSelect={(v) => setPlan(v)} />
+        <FormSelect label="Plano" value={plan} options={planOptions} onSelect={(v) => setPlan(v)} />
         <FormSelect label="Status" value={status} options={STATUS_OPTIONS} onSelect={(v) => setStatus(v as StudentStatus)} />
 
         <Text style={styles.sectionTitle}>Endereço</Text>
