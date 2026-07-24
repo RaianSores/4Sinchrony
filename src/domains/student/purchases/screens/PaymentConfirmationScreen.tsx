@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Button from '../../../../shared/components/Button';
@@ -22,7 +22,9 @@ const PaymentConfirmationScreen = ({ navigation, route }: PaymentConfirmationScr
   const success = result?.success;
 
   const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
+  // Tab bar do app é flutuante — usar o hook que soma altura + offset + folga, senão o botão
+  // "Ver Planos" fica parcialmente atrás da navegação em telas menores.
+  const tabBarHeight = useTabBarBottomPadding();
 
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(PIX_EXPIRY_MINUTES * 60);
