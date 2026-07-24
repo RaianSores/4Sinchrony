@@ -6,15 +6,17 @@ import FormSelect from '../../../shared/components/FormSelect';
 import { unitAdminService, AdminUnit } from '../services/unitAdminService';
 import { captureError } from '../../../lib/sentry';
 
-// Busca as unidades uma vez e mantém em cache no módulo (a lista muda pouco).
-let cache: AdminUnit[] | null = null;
+// Mantém a última lista como cache pra mostrar algo na hora, mas SEMPRE refaz a busca ao montar —
+// senão unidades criadas depois (ou a primeira carga vazia) nunca apareciam nos cadastros.
+let cache: AdminUnit[] = [];
 function useUnits() {
-  const [units, setUnits] = useState<AdminUnit[]>(cache ?? []);
+  const [units, setUnits] = useState<AdminUnit[]>(cache);
   useEffect(() => {
-    if (cache) return;
+    let alive = true;
     unitAdminService.list()
-      .then(list => { cache = list; setUnits(list); })
+      .then(list => { cache = list; if (alive) setUnits(list); })
       .catch(error => captureError(error));
+    return () => { alive = false; };
   }, []);
   return units;
 }
