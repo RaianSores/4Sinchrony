@@ -29,7 +29,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
 
-  const { user } = useAuthStore();
+  const { user, refreshUser } = useAuthStore();
   const { classes, fetchClasses, setFilters, isLoading: classesLoading } = useClassStore();
   const { bookings, fetchBookings, isLoading: bookingsLoading } = useBookingStore();
   const { progress, fetchProgress, isLoading: progressLoading } = useProgressStore();
@@ -54,15 +54,16 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
     fetchClasses();
     fetchBookings();
     fetchProgress();
+    refreshUser(); // créditos/plano mudam após compra — recarrega o usuário ao voltar pra Home
     return () => { mountedRef.current = false; };
-  }, [fetchClasses, fetchBookings, fetchProgress, setFilters]));
+  }, [fetchClasses, fetchBookings, fetchProgress, setFilters, refreshUser]));
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setFilters({ date: '', type: '' });
-    await Promise.all([fetchClasses(), fetchBookings(), fetchProgress()]);
+    await Promise.all([fetchClasses(), fetchBookings(), fetchProgress(), refreshUser()]);
     if (mountedRef.current) setRefreshing(false);
-  }, [fetchClasses, fetchBookings, fetchProgress, setFilters]);
+  }, [fetchClasses, fetchBookings, fetchProgress, setFilters, refreshUser]);
 
   const now = new Date();
   const todayStr = [
