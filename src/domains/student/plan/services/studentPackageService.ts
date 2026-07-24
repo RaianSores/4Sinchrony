@@ -45,9 +45,20 @@ export const studentPackageService = {
   // devolve o StudentPackage resultante já com o status correto.
   // ATENÇÃO: `POST /packages/:id/purchase` ainda responde 404 em produção-de-testes (22/07/2026);
   // método pronto mas NÃO ligado ao fluxo de pagamento atual (que usa /payments/pix e /payments/card).
-  async purchasePackage(packageId: string, dependentId?: string): Promise<StudentPackage> {
+  // `amount` e `cpf` são OBRIGATÓRIOS — confirmado ao vivo 24/07: sem eles o endpoint dá 500
+  // (bug de validação do backend, deveria ser 400). Com eles, cria o StudentPackage (fica
+  // `queued` até o pix ser pago). `paymentMethod`: 'pix' | 'card' (card exige cardToken).
+  async purchasePackage(
+    packageId: string,
+    opts: { amount: number; cpf: string; paymentMethod?: 'pix' | 'card'; cardToken?: string; couponCode?: string; dependentId?: string },
+  ): Promise<StudentPackage> {
     const res = await api.post<StudentPackage>(`/packages/${packageId}/purchase`, {
-      dependentId: dependentId || undefined,
+      paymentMethod: opts.paymentMethod ?? 'pix',
+      amount: opts.amount,
+      cpf: opts.cpf,
+      cardToken: opts.cardToken,
+      couponCode: opts.couponCode,
+      dependentId: opts.dependentId || undefined,
     });
     return (res.data as any)?.data ?? res.data;
   },
