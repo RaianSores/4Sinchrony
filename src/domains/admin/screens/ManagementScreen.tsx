@@ -9,7 +9,8 @@ import { mkStyles } from './ManagementScreen.styles';
 const managementItems = [
   { title: 'Alunos', icon: 'people', screen: 'StudentList', color: '#10B981', desc: 'Gerenciar alunos cadastrados' },
   { title: 'Professores', icon: 'school', screen: 'TeacherList', color: '#8B5CF6', desc: 'Gerenciar professores e especialidades' },
-  { title: 'Estúdios', icon: 'business', screen: 'StudioList', color: '#3B82F6', desc: 'Gerenciar unidades e bicicletas' },
+  { title: 'Unidades', icon: 'business', screen: 'UnitList', color: '#0EA5E9', desc: 'Filiais (prédios) com endereço' },
+  { title: 'Estúdios', icon: 'grid', screen: 'StudioList', color: '#3B82F6', desc: 'Salas dentro das unidades e bicicletas' },
   { title: 'Tipos de Aula', icon: 'pricetag', screen: 'ClassTypeList', color: '#F59E0B', desc: 'Gerenciar categorias de aula' },
   { title: 'Aulas', icon: 'calendar', screen: 'ClassList', color: '#ED7921', desc: 'Agendar e gerenciar aulas' },
   { title: 'Pacotes', icon: 'albums', screen: 'PackageList', color: '#EC4899', desc: 'Gerenciar pacotes de créditos' },

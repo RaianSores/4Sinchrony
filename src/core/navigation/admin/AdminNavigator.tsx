@@ -13,6 +13,8 @@ import TeacherFormScreen from '../../../domains/admin/screens/teachers/TeacherFo
 import StudentListScreen from '../../../domains/admin/screens/students/StudentListScreen';
 import StudentFormScreen from '../../../domains/admin/screens/students/StudentFormScreen';
 import StudentHistoryScreen from '../../../domains/admin/screens/students/StudentHistoryScreen';
+import UnitListScreen from '../../../domains/admin/screens/units/UnitListScreen';
+import UnitFormScreen from '../../../domains/admin/screens/units/UnitFormScreen';
 import StudioListScreen from '../../../domains/admin/screens/studios/StudioListScreen';
 import StudioFormScreen from '../../../domains/admin/screens/studios/StudioFormScreen';
 import BikeManagementScreen from '../../../domains/admin/screens/studios/BikeManagementScreen';
@@ -41,7 +43,7 @@ const ProfileStack = createNativeStackNavigator();
 
 const TAB_VISIBLE_SCREENS = new Set([
   'AdminDashboard',
-  'Management', 'StudentList', 'TeacherList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
+  'Management', 'StudentList', 'TeacherList', 'UnitList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
   'PackageTypeList', 'BenefitList',
   'AdminBookingList', 'AdminCheckin', 'AdminReports',
   'AdminProfile', 'EditProfile', 'AdminSettings', 'Settings', 'ChangePassword', 'Notifications',
@@ -65,6 +67,8 @@ const ManagementStackScreen = () => (
     <ManagementStack.Screen name="StudentHistory" component={StudentHistoryScreen} />
     <ManagementStack.Screen name="TeacherList" component={TeacherListScreen} />
     <ManagementStack.Screen name="TeacherForm" component={TeacherFormScreen} />
+    <ManagementStack.Screen name="UnitList" component={UnitListScreen} />
+    <ManagementStack.Screen name="UnitForm" component={UnitFormScreen} />
     <ManagementStack.Screen name="StudioList" component={StudioListScreen} />
     <ManagementStack.Screen name="StudioForm" component={StudioFormScreen} />
     <ManagementStack.Screen name="BikeManagement" component={BikeManagementScreen} />
