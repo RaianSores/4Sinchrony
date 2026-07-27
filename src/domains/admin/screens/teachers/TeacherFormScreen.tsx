@@ -7,8 +7,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { teacherAdminService, AdminTeacher } from '../../services/teacherAdminService';
 import FormInput from '../../../../shared/components/FormInput';
+import FormSelect from '../../../../shared/components/FormSelect';
 import FormToggle from '../../../../shared/components/FormToggle';
 import { UnitMultiSelect } from '../../components/UnitPicker';
+import { fetchAddressByCep, formatCep, cleanCep, UF_OPTIONS } from '../../../../shared/utils/viaCep';
 import Button from '../../../../shared/components/Button';
 import { useAppAlert } from '../../../../shared/components/AlertModal';
 import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
@@ -24,6 +26,8 @@ interface FormErrors {
   cpf?: string;
   password?: string;
 }
+
+const UF_SELECT_OPTIONS = [{ label: '—', value: '' }, ...UF_OPTIONS.map(uf => ({ label: uf, value: uf }))];
 
 const TeacherFormScreen = ({ route, navigation }: any) => {
   const { colors } = useTheme();
@@ -46,6 +50,29 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
   const [unitIds, setUnitIds] = useState<string[]>([]);
   const [specialtyInput, setSpecialtyInput] = useState('');
 
+  const [cep, setCep] = useState('');
+  const [logradouro, setLogradouro] = useState('');
+  const [numero, setNumero] = useState('');
+  const [complemento, setComplemento] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
+  const [cepLoading, setCepLoading] = useState(false);
+
+  const handleCepChange = async (raw: string) => {
+    const digits = cleanCep(raw);
+    setCep(digits);
+    if (digits.length === 8) {
+      setCepLoading(true);
+      const addr = await fetchAddressByCep(digits);
+      setCepLoading(false);
+      if (addr) {
+        setLogradouro(addr.logradouro); setBairro(addr.bairro); setCidade(addr.cidade); setEstado(addr.estado);
+        if (addr.complemento) setComplemento(addr.complemento);
+      }
+    }
+  };
+
   const [togglingActive, setTogglingActive] = useState(false);
   const [generatingPassword, setGeneratingPassword] = useState(false);
   const [temporaryPassword, setTemporaryPassword] = useState('');
@@ -63,6 +90,8 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
       setActive(teacher.active);
       setSpecialties(teacher.specialties || []);
       setUnitIds(teacher.unitIds || (teacher.units?.map(u => u.id) ?? []));
+      setCep(teacher.cep || ''); setLogradouro(teacher.logradouro || ''); setNumero(teacher.numero || '');
+      setComplemento(teacher.complemento || ''); setBairro(teacher.bairro || ''); setCidade(teacher.cidade || ''); setEstado(teacher.estado || '');
     }).catch(error => captureError(error)).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [isEdit, teacherId]);
@@ -94,7 +123,9 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
 
     setSaving(true);
     try {
-      const payload = { name: name.trim(), email: email.trim(), phone, cpf: cpf ? cleanCPF(cpf) : undefined, specialties, unitIds };
+      const payload = { name: name.trim(), email: email.trim(), phone, cpf: cpf ? cleanCPF(cpf) : undefined, specialties, unitIds,
+        cep: cleanCep(cep) || undefined, logradouro: logradouro.trim() || undefined, numero: numero.trim() || undefined,
+        complemento: complemento.trim() || undefined, bairro: bairro.trim() || undefined, cidade: cidade.trim() || undefined, estado: estado || undefined };
       if (isEdit) {
         await teacherAdminService.update(teacherId, payload);
       } else {
@@ -232,6 +263,16 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
         {!isEdit && (
           <FormInput label="Senha" required value={password} onChangeText={setPassword} error={errors.password} placeholder="Mínimo 6 caracteres" secureTextEntry />
         )}
+
+        <Text style={styles.sectionLabel}>Endereço</Text>
+        <FormInput label="CEP" value={formatCep(cep)} onChangeText={handleCepChange} placeholder="00000-000" keyboardType="numeric" maxLength={9} />
+        {cepLoading && <Text style={styles.hint}>Buscando endereço…</Text>}
+        <FormInput label="Endereço" value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" />
+        <FormInput label="Número" value={numero} onChangeText={setNumero} placeholder="123" keyboardType="numeric" />
+        <FormInput label="Complemento" value={complemento} onChangeText={setComplemento} placeholder="Apto, bloco…" />
+        <FormInput label="Bairro" value={bairro} onChangeText={setBairro} />
+        <FormInput label="Cidade" value={cidade} onChangeText={setCidade} />
+        <FormSelect label="Estado" value={estado} options={UF_SELECT_OPTIONS} onSelect={setEstado} />
 
         <UnitMultiSelect value={unitIds} onChange={setUnitIds} label="Unidades (filiais)" />
 

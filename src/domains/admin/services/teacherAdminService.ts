@@ -11,6 +11,14 @@ export interface AdminTeacher {
   units?: { id: string; name: string }[];
   avatar: string | null;
   specialties: string[];
+  // Endereço estruturado (backend liberou 24/07).
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
 }
 
 export interface TeacherFormData {
