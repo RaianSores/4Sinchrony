@@ -20,8 +20,13 @@ export interface AdminDashboardData {
 }
 
 export const adminService = {
-  async getDashboard(): Promise<AdminDashboardData> {
-    const res = await api.get<AdminDashboardData>('/admin/dashboard');
+  // `year` filtra a receita mensal (jan–dez do ano). O backend ainda ignora o parâmetro
+  // (retorna janela fixa de 6 meses) — build-ahead: já enviamos `?year=` e o frontend monta
+  // os 12 meses do ano selecionado. Ver DEMANDA_RECEITA_MENSAL_POR_ANO_BACKEND.md.
+  async getDashboard(year?: number): Promise<AdminDashboardData> {
+    const res = await api.get<AdminDashboardData>('/admin/dashboard', {
+      params: year ? { year } : undefined,
+    });
     // `occupancyRate` de /admin/dashboard vem fixo/incorreto do backend (confirmado
     // 09/07/2026: mostrava 74% tanto com 0 aulas cadastradas quanto com dados reais
     // diferentes depois — nunca muda, não reflete dado nenhum). /api/reports/summary

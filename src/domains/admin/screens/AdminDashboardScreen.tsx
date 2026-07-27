@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -19,29 +19,26 @@ const ACTIVITY_COLORS: Record<Activity['type'], string> = {
 };
 const getActivityColor = (type: Activity['type']) => ACTIVITY_COLORS[type] ?? '#3B82F6';
 
-// A API devolve os meses de receita fora de ordem e em formatos variados ("Apr/2026",
-// "2026-04"…). Normalizamos para uma chave ordenável + um label curto em pt-BR pra não
-// estourar a largura da coluna do gráfico.
+// A API devolve os meses de receita em formatos variados ("Apr/2026", "2026-04"…).
+// Extraímos ano + índice do mês (0–11) pra encaixar no eixo fixo jan–dez do ano selecionado.
 const EN_MONTHS: Record<string, number> = {
   jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
 };
 const PT_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
-function parseRevenueMonth(raw: string): { key: number; label: string } {
+function parseRevenueMonth(raw: string): { year: number; monthIndex: number } | null {
   const s = String(raw ?? '').trim();
   let m = s.match(/^([A-Za-z]{3,})[/\-\s]+(\d{4})$/); // Apr/2026, Jul-2026
   if (m) {
     const mi = EN_MONTHS[m[1].slice(0, 3).toLowerCase()];
-    const yr = Number(m[2]);
-    if (mi != null) return { key: yr * 12 + mi, label: `${PT_MONTHS[mi]}/${String(yr).slice(2)}` };
+    if (mi != null) return { year: Number(m[2]), monthIndex: mi };
   }
   m = s.match(/^(\d{4})[-/](\d{1,2})$/); // 2026-04
   if (m) {
-    const yr = Number(m[1]);
     const mi = Number(m[2]) - 1;
-    if (mi >= 0 && mi < 12) return { key: yr * 12 + mi, label: `${PT_MONTHS[mi]}/${String(yr).slice(2)}` };
+    if (mi >= 0 && mi < 12) return { year: Number(m[1]), monthIndex: mi };
   }
-  return { key: Number.MAX_SAFE_INTEGER, label: s };
+  return null;
 }
 
 function formatCompactBRL(v: number): string {
@@ -58,9 +55,20 @@ const AdminDashboardScreen = ({ navigation }: any) => {
   const tabPadding = useTabBarBottomPadding();
   const { user } = useAuthStore();
 
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
+
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['admin', 'dashboard'],
     queryFn: () => adminService.getDashboard(),
+  });
+
+  // Anos anteriores usam uma consulta separada (mesmo endpoint, com ?year=) pra não
+  // refazer o dashboard inteiro; o ano atual reaproveita o dashboard já carregado.
+  const { data: yearData } = useQuery({
+    queryKey: ['admin', 'dashboard', 'year', year],
+    queryFn: () => adminService.getDashboard(year),
+    enabled: year !== currentYear,
   });
 
   if (isLoading) {
@@ -87,11 +95,19 @@ const AdminDashboardScreen = ({ navigation }: any) => {
     { title: 'Ocupação', value: `${data?.occupancyRate ?? 0}%`, icon: 'analytics', color: '#EC4899' },
   ];
 
-  const revenueData = (data?.monthlyRevenue ?? [])
-    .map(item => ({ ...parseRevenueMonth(item.month), value: Number(item.value ?? 0) }))
-    .sort((a, b) => a.key - b.key);
+  // Eixo fixo jan–dez do ano selecionado. Encaixamos cada mês que a API devolver na sua
+  // posição; meses sem dado ficam zerados.
+  const rawMonthly = (year === currentYear ? data?.monthlyRevenue : yearData?.monthlyRevenue) ?? [];
+  const revenueData = PT_MONTHS.map(label => ({ label, value: 0 }));
+  rawMonthly.forEach(item => {
+    const parsed = parseRevenueMonth(item.month);
+    if (parsed && parsed.year === year) {
+      revenueData[parsed.monthIndex].value = Number(item.value ?? 0);
+    }
+  });
   const maxRevenue = Math.max(1, ...revenueData.map(d => d.value));
   const hasRevenue = revenueData.some(d => d.value > 0);
+  const yearTotal = revenueData.reduce((sum, d) => sum + d.value, 0);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -147,7 +163,26 @@ const AdminDashboardScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Receita Mensal</Text>
+          <View style={styles.sectionHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sectionTitle}>Receita Mensal</Text>
+              <Text style={styles.sectionMeta}>Total de {formatCompactBRL(yearTotal)} em {year}</Text>
+            </View>
+            <View style={styles.yearSelector}>
+              <TouchableOpacity onPress={() => setYear(y => y - 1)} style={styles.yearBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons name="chevron-back" size={18} color={colors.text} />
+              </TouchableOpacity>
+              <Text style={styles.yearLabel}>{year}</Text>
+              <TouchableOpacity
+                onPress={() => setYear(y => Math.min(currentYear, y + 1))}
+                disabled={year >= currentYear}
+                style={styles.yearBtn}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Ionicons name="chevron-forward" size={18} color={year >= currentYear ? colors.border : colors.text} />
+              </TouchableOpacity>
+            </View>
+          </View>
           {hasRevenue ? (
             <View style={styles.chartCard}>
               <ScrollView
@@ -171,7 +206,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
           ) : (
             <View style={styles.chartEmpty}>
               <Ionicons name="bar-chart-outline" size={30} color={colors.textSecondary} />
-              <Text style={styles.chartEmptyText}>Sem receita registrada no período</Text>
+              <Text style={styles.chartEmptyText}>Sem receita registrada em {year}</Text>
             </View>
           )}
         </View>
