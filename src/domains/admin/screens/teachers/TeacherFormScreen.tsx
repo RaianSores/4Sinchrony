@@ -266,7 +266,7 @@ const TeacherFormScreen = ({ route, navigation }: any) => {
 
         <Text style={styles.sectionLabel}>Endereço</Text>
         <FormInput label="CEP" value={formatCep(cep)} onChangeText={handleCepChange} placeholder="00000-000" keyboardType="numeric" maxLength={9} />
-        {cepLoading && <Text style={styles.hint}>Buscando endereço…</Text>}
+        {cepLoading && <Text style={{ fontSize: 12, color: colors.textSecondary, marginBottom: 8 }}>Buscando endereço…</Text>}
         <FormInput label="Endereço" value={logradouro} onChangeText={setLogradouro} placeholder="Rua / Avenida" />
         <FormInput label="Número" value={numero} onChangeText={setNumero} placeholder="123" keyboardType="numeric" />
         <FormInput label="Complemento" value={complemento} onChangeText={setComplemento} placeholder="Apto, bloco…" />
