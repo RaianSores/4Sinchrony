@@ -15,6 +15,7 @@ import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottom
 import { canCancelBooking } from '../../../../shared/utils/canCancelBooking';
 import type { BookingsScreenProps } from '../../../../core/navigation/types/screenProps';
 import { captureError } from '../../../../lib/sentry';
+import { getApiErrorMessage } from '../../../../shared/utils/getApiErrorMessage';
 import { mkStyles } from './BookingsScreen.styles';
 import Skeleton from '../../../../shared/components/Skeleton';
 
@@ -111,7 +112,14 @@ const BookingsScreen = ({ navigation }: BookingsScreenProps) => {
           await cancelBooking(booking.id);
           updateUser({ credits: (user?.credits || 0) + 1 });
           showAlert({ title: 'Cancelada', message: 'Reserva cancelada com sucesso. 1 crédito foi estornado.' });
-        } catch (error) { captureError(error); showAlert({ title: 'Erro', message: 'Não foi possível cancelar' }); }
+        } catch (error) {
+          captureError(error);
+          // Surfa a mensagem real do backend (ex.: prazo de cancelamento per-pacote —
+          // "Cancelamento deve ser feito com no mínimo Nh de antecedência.") em vez de um
+          // genérico. Ver getApiErrorMessage (lê error.response.data.error.message).
+          showAlert({ title: 'Não foi possível cancelar', message: getApiErrorMessage(error, 'Tente novamente em instantes.') });
+          await fetchBookings();
+        }
         finally { setCancellingId(null); }
       }}] });
   };

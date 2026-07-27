@@ -9,15 +9,14 @@ export function canCancelBooking(booking: Booking): { allowed: boolean; reason?:
 
   const now = new Date();
   const diffMs = classDate.getTime() - now.getTime();
-  const diffHours = diffMs / (1000 * 60 * 60);
 
   if (diffMs < 0) {
     return { allowed: false, reason: 'Esta aula já aconteceu.' };
   }
 
-  if (diffHours < 2) {
-    return { allowed: false, reason: 'Não é possível cancelar com menos de 2 horas de antecedência.' };
-  }
-
+  // O prazo de cancelamento (cancellationDeadlineHours) agora é per-pacote e validado pelo
+  // backend, que retorna a mensagem exata (ex.: "mínimo 48h de antecedência"). Não replicamos
+  // aqui um valor fixo (antes era "2 horas" hardcoded, que conflitava com a regra real) —
+  // deixamos passar e a tela mostra a mensagem do backend se ele recusar.
   return { allowed: true };
 }

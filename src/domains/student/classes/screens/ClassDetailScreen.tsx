@@ -163,13 +163,10 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
         buttons: [{ text: 'Fechar', style: 'cancel' }, { text: 'Ver Planos', onPress: () => navigation.navigate('ProfileTab', { screen: 'Packages' }) }] });
       return;
     }
-    const activeBookingCount = bookings.filter(b => b.status === 'confirmed').length;
-    const maxBookings = user?.maxBookings ?? 5;
-    if (activeBookingCount >= maxBookings) {
-      showAlert({ title: 'Limite de reservas', message: `Você atingiu o limite de ${maxBookings} reservas ativas. Cancele uma reserva existente para fazer uma nova.`,
-        buttons: [{ text: 'Fechar', style: 'cancel' }] });
-      return;
-    }
+    // O limite de reservas (maxFutureBookings/maxBookingsPerDay…) agora é per-pacote e validado
+    // pelo backend, que devolve a mensagem exata (surfaçada no catch abaixo). Removida a trava
+    // client-side antiga (`user.maxBookings ?? 5`), que contava reservas passadas e usava um teto
+    // fixo — bloqueava por engano quem tinha muitas aulas no histórico.
     const conflict = bookingService.checkConflicts(classItem, bookings);
     if (conflict) {
       if (conflict.type === 'duplicate') { showAlert({ title: 'Aula já reservada', message: conflict.message }); return; }
