@@ -19,6 +19,39 @@ const ACTIVITY_COLORS: Record<Activity['type'], string> = {
 };
 const getActivityColor = (type: Activity['type']) => ACTIVITY_COLORS[type] ?? '#3B82F6';
 
+// A API devolve os meses de receita fora de ordem e em formatos variados ("Apr/2026",
+// "2026-04"…). Normalizamos para uma chave ordenável + um label curto em pt-BR pra não
+// estourar a largura da coluna do gráfico.
+const EN_MONTHS: Record<string, number> = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+};
+const PT_MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+function parseRevenueMonth(raw: string): { key: number; label: string } {
+  const s = String(raw ?? '').trim();
+  let m = s.match(/^([A-Za-z]{3,})[/\-\s]+(\d{4})$/); // Apr/2026, Jul-2026
+  if (m) {
+    const mi = EN_MONTHS[m[1].slice(0, 3).toLowerCase()];
+    const yr = Number(m[2]);
+    if (mi != null) return { key: yr * 12 + mi, label: `${PT_MONTHS[mi]}/${String(yr).slice(2)}` };
+  }
+  m = s.match(/^(\d{4})[-/](\d{1,2})$/); // 2026-04
+  if (m) {
+    const yr = Number(m[1]);
+    const mi = Number(m[2]) - 1;
+    if (mi >= 0 && mi < 12) return { key: yr * 12 + mi, label: `${PT_MONTHS[mi]}/${String(yr).slice(2)}` };
+  }
+  return { key: Number.MAX_SAFE_INTEGER, label: s };
+}
+
+function formatCompactBRL(v: number): string {
+  if (v >= 1000) {
+    const k = v / 1000;
+    return `R$${Number.isInteger(k) ? k : k.toFixed(1).replace('.', ',')}k`;
+  }
+  return `R$${Math.round(v)}`;
+}
+
 const AdminDashboardScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
@@ -53,6 +86,12 @@ const AdminDashboardScreen = ({ navigation }: any) => {
     { title: 'Assinaturas', value: data?.activeSubscriptions ?? 0, icon: 'card', color: '#6366F1' },
     { title: 'Ocupação', value: `${data?.occupancyRate ?? 0}%`, icon: 'analytics', color: '#EC4899' },
   ];
+
+  const revenueData = (data?.monthlyRevenue ?? [])
+    .map(item => ({ ...parseRevenueMonth(item.month), value: Number(item.value ?? 0) }))
+    .sort((a, b) => a.key - b.key);
+  const maxRevenue = Math.max(1, ...revenueData.map(d => d.value));
+  const hasRevenue = revenueData.some(d => d.value > 0);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -109,14 +148,32 @@ const AdminDashboardScreen = ({ navigation }: any) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Receita Mensal</Text>
-          <View style={styles.chart}>
-            {(data?.monthlyRevenue ?? []).map(item => (
-              <View key={item.month} style={styles.barContainer}>
-                <View style={[styles.bar, { height: ((item.value ?? 0) / 50000) * 120 }]} />
-                <Text style={styles.barLabel}>{item.month}</Text>
-              </View>
-            ))}
-          </View>
+          {hasRevenue ? (
+            <View style={styles.chartCard}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chartRow}
+              >
+                {revenueData.map((d, i) => (
+                  <View key={`${d.label}-${i}`} style={styles.barColumn}>
+                    <Text style={styles.barValue} numberOfLines={1}>
+                      {d.value > 0 ? formatCompactBRL(d.value) : ''}
+                    </Text>
+                    <View style={styles.barTrack}>
+                      <View style={[styles.bar, { height: Math.max(4, (d.value / maxRevenue) * 120) }]} />
+                    </View>
+                    <Text style={styles.barLabel} numberOfLines={1}>{d.label}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          ) : (
+            <View style={styles.chartEmpty}>
+              <Ionicons name="bar-chart-outline" size={30} color={colors.textSecondary} />
+              <Text style={styles.chartEmptyText}>Sem receita registrada no período</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
