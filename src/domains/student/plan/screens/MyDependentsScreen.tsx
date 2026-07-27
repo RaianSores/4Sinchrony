@@ -6,6 +6,7 @@ import { useTheme } from '../../../../shared/theme/useTheme';
 import Header from '../../../../shared/components/Header';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
 import { dependentService, Dependent } from '../services/dependentService';
+import { useAuthStore } from '../../../../core/auth/store/useAuthStore';
 import ListItemCard from '../../../../shared/components/ListItemCard';
 import EmptyState from '../../../../shared/components/EmptyState';
 import FormInput from '../../../../shared/components/FormInput';
@@ -25,6 +26,7 @@ const MyDependentsScreen = ({ navigation }: any) => {
   const styles = useMemo(() => mkStyles(colors), [colors]);
   const tabPadding = useTabBarBottomPadding();
   const { showAlert } = useAppAlert();
+  const { user } = useAuthStore();
 
   const [dependents, setDependents] = useState<Dependent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,6 +118,11 @@ const MyDependentsScreen = ({ navigation }: any) => {
         phone: phoneClean || undefined,
         canBook, canCancel, canViewHistory,
         active: editing?.active ?? true,
+        // Enviamos o vínculo explícito (responsável logado) para o backend gravar as colunas
+        // User.IsDependent/ResponsibleStudentId ao salvar. Hoje o POST já popula sozinho; o PUT
+        // ainda ignora (backend precisa honrar — ver DEMANDA_DEPENDENTE_COLUNAS_VINCULO_BACKEND.md),
+        // então re-salvar um dependente antigo só corrige quando o backend passar a aplicar isto.
+        responsibleStudentId: user?.id,
       };
       if (editing) {
         await dependentService.update(editing.id, payload);

@@ -36,6 +36,10 @@ export interface DependentFormData {
   canCancel: boolean;
   canViewHistory: boolean;
   active: boolean;
+  // Vínculo explícito com o responsável (aluno logado). O backend usa o token pra saber o
+  // responsável no POST (já popula User.IsDependent/ResponsibleStudentId), mas mandamos aqui
+  // pro dia em que o PUT também honrar isto e corrigir dependentes antigos ao re-salvar.
+  responsibleStudentId?: string;
 }
 
 export const dependentService = {
