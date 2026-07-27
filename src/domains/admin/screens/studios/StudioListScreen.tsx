@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Switch } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../../../shared/theme/useTheme';
 import { useTabBarBottomPadding } from '../../../../shared/hooks/useTabBarBottomPadding';
@@ -22,22 +22,7 @@ const StudioListScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
-  const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // Toggle de status inline (padrão de todas as listas). activate/deactivate só devolvem
-  // {success:true}, então atualizamos o estado local de forma otimista.
-  const handleToggleActive = async (item: AdminStudio, value: boolean) => {
-    setTogglingId(item.id);
-    try {
-      if (value) await studioAdminService.activate(item.id);
-      else await studioAdminService.deactivate(item.id);
-      setStudios(prev => prev.map(s => (s.id === item.id ? { ...s, active: value } : s)));
-    } catch (error) {
-      captureError(error);
-    } finally {
-      setTogglingId(null);
-    }
-  };
 
   const load = useCallback(async () => {
     try {
@@ -73,17 +58,9 @@ const StudioListScreen = ({ navigation }: any) => {
     <ListItemCard
       icon="business"
       title={item.name}
+        badge={{ label: item.active ? 'Ativo' : 'Inativo', variant: item.active ? 'success' : 'danger' }}
       subtitle={`${item.address} · ${item.capacity} vagas · ${item.openingTime}–${item.closingTime}`}
       onPress={() => navigation.navigate('StudioForm', { studioId: item.id })}
-      rightElement={
-        <Switch
-          value={item.active}
-          onValueChange={(value) => handleToggleActive(item, value)}
-          disabled={togglingId === item.id}
-          trackColor={{ false: colors.border, true: colors.primary }}
-          thumbColor={colors.white}
-        />
-      }
     />
   );
 
