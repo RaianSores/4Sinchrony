@@ -32,6 +32,11 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
     });
   };
 
+  // Dependente (pacote família) tem acesso limitado: quem gerencia dependentes, compras,
+  // cartões e planos é o responsável. Escondemos esses itens quando o usuário é dependente.
+  const isDependent = !!user?.isDependent;
+  const dependentBlockedScreens = ['MyDependents', 'MyPurchases', 'MyCards', 'Packages'];
+
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
     { title: 'Meu Pacote', icon: 'ribbon-outline', screen: 'MyPackage' },
@@ -41,7 +46,7 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
     { title: 'Planos', icon: 'pricetags-outline', screen: 'Packages' },
     { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
-  ];
+  ].filter(item => !(isDependent && dependentBlockedScreens.includes(item.screen)));
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>

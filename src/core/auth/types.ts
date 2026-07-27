@@ -23,6 +23,9 @@ export interface AuthResponse {
     role: Role;
     avatar?: string;
     credits?: number;
+    // Dependente (pacote família): acesso limitado no perfil. Depende do backend expor.
+    isDependent?: boolean;
+    responsibleStudentId?: string | null;
   };
   token: string;
   refresh_token: string;
