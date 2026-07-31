@@ -9,9 +9,13 @@ import OfflineBanner from './src/shared/components/OfflineBanner';
 import { googleSignInService } from './src/core/auth/services/googleSignInService';
 import { env } from './src/config/env';
 
-if (env.GOOGLE_WEB_CLIENT_ID) {
-  googleSignInService.configure(env.GOOGLE_WEB_CLIENT_ID);
-}
+// TODO(google-signin): desativado temporariamente nos dois plataformas até fazer a config
+// completa do iOS (GoogleService-Info.plist + iosClientId + reversed URL scheme) e resolver a
+// regra 4.8 da Apple (Sign in with Apple). Para reativar: descomentar abaixo e os botões em
+// LoginScreen/RegisterScreen. Ver docs/CHECKLIST_GO_LIVE.md.
+// if (env.GOOGLE_WEB_CLIENT_ID) {
+//   googleSignInService.configure(env.GOOGLE_WEB_CLIENT_ID);
+// }
 
 const queryClient = new QueryClient();
 

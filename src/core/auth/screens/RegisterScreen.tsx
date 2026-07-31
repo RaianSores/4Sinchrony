@@ -304,6 +304,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 variant="dark"
               />
 
+              {/* TODO(google-signin): oculto temporariamente (ver App.tsx). Reativar depois da config iOS + Sign in with Apple.
               {isGoogleConfigured && (
                 <GoogleSignInButton
                   onPress={handleGoogleRegister}
@@ -311,6 +312,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   label="Cadastrar com Google"
                 />
               )}
+              */}
 
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />

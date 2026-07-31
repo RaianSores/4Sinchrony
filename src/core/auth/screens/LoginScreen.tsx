@@ -180,12 +180,14 @@ const LoginScreen = ({ navigation }: any) => {
                 <Text style={[styles.forgotPassword, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Esqueci minha senha</Text>
               </TouchableOpacity>
 
+              {/* TODO(google-signin): oculto temporariamente (ver App.tsx). Reativar depois da config iOS + Sign in with Apple.
               {isGoogleConfigured && (
                 <GoogleSignInButton
                   onPress={handleGoogleSignIn}
                   loading={googleLoading}
                 />
               )}
+              */}
 
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
