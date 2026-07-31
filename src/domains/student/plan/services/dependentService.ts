@@ -7,7 +7,11 @@ import { api } from '../../../../core/http/api';
 // os créditos do pacote do responsável. Ver docs/pacotes/ESPECIFICACAO_API_PLANOS_DINAMICOS.md
 // (seção "Dependente = Student vinculado") e DEMANDA_PLANOS_API_GAPS.md (Gap 7). `id` é um studentId.
 export interface Dependent {
-  id: string; // studentId do dependente
+  id: string; // id do REGISTRO de dependente (não é o studentId — ver `userId`)
+  // `userId` é o studentId real do dependente. É ELE que vai em `studentId` ao reservar
+  // (`POST /bookings`) e ao consultar `/api/students/:id` — confirmado com o backend 30/07.
+  // O `id` acima é só o id do vínculo/registro de dependente e dá 404 nessas rotas.
+  userId?: string;
   responsibleStudentId?: string;
   name: string;
   email?: string; // login somente-leitura do dependente

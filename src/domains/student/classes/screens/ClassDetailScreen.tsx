@@ -147,9 +147,12 @@ const ClassDetailScreen = ({ navigation, route }: ClassDetailScreenProps) => {
     // titular, então não se aplicam — deixamos o backend validar a alocação do dependente.
     if (bookingFor) {
       const dep = dependents.find(d => d.id === bookingFor);
+      // `studentId` no POST /bookings é o studentId REAL do dependente (`userId`), não o id do
+      // registro de dependente (`bookingFor`/`dep.id`). Fallback pro id antigo se `userId` faltar.
+      const dependentStudentId = dep?.userId ?? bookingFor;
       setLoading(true);
       try {
-        await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined, bookingFor);
+        await bookClass(classItem.id, isBikeClass ? effectiveBike! : undefined, dependentStudentId);
         showAlert({ title: 'Reservado!', message: `Aula ${classItem.name} reservada para ${dep?.name ?? 'o dependente'}.`, buttons: [{ text: 'OK', onPress: () => navigation.goBack() }] });
       } catch (error) {
         captureError(error);
