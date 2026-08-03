@@ -65,12 +65,38 @@ export const teacherAdminService = {
     return res.data;
   },
 
+  // As rotas `PATCH /:id/activate|deactivate` foram removidas do backend (404, confirmado ao
+  // vivo ago/2026 — ver docs/DEMANDA_ACHADOS_TESTES_BACKEND.md). O status muda via `PUT
+  // /api/teachers/:id` com `active` (testado, funciona). PUT não é parcial, então buscamos o
+  // registro atual e reenviamos os campos + o novo `active`.
+  async setActive(id: string, active: boolean): Promise<AdminTeacher> {
+    const cur = await this.getById(id);
+    if (!cur) throw new Error('Professor não encontrado');
+    const res = await api.put<AdminTeacher>(`/api/teachers/${id}`, {
+      name: cur.name,
+      email: cur.email,
+      phone: cur.phone,
+      cpf: cur.cpf ?? '',
+      active,
+      specialties: cur.specialties ?? [],
+      unitIds: cur.unitIds ?? (cur.units?.map(u => u.id) ?? []),
+      cep: cur.cep,
+      logradouro: cur.logradouro,
+      numero: cur.numero,
+      complemento: cur.complemento,
+      bairro: cur.bairro,
+      cidade: cur.cidade,
+      estado: cur.estado,
+    });
+    return res.data;
+  },
+
   async activate(id: string): Promise<void> {
-    await api.patch(`/api/teachers/${id}/activate`);
+    await this.setActive(id, true);
   },
 
   async deactivate(id: string): Promise<void> {
-    await api.patch(`/api/teachers/${id}/deactivate`);
+    await this.setActive(id, false);
   },
 
   async sendTemporaryPassword(id: string): Promise<string> {

@@ -90,14 +90,38 @@ export const studentAdminService = {
     return res.data;
   },
 
-  async deactivate(id: string): Promise<AdminStudent> {
-    const res = await api.patch<AdminStudent>(`/api/students/${id}/deactivate`);
+  // As rotas dedicadas `PATCH /:id/deactivate|reactivate` foram removidas do backend (404,
+  // confirmado ao vivo ago/2026 — ver docs/DEMANDA_ACHADOS_TESTES_BACKEND.md). O status agora
+  // muda via `PUT /api/students/:id` com `status` (o mesmo que o formulário faz e funciona).
+  // Como o PUT não é parcial, buscamos o registro atual e reenviamos os campos + o novo status.
+  async setStatus(id: string, status: StudentStatus): Promise<AdminStudent> {
+    const cur = await this.getById(id);
+    if (!cur) throw new Error('Aluno não encontrado');
+    const payload: StudentFormData = {
+      name: cur.name,
+      email: cur.email,
+      phone: cur.phone,
+      cpf: cur.cpf ?? '',
+      plan: cur.plan ?? '',
+      status,
+      cep: cur.cep,
+      logradouro: cur.logradouro,
+      numero: cur.numero,
+      complemento: cur.complemento,
+      bairro: cur.bairro,
+      cidade: cur.cidade,
+      estado: cur.estado,
+    };
+    const res = await api.put<AdminStudent>(`/api/students/${id}`, payload);
     return res.data;
   },
 
+  async deactivate(id: string): Promise<AdminStudent> {
+    return this.setStatus(id, 'inactive');
+  },
+
   async reactivate(id: string): Promise<AdminStudent> {
-    const res = await api.patch<AdminStudent>(`/api/students/${id}/reactivate`);
-    return res.data;
+    return this.setStatus(id, 'active');
   },
 
   async getHistory(id: string): Promise<StudentHistoryItem[]> {
