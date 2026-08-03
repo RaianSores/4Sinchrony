@@ -59,7 +59,15 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
     {
       title: 'Suporte',
       items: [
-        { icon: 'chatbubble-ellipses-outline', label: 'Fale Conosco', url: APP_LINKS.contact },
+        { icon: 'mail-outline', label: 'Fale Conosco', url: APP_LINKS.contact },
+        { icon: 'logo-whatsapp', label: 'WhatsApp', url: APP_LINKS.whatsapp },
+      ],
+    },
+    {
+      title: 'Legal',
+      items: [
+        { icon: 'document-text-outline', label: 'Termos de Serviço', url: APP_LINKS.terms },
+        { icon: 'shield-checkmark-outline', label: 'Política de Privacidade', url: APP_LINKS.privacy },
       ],
     },
   ];
