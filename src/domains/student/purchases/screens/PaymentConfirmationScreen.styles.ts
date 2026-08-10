@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { borderRadius } from '../../../../shared/theme';
 
 export const mkStyles = (colors: any) => StyleSheet.create({
@@ -30,7 +30,10 @@ export const mkStyles = (colors: any) => StyleSheet.create({
     borderColor: colors.border,
   },
   pixCodeLabel: { color: colors.textSecondary, fontSize: 12, marginBottom: 4 },
-  pixCode: { color: colors.text, fontSize: 12, fontFamily: 'monospace' },
+  // 'monospace' é um alias genérico só do Android — no iOS não existe fonte com esse nome
+  // literal, então cai silenciosamente na fonte padrão do sistema (não quebra, só perde o
+  // alinhamento em colunas fixas do código PIX). Courier é o monospace real do iOS.
+  pixCode: { color: colors.text, fontSize: 12, fontFamily: Platform.select({ ios: 'Courier', android: 'monospace' }) },
   copyButton: {
     flexDirection: 'row',
     alignItems: 'center',
