@@ -22,7 +22,7 @@ import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './LoginScreen.styles';
-import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcone';
+import { FourSinchronyImage } from '../../../shared/components/FourSinchronyImage';
 import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
 
 const SCALE_BASE = 375;
@@ -119,7 +119,7 @@ const LoginScreen = ({ navigation }: any) => {
           {!keyboardVisible && (
             <View style={[styles.topSection, { paddingTop: isSmallScreen ? Math.min(SCREEN_HEIGHT * 0.05, 60) : Math.min(SCREEN_HEIGHT * 0.08, 100) }]}>
               <View style={[styles.img, { width: ms(isSmallScreen ? 110 : 140), height: ms(isSmallScreen ? 110 : 140), borderRadius: ms(isSmallScreen ? 55 : 70) }]}>
-                <FourSinchronyIcone size={ms(isSmallScreen ? 110 : 140)} />
+                <FourSinchronyImage size={ms(isSmallScreen ? 220 : 280)} />
               </View>
               <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Transforme seu corpo, eleve sua mente</Text>
             </View>
