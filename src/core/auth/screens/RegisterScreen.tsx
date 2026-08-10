@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Pressable,
   Keyboard,
+  Linking,
   useWindowDimensions,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -26,6 +27,7 @@ import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './RegisterScreen.styles';
 import { formatCPF, validateCPF, cleanCPF } from '../../../shared/utils/validateCPF';
 import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
+import { APP_LINKS } from '../../../core/config/appLinks';
 
 interface RegisterErrors {
   name?: string;
@@ -34,6 +36,7 @@ interface RegisterErrors {
   phone?: string;
   password?: string;
   confirmPassword?: string;
+  acceptedTerms?: string;
 }
 
 const SCALE_BASE = 375;
@@ -56,6 +59,7 @@ const RegisterScreen = ({ navigation }: any) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -117,6 +121,9 @@ const RegisterScreen = ({ navigation }: any) => {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'As senhas não coincidem';
     }
+    if (!acceptedTerms) {
+      newErrors.acceptedTerms = 'É necessário aceitar os Termos de Uso para continuar';
+    }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -135,6 +142,16 @@ const RegisterScreen = ({ navigation }: any) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openLink = (url: string, label: string) => {
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        showAlert({ title: 'Erro', message: `Não foi possível abrir ${label}.` });
+      }
+    });
   };
 
   const handleGoogleRegister = async () => {
@@ -301,6 +318,30 @@ const RegisterScreen = ({ navigation }: any) => {
                 />
               </View>
               {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+
+              <TouchableOpacity
+                style={styles.termsRow}
+                onPress={() => { setAcceptedTerms(!acceptedTerms); clearError('acceptedTerms'); }}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={acceptedTerms ? 'checkbox' : 'square-outline'}
+                  size={ms(20)}
+                  color={acceptedTerms ? colors.primaryDark : colors.gray}
+                  style={styles.termsCheckbox}
+                />
+                <Text style={[styles.termsText, { fontSize: ms(13) }]}>
+                  Li e aceito os{' '}
+                  <Text style={styles.termsLink} onPress={() => openLink(APP_LINKS.terms, 'Termos de Uso')}>
+                    Termos de Uso
+                  </Text>
+                  {' '}e a{' '}
+                  <Text style={styles.termsLink} onPress={() => openLink(APP_LINKS.privacy, 'Política de Privacidade')}>
+                    Política de Privacidade
+                  </Text>
+                </Text>
+              </TouchableOpacity>
+              {errors.acceptedTerms && <Text style={styles.errorText}>{errors.acceptedTerms}</Text>}
 
               <Button
                 title={loading ? 'Criando conta...' : 'Criar Conta'}
