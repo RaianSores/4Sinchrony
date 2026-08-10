@@ -1,7 +1,10 @@
 import React from 'react';
 import { Image } from 'react-native';
 
-const iconeImg = require('../../assets/icons/4SINCHRONYICONE.jpg');
+// PNG, não JPG: o JPG original (mesmo pixel a pixel, reconvertido e confirmado idêntico)
+// não renderizava no iOS — decodificava em qualquer decodificador padrão (Android, Jimp),
+// mas ficava em branco no UIImage/ImageIO do iOS. PNG elimina essa ambiguidade de formato.
+const iconeImg = require('../../assets/icons/4SINCHRONYICONE.png');
 
 interface Props {
   size: number;
