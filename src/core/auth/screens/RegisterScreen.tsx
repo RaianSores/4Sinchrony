@@ -25,6 +25,7 @@ import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcon
 import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './RegisterScreen.styles';
 import { formatCPF, validateCPF, cleanCPF } from '../../../shared/utils/validateCPF';
+import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
 
 interface RegisterErrors {
   name?: string;
@@ -47,6 +48,7 @@ const RegisterScreen = ({ navigation }: any) => {
     scale: SCREEN_WIDTH / SCALE_BASE,
   }), [SCREEN_WIDTH, SCREEN_HEIGHT]);
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const keyboardVisible = useKeyboardVisible();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -172,11 +174,15 @@ const RegisterScreen = ({ navigation }: any) => {
             >
               <Ionicons name="chevron-back" size={ms(22)} color={colors.text} />
             </TouchableOpacity>
-            <View style={[styles.iconCircle, { width: ms(isSmallScreen ? 52 : 64), height: ms(isSmallScreen ? 52 : 64), borderRadius: ms(isSmallScreen ? 22 : 28) }]}>
-              <FourSinchronyIcone size={ms(isSmallScreen ? 120 : 150)} />
-            </View>
-            <Text style={[styles.title, { fontSize: ms(isSmallScreen ? 22 : 26) }]}>Criar Conta</Text>
-            <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 13 : 14) }]}>Comece sua jornada de bem-estar</Text>
+            {!keyboardVisible && (
+              <>
+                <View style={[styles.iconCircle, { width: ms(isSmallScreen ? 52 : 64), height: ms(isSmallScreen ? 52 : 64), borderRadius: ms(isSmallScreen ? 22 : 28) }]}>
+                  <FourSinchronyIcone size={ms(isSmallScreen ? 120 : 150)} />
+                </View>
+                <Text style={[styles.title, { fontSize: ms(isSmallScreen ? 22 : 26) }]}>Criar Conta</Text>
+                <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 13 : 14) }]}>Comece sua jornada de bem-estar</Text>
+              </>
+            )}
           </View>
 
           <View style={styles.bottomSheet}>

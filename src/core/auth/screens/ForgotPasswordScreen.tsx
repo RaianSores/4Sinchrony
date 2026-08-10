@@ -17,12 +17,14 @@ import { useTheme } from '../../../shared/theme/useTheme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { mkStyles } from './ForgotPasswordScreen.styles';
 import { captureError } from '../../../lib/sentry';
+import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
 
 const SCALE_BASE = 375;
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
   const { colors } = useTheme();
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const keyboardVisible = useKeyboardVisible();
 
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const scale = useMemo(() => SCREEN_WIDTH / SCALE_BASE, [SCREEN_WIDTH]);
@@ -73,10 +75,14 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
           >
             <Ionicons name="chevron-back" size={ms(24)} color={colors.text} />
           </TouchableOpacity>
-          <View style={[styles.iconCircle, { width: ms(56), height: ms(56), borderRadius: ms(28) }]}>
-            <Ionicons name="lock-open-outline" size={ms(26)} color={colors.primaryDark} />
-          </View>
-          <Text style={[styles.title, { fontSize: ms(26) }]}>Recuperar Senha</Text>
+          {!keyboardVisible && (
+            <>
+              <View style={[styles.iconCircle, { width: ms(56), height: ms(56), borderRadius: ms(28) }]}>
+                <Ionicons name="lock-open-outline" size={ms(26)} color={colors.primaryDark} />
+              </View>
+              <Text style={[styles.title, { fontSize: ms(26) }]}>Recuperar Senha</Text>
+            </>
+          )}
         </View>
 
         <View style={styles.bottomSheet}>

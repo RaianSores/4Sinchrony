@@ -23,6 +23,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './LoginScreen.styles';
 import { FourSinchronyImage } from '../../../shared/components/FourSinchronyImage';
+import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
 
 const SCALE_BASE = 375;
 const SMALL_SCREEN = 568;
@@ -36,6 +37,7 @@ const LoginScreen = ({ navigation }: any) => {
     scale: SCREEN_WIDTH / SCALE_BASE,
   }), [SCREEN_WIDTH, SCREEN_HEIGHT]);
   const styles = useMemo(() => mkStyles(colors), [colors]);
+  const keyboardVisible = useKeyboardVisible();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -114,12 +116,14 @@ const LoginScreen = ({ navigation }: any) => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-          <View style={[styles.topSection, { paddingTop: isSmallScreen ? Math.min(SCREEN_HEIGHT * 0.05, 60) : Math.min(SCREEN_HEIGHT * 0.08, 100) }]}>
-            <View style={[styles.img, { width: ms(isSmallScreen ? 110 : 140), height: ms(isSmallScreen ? 110 : 140), borderRadius: ms(isSmallScreen ? 55 : 70) }]}>
-              <FourSinchronyImage size={ms(isSmallScreen ? 220 : 280)} />
+          {!keyboardVisible && (
+            <View style={[styles.topSection, { paddingTop: isSmallScreen ? Math.min(SCREEN_HEIGHT * 0.05, 60) : Math.min(SCREEN_HEIGHT * 0.08, 100) }]}>
+              <View style={[styles.img, { width: ms(isSmallScreen ? 110 : 140), height: ms(isSmallScreen ? 110 : 140), borderRadius: ms(isSmallScreen ? 55 : 70) }]}>
+                <FourSinchronyImage size={ms(isSmallScreen ? 220 : 280)} />
+              </View>
+              <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Transforme seu corpo, eleve sua mente</Text>
             </View>
-            <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Transforme seu corpo, eleve sua mente</Text>
-          </View>
+          )}
 
           <View style={styles.bottomSheet}>
             <View style={styles.handleBar} />
