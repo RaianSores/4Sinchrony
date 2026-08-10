@@ -12,6 +12,11 @@ linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
+  # AppCheckCore (trazido pelo Google Sign-In) é um pod Swift que depende de
+  # GoogleUtilities/RecaptchaInterop, que não definem module map por padrão —
+  # sem isso, o pod install falha com static frameworks. Ver aviso do próprio
+  # CocoaPods ao rodar `pod install`.
+  use_modular_headers!
 end
 
 target 'SinchronyApp' do
