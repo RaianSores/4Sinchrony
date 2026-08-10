@@ -22,6 +22,14 @@ end
 target 'SinchronyApp' do
   config = use_native_modules!
 
+  # use_modular_headers! (acima) não bastou pra esses dois — CocoaPods continuou
+  # recusando AppCheckCore (Swift, trazido pelo Google Sign-In) como framework
+  # estático. Declarando module map explicitamente nos dois pods que faltam,
+  # como a própria mensagem de erro sugere ("specify :modular_headers => true
+  # for particular dependencies").
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
