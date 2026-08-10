@@ -7,7 +7,7 @@ import {
   Platform,
   Animated,
   TouchableOpacity,
-  TouchableWithoutFeedback,
+  Pressable,
   Keyboard,
   useWindowDimensions,
 } from 'react-native';
@@ -165,7 +165,7 @@ const RegisterScreen = ({ navigation }: any) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : undefined}
       style={styles.container}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
           <View style={[styles.topSection, { paddingTop: isSmallScreen ? Math.min(SCREEN_HEIGHT * 0.04, 50) : Math.min(SCREEN_HEIGHT * 0.06, 80) }]}>
             <TouchableOpacity
@@ -336,7 +336,7 @@ const RegisterScreen = ({ navigation }: any) => {
             </KeyboardAwareScrollView>
           </View>
         </Animated.View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </KeyboardAvoidingView>
   );
 };

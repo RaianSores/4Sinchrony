@@ -7,7 +7,7 @@ import {
   Platform,
   Animated,
   TouchableOpacity,
-  TouchableWithoutFeedback,
+  Pressable,
   Keyboard,
   useWindowDimensions,
 } from 'react-native';
@@ -22,7 +22,7 @@ import { googleSignInService } from '../services/googleSignInService';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { captureError } from '../../../lib/sentry';
 import { mkStyles } from './LoginScreen.styles';
-import { FourSinchronyImage } from '../../../shared/components/FourSinchronyImage';
+import { FourSinchronyIcone } from '../../../shared/components/FourSinchronyIcone';
 import { useKeyboardVisible } from '../../../shared/hooks/useKeyboardVisible';
 
 const SCALE_BASE = 375;
@@ -114,12 +114,12 @@ const LoginScreen = ({ navigation }: any) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : undefined}
       style={styles.container}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
           {!keyboardVisible && (
             <View style={[styles.topSection, { paddingTop: isSmallScreen ? Math.min(SCREEN_HEIGHT * 0.05, 60) : Math.min(SCREEN_HEIGHT * 0.08, 100) }]}>
               <View style={[styles.img, { width: ms(isSmallScreen ? 110 : 140), height: ms(isSmallScreen ? 110 : 140), borderRadius: ms(isSmallScreen ? 55 : 70) }]}>
-                <FourSinchronyImage size={ms(isSmallScreen ? 220 : 280)} />
+                <FourSinchronyIcone size={ms(isSmallScreen ? 110 : 140)} />
               </View>
               <Text style={[styles.tagline, { fontSize: ms(isSmallScreen ? 14 : 15) }]}>Transforme seu corpo, eleve sua mente</Text>
             </View>
@@ -207,7 +207,7 @@ const LoginScreen = ({ navigation }: any) => {
             </View>
           </View>
         </Animated.View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </KeyboardAvoidingView>
   );
 };
