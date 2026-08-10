@@ -66,8 +66,11 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
     {
       title: 'Legal',
       items: [
-        { icon: 'document-text-outline', label: 'Termos de Serviço', url: APP_LINKS.terms },
+        { icon: 'document-text-outline', label: 'Termos de Uso', url: APP_LINKS.terms },
         { icon: 'shield-checkmark-outline', label: 'Política de Privacidade', url: APP_LINKS.privacy },
+        // Item próprio, separado de "Termos de Uso" (não é uma seção dentro do
+        // mesmo link) — pedido do cliente pra dar ênfase às normas de conduta.
+        { icon: 'clipboard-outline', label: 'Regimento Interno', url: APP_LINKS.regimentoInterno },
       ],
     },
   ];
