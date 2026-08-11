@@ -62,6 +62,7 @@ const RegisterScreen = ({ navigation }: any) => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<RegisterErrors>({});
   const { showAlert } = useAppAlert();
@@ -311,11 +312,14 @@ const RegisterScreen = ({ navigation }: any) => {
                   placeholder="Confirmar Senha"
                   value={confirmPassword}
                   onChangeText={text => { setConfirmPassword(text); clearError('confirmPassword'); }}
-                  secureTextEntry
+                  secureTextEntry={!showConfirmPassword}
                   placeholderTextColor={colors.grayLight}
                   returnKeyType="done"
                   onSubmitEditing={handleRegister}
                 />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
+                  <Ionicons name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'} size={ms(20)} color={colors.gray} />
+                </TouchableOpacity>
               </View>
               {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
 
