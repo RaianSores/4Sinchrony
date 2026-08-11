@@ -37,6 +37,15 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- https/http/mailto não precisam disso de verdade (a Apple só restringe esquemas
+	     customizados de terceiros via canOpenURL) — declarado explícito por garantia, espelhando
+	     o <queries> equivalente do AndroidManifest.xml. -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>mailto</string>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
