@@ -13,7 +13,9 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>4sinchrony</string>
+				<!-- Era "4sinchrony" — rejeitado pela validação da App Store (erro 90158):
+				     esquemas de URL precisam começar com letra (RFC1738), não dígito. -->
+				<string>sinchronyapp</string>
 			</array>
 			<key>CFBundleURLName</key>
 			<string>com.sinchrony.app</string>
@@ -72,6 +74,11 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<!-- Sem isso, a validação da App Store rejeita (erro 90474): um app travado em retrato no
+	     iPad precisa declarar as 4 orientações OU dizer explicitamente que não suporta
+	     Split View/Slide Over (multitarefa) — que é o caso aqui. -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>

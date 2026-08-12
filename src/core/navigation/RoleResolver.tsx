@@ -28,7 +28,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['4sinchrony://'],
+  prefixes: ['sinchronyapp://'],
   config: {
     screens: {
       ResetPassword: 'auth/reset-password',

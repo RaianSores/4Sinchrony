@@ -49,7 +49,9 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="4sinchrony" />
+            <!-- Era "4sinchrony" — esquema de URL não pode começar com dígito (RFC1738),
+                 rejeitado na validação da App Store; trocado por consistência entre plataformas. -->
+            <data android:scheme="sinchronyapp" />
         </intent-filter>
       </activity>
     </application>
