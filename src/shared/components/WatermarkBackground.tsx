@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
-const watermarkImg = require('../../assets/images/4SINCHRONYMARCADAGUA.png');
+const watermarkImg = require('../../../ios/assets/images/4SINCHRONYMARCADAGUA.png');
 
 export const WatermarkBackground: React.FC = () => (
   <View style={styles.container} pointerEvents="none">

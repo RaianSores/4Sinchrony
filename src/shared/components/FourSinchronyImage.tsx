@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image } from 'react-native';
 
-const img = require('../../assets/images/4SINCHRONYMARCADAGUA.png');
+const img = require('../../../ios/assets/images/4SINCHRONYMARCADAGUA.png');
 
 interface Props {
   size: number;
