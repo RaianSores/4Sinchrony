@@ -48,6 +48,10 @@
 		<string>http</string>
 		<string>mailto</string>
 	</array>
+	<!-- App so usa HTTPS/TLS padrao do sistema (via axios), sem criptografia propria —
+	     evita ter que responder a pergunta de exportacao de criptografia a cada envio. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->

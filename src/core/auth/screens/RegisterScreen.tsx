@@ -336,8 +336,8 @@ const RegisterScreen = ({ navigation }: any) => {
                 />
                 <Text style={[styles.termsText, { fontSize: ms(13) }]}>
                   Li e aceito os{' '}
-                  <Text style={styles.termsLink} onPress={() => openLink(APP_LINKS.terms, 'Termos de Uso')}>
-                    Termos de Uso
+                  <Text style={styles.termsLink} onPress={() => openLink(APP_LINKS.regimentoInterno, 'Termos de Uso')}>
+                    Termos do Aluno
                   </Text>
                   {' '}e a{' '}
                   <Text style={styles.termsLink} onPress={() => openLink(APP_LINKS.privacy, 'Política de Privacidade')}>
