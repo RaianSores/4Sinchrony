@@ -4,7 +4,9 @@ buildscript {
         minSdkVersion = 24
         compileSdkVersion = 36
         targetSdkVersion = 36
-        ndkVersion = "27.1.12297006"
+        // r28+ compila com alinhamento de 16KB por padrao — resolve o alerta do
+        // Play Console sobre libsqliteJni.so (nativo do async-storage) sem 16KB alignment.
+        ndkVersion = "28.2.13676358"
         kotlinVersion = "2.1.20"
     }
     repositories {
