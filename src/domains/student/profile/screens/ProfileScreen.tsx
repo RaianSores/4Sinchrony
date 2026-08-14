@@ -46,6 +46,7 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
     { title: 'Meus Cartões', icon: 'card-outline', screen: 'MyCards' },
     { title: 'Planos', icon: 'pricetags-outline', screen: 'Packages' },
     { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
+    { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ].filter(item => !(isDependent && dependentBlockedScreens.includes(item.screen)));
 
   return (

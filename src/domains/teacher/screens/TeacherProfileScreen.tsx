@@ -53,6 +53,7 @@ const TeacherProfileScreen = ({ navigation }: any) => {
   const menuItems = [
     { title: 'Editar Perfil', icon: 'person-outline', screen: 'EditProfile' },
     { title: 'Alterar Senha', icon: 'lock-closed-outline', screen: 'ChangePassword' },
+    { title: 'Configurações', icon: 'settings-outline', screen: 'Settings' },
   ];
 
   return (
