@@ -73,6 +73,12 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
         { icon: 'clipboard-outline', label: 'Regimento Interno', url: APP_LINKS.regimentoInterno },
       ],
     },
+    {
+      title: 'Conta',
+      items: [
+        { icon: 'trash-outline', label: 'Excluir Conta', url: APP_LINKS.deleteAccount },
+      ],
+    },
   ];
 
   return (
