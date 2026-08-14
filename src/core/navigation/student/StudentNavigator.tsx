@@ -20,7 +20,6 @@ import MyCardsScreen from '../../../domains/student/cards/screens/MyCardsScreen'
 import AddCardScreen from '../../../domains/student/cards/screens/AddCardScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
 import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
-import NotificationSettingsScreen from '../../../domains/student/notifications/screens/NotificationSettingsScreen';
 import PackagesScreen from '../../../domains/student/purchases/screens/PackagesScreen';
 import CartScreen from '../../../domains/student/purchases/screens/CartScreen';
 import PaymentScreen from '../../../domains/student/purchases/screens/PaymentScreen';
@@ -40,7 +39,7 @@ const TAB_VISIBLE_SCREENS = new Set([
   'Home', 'Agenda', 'Bookings', 'Profile',
   'ClassDetail', 'BookingHistory',
   'EditProfile', 'MyPurchases', 'ClassHistory', 'MyCards', 'AddCard',
-  'Settings', 'ChangePassword', 'Notifications',
+  'Settings', 'ChangePassword',
   'Packages', 'Cart', 'Payment', 'PaymentConfirmation',
   'MyPackage', 'MyDependents',
 ]);
@@ -80,7 +79,6 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
     <ProfileStack.Screen name="Packages" component={PackagesScreen as any} />
     <ProfileStack.Screen name="Cart" component={CartScreen as any} />
-    <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen as any} />
     <ProfileStack.Screen name="Payment" component={PaymentScreen as any} />
     <ProfileStack.Screen name="PaymentConfirmation" component={PaymentConfirmationScreen as any} />
   </ProfileStack.Navigator>

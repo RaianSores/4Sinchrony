@@ -29,7 +29,6 @@ export type MyCardsScreenProps = { navigation: any };
 export type AddCardScreenProps = { navigation: any };
 export type SettingsScreenProps = { navigation: any };
 export type ChangePasswordScreenProps = { navigation: any };
-export type NotificationSettingsScreenProps = { navigation: any };
 export type PackagesScreenProps = { navigation: any };
 export type CartScreenProps = { navigation: any };
 export type PaymentScreenProps = WithNavigation<StudentProfileStackParamList, 'Payment'>;

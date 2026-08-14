@@ -34,7 +34,6 @@ import AdminProfileScreen from '../../../domains/admin/screens/AdminProfileScree
 import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
 import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
-import NotificationSettingsScreen from '../../../domains/student/notifications/screens/NotificationSettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
@@ -46,7 +45,7 @@ const TAB_VISIBLE_SCREENS = new Set([
   'Management', 'StudentList', 'TeacherList', 'UnitList', 'StudioList', 'ClassTypeList', 'ClassList', 'PackageList',
   'PackageTypeList', 'BenefitList',
   'AdminBookingList', 'AdminCheckin', 'AdminReports',
-  'AdminProfile', 'EditProfile', 'AdminSettings', 'Settings', 'ChangePassword', 'Notifications',
+  'AdminProfile', 'EditProfile', 'AdminSettings', 'Settings', 'ChangePassword',
 ]);
 
 const DashboardStackScreen = () => (
@@ -93,7 +92,6 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="AdminSettings" component={AdminSettingsScreen as any} />
     <ProfileStack.Screen name="Settings" component={SettingsScreen as any} />
     <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
-    <ProfileStack.Screen name="Notifications" component={NotificationSettingsScreen as any} />
   </ProfileStack.Navigator>
 );
 

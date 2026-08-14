@@ -45,12 +45,6 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
 
   const sections = [
     {
-      title: 'Geral',
-      items: [
-        { icon: 'notifications-outline', label: 'Notificações', screen: 'Notifications' },
-      ],
-    },
-    {
       title: 'Segurança',
       items: [
         { icon: 'lock-closed-outline', label: 'Alterar Senha', screen: 'ChangePassword' },

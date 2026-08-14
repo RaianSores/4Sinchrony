@@ -12,8 +12,6 @@ export type {
   CardBrand,
   CardInfo,
   AddCardData,
-  NotificationPreference,
-  NotificationSettings,
 } from '../../core/types';
 
 export type { Studio } from '../../core/types/studio';
