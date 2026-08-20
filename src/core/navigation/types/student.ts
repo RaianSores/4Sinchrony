@@ -23,6 +23,7 @@ export type StudentProfileStackParamList = {
   AddCard: undefined;
   Settings: undefined;
   ChangePassword: undefined;
+  DeleteAccount: undefined;
   Packages: undefined;
   Cart: undefined;
   Payment: { amount: number };

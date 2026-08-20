@@ -13,8 +13,4 @@ export const APP_LINKS = {
   terms: 'https://adm.4sinchrony.com.br/termos',
   privacy: 'https://adm.4sinchrony.com.br/privacidade',
   regimentoInterno: 'https://adm.4sinchrony.com.br/regimento-interno',
-  // Guideline 5.1.1(v) da Apple exige que a exclusao de conta seja iniciavel de
-  // dentro do app, nao so por e-mail/web isolado — este item de menu leva direto
-  // ao passo a passo em studio-wellness-erp/src/app/excluir-conta.
-  deleteAccount: 'https://adm.4sinchrony.com.br/excluir-conta',
 };

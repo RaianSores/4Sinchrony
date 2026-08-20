@@ -16,6 +16,7 @@ import TeacherProfileScreen from '../../../domains/teacher/screens/TeacherProfil
 import EditProfileScreen from '../../../domains/student/profile/screens/EditProfileScreen';
 import SettingsScreen from '../../../domains/student/profile/screens/SettingsScreen';
 import ChangePasswordScreen from '../../../domains/student/profile/screens/ChangePasswordScreen';
+import DeleteAccountScreen from '../../../domains/student/profile/screens/DeleteAccountScreen';
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createNativeStackNavigator();
@@ -26,7 +27,7 @@ const ProfileStack = createNativeStackNavigator();
 const TAB_VISIBLE_SCREENS = new Set([
   'Dashboard', 'Metrics',
   'MyClasses', 'ClassSession', 'StudentList',
-  'TeacherProfile', 'EditProfile', 'Settings', 'ChangePassword',
+  'TeacherProfile', 'EditProfile', 'Settings', 'ChangePassword', 'DeleteAccount',
 ]);
 
 const DashboardStackScreen = () => (
@@ -52,6 +53,7 @@ const ProfileStackScreen = () => (
     <ProfileStack.Screen name="EditProfile" component={EditProfileScreen as any} />
     <ProfileStack.Screen name="Settings" component={SettingsScreen as any} />
     <ProfileStack.Screen name="ChangePassword" component={ChangePasswordScreen as any} />
+    <ProfileStack.Screen name="DeleteAccount" component={DeleteAccountScreen as any} />
   </ProfileStack.Navigator>
 );
 

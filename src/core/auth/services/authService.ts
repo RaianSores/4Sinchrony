@@ -95,6 +95,14 @@ export const authService = {
     return res.data;
   },
 
+  // Endpoint ainda nao existe no backend (demanda enviada 2026-08-20, ver
+  // DEMANDA_EXCLUSAO_CONTA_REAL_BACKEND.md) — contrato definido aqui pra ficar pronto
+  // assim que `DELETE /auth/me` for implementado.
+  async deleteAccount(currentPassword: string): Promise<{ success: boolean }> {
+    const res = await api.delete('/auth/me', { data: { currentPassword } });
+    return res.data;
+  },
+
   async getMe(): Promise<AuthResponse['user']> {
     const res = await api.get('/auth/me');
     return res.data;

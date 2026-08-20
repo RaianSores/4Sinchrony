@@ -70,7 +70,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
     {
       title: 'Conta',
       items: [
-        { icon: 'trash-outline', label: 'Excluir Conta', url: APP_LINKS.deleteAccount },
+        { icon: 'trash-outline', label: 'Excluir Conta', screen: 'DeleteAccount' },
       ],
     },
   ];
